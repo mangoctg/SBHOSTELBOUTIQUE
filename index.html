@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0E8C88">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SB Recepción">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>San Buenaventura Hostel Boutique: sistema de recepción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F8;--panel:#FFFFFF;--ink:#1C2B30;--muted:#62757B;--line:#DCE6E8;--soft:#EDF4F5;
+  --accent:#0E8C88;--accent-ink:#FFFFFF;--accent-soft:#DDF2F0;
+  --ok:#1F9D5B;--warn:#D97706;--danger:#D93636;--dot:#E5383B;
+  --s-conf:#2F6FE0;--s-in:#1F9D5B;--s-out:#9AA5A9;--s-canc:#D64545;--s-ns:#8E5BD6;
+  --r-clean:#1F9D5B;--r-dirty:#E8702A;--r-block:#8A949A;
+  color-scheme:light;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+#root{height:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.01em}
+h2{font-size:15px;margin:0 0 10px;font-weight:700}
+p{margin:0 0 8px}
+small,.muted{color:var(--muted)}
+
+.app{display:grid;grid-template-columns:228px minmax(0,1fr);height:100%}
+.side{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 12px;overflow:auto}
+.brand{padding:4px 12px 18px;color:var(--accent);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.1}
+.brand span{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:4px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;color:#3D5157}
+.nav button:hover{background:var(--soft)}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.nav kbd{font:600 11px Manrope,sans-serif;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.nav .sep{height:1px;background:var(--line);margin:10px 8px}
+.side .hotel{margin-top:auto;padding:14px 12px 0;font-size:12px;color:var(--muted)}
+.main{display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden}
+.top{display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bizdate{display:flex;flex-direction:column;line-height:1.2}
+.bizdate small{font-size:11px}
+.bizdate b{font-weight:700}
+.top .who{font-size:13px;color:var(--muted)}
+.grow{flex:1}
+.content{flex:1;overflow:auto;padding:20px}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+
+.btn{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--soft);filter:none}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+label.check{flex-direction:row;align-items:flex-start;gap:8px;font-weight:500;color:var(--ink);font-size:13px}
+input,select,textarea{background:#FAFCFC;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-size:14px;width:100%;min-width:0}
+input[type=checkbox]{width:auto;margin-top:3px}
+textarea{resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.span2{grid-column:span 2}.span3{grid-column:1/-1}
+.form-err{color:var(--danger);font-weight:600;font-size:13px;min-height:1em;margin:10px 0 0}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.kpi small{font-size:12px}
+.scroll{overflow-x:auto;max-width:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.click{cursor:pointer}
+.tbl tr.click:hover td{background:var(--soft)}
+.tbl .num{text-align:right;white-space:nowrap}
+.empty{color:var(--muted);padding:14px 4px;font-size:13px}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;vertical-align:middle}
+.s-confirmada{background:var(--s-conf)}.s-hospedado{background:var(--s-in)}.s-salida{background:var(--s-out)}.s-cancelada{background:var(--s-canc)}.s-noshow{background:var(--s-ns)}
+.r-limpia{background:var(--r-clean)}.r-sucia{background:var(--r-dirty)}.r-bloqueada{background:var(--r-block)}
+.b-warn{background:#FEF3C7;color:#92400E}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.reddot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dot);vertical-align:middle;margin-left:6px}
+.warnflag{display:inline-block;font-size:11px;font-weight:700;color:#92400E;background:#FEF3C7;border:1px dashed var(--warn);border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+.list-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.list-row:last-child{border-bottom:0}
+.list-row .who{flex:1;min-width:0}
+.list-row .who b{display:block}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:-6px 0 12px;align-items:center}
+
+.rack-wrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;max-height:calc(100% - 100px)}
+.rack{border-collapse:separate;border-spacing:0;min-width:100%}
+.rack th,.rack td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:48px;padding:0}
+.rack thead th{min-width:74px;font-size:11px;color:var(--muted);font-weight:600;padding:6px 4px;text-align:center;background:var(--panel);position:sticky;top:0;z-index:3}
+.rack thead th b{display:block;font-size:15px;color:var(--ink)}
+.rack .rk{position:sticky;left:0;background:var(--panel);z-index:2;text-align:left;padding:0 12px;min-width:118px;font-weight:700;white-space:nowrap}
+.rack thead .rk{z-index:4}
+.rack .rk small{display:block;font-weight:500;font-size:11px}
+.rack td.free{cursor:cell}
+.rack td.free:hover{background:var(--soft)}
+.rack td.blocked{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(138,148,154,.18) 6px 8px)}
+.rack .today{background:rgba(14,140,136,.07)}
+.rack thead th.today{color:var(--accent)}
+.rack thead th.today b{color:var(--accent)}
+.bar{position:relative;display:block;width:calc(100% - 6px);margin:0 3px;height:38px;border:0;border-radius:7px;color:#fff;font-weight:700;font-size:12px;text-align:left;padding:0 18px 0 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.15}
+.bar small{display:block;color:rgba(255,255,255,.9);font-weight:500;font-size:10.5px;overflow:hidden;text-overflow:ellipsis}
+.bar.s-confirmada{background:var(--s-conf)}.bar.s-hospedado{background:var(--s-in)}.bar.s-salida{background:var(--s-out)}
+.bar.noreg{outline:2px dashed var(--warn);outline-offset:-2px;background-image:repeating-linear-gradient(135deg,transparent 0 8px,rgba(255,255,255,.14) 8px 12px)}
+.bar .due{position:absolute;top:5px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--dot);box-shadow:0 0 0 2px #fff}
+
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.room{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;border-top:5px solid var(--r-clean)}
+.room.sucia{border-top-color:var(--r-dirty)}.room.bloqueada{border-top-color:var(--r-block)}
+.room .n{font-size:24px;font-weight:800}
+.room .btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.pos{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:16px}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.prod{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:left;cursor:pointer}
+.prod:hover{border-color:var(--accent)}
+.prod b{display:block;margin-bottom:4px}
+
+.chk{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.chk:last-child{border-bottom:0}
+.chk .ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:13px}
+.chk .ic.ok{background:var(--ok)}.chk .ic.bad{background:var(--danger)}.chk .ic.info{background:var(--warn)}
+.chk .body{flex:1;min-width:0}
+.chk .body>b{display:block;margin-bottom:4px}
+
+.backdrop{position:fixed;inset:0;background:rgba(28,43,48,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:var(--panel);border-radius:14px;width:100%;max-width:680px;max-height:92%;overflow:auto;padding:20px;box-shadow:0 20px 50px rgba(28,43,48,.2)}
+.modal.wide{max-width:860px}
+.modal-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.modal-head h1{flex:1}
+.x{background:none;border:0;font-size:24px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px 16px;margin-bottom:14px}
+.facts div small{display:block;font-size:11px}
+.balance{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--soft);border-radius:10px;padding:10px 14px;margin:10px 0;font-weight:700}
+.balance b{font-size:18px;white-space:nowrap}
+.note{background:#FFF7E6;border-left:4px solid var(--warn);padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.note.red{background:#FDECEC;border-left-color:var(--danger)}
+.toast{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-weight:600;z-index:60;max-width:min(440px,calc(100% - 32px));box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.toast.err{background:var(--danger)}
+
+.login{min-height:100%;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,#E4F4F2,#F3F7F8 60%)}
+.login-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(14,140,136,.08)}
+.login .brand{padding:0 0 18px;font-size:30px}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;padding:8px;border-radius:7px;cursor:pointer;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.hint{font-size:12px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 12px;margin-top:16px}
+.case{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.case:last-child{border-bottom:0}
+.case b{display:block;margin-bottom:2px}
+.case.done b{text-decoration:line-through;color:var(--muted)}
+.bars .row{display:grid;grid-template-columns:86px 1fr 44px;gap:10px;align-items:center;font-size:12px;margin-bottom:6px}
+.bars .track{background:var(--soft);border-radius:4px;height:14px;overflow:hidden}
+.bars .fill{background:var(--accent);height:100%}
+kbd.k{font:700 12px Manrope,sans-serif;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;background:var(--bg)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto auto minmax(0,1fr)}
+  .main{display:contents}
+  .side{flex-direction:row;align-items:center;padding:6px 8px;overflow-x:auto;gap:6px;border-right:0;border-bottom:1px solid var(--line);order:2}
+  .top{order:1;padding:8px 12px;gap:6px}
+  .content{order:3;padding:12px;min-height:0}
+  .brand,.side .hotel,.nav kbd,.nav .sep{display:none}
+  .nav{flex-direction:row;gap:2px}
+  .nav button{white-space:nowrap;padding:7px 10px;font-size:13px}
+  .top .who,.hide-m{display:none}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .span2{grid-column:auto}
+  .pos{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi b{font-size:20px}
+  h1{font-size:18px}
+  .rack thead th{min-width:60px}
+  .rack .rk{min-width:76px;padding:0 8px}
+  .rack-wrap{max-height:none}
+  .backdrop{padding:0;align-items:flex-end}
+  .modal,.modal.wide{max-height:94%;border-radius:14px 14px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  .actions .btn{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .18s ease-out}@keyframes pop{from{transform:translateY(8px);opacity:0}}}
+@media print{.side,.top,.toolbar,.actions,.x{display:none!important}.backdrop{position:static;background:none}.modal{box-shadow:none;max-height:none}}
+
+.modal .tabs{margin-bottom:14px}
+label.case{flex-direction:row;align-items:flex-start;font-size:14px;font-weight:400;color:var(--ink);cursor:pointer}
+label.case>span{display:block;min-width:0}
+label.case>span>span{display:block}
+.case .think{display:block;margin-top:6px;font-style:italic;color:#0B6E6A}
+.case .guide{display:block;margin-top:6px;font-size:12px;background:#FFF7E6;border-left:3px solid var(--warn);padding:6px 10px;border-radius:6px;color:#7A4A0A}
+.login .brand{color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="modal-root"></div>
+<script>
+(function(){
+'use strict';
+/* =====================================================================
+   CONFIGURACIÓN DE FIREBASE
+   Pega aquí los datos de tu proyecto (Consola de Firebase > Configuración
+   del proyecto > Tus apps > Configuración del SDK). Mientras apiKey esté
+   vacío, el sistema funciona en MODO DEMOSTRACIÓN (solo en este navegador).
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+};
+const ADMIN_USER='admin', DOMAIN='sbhb.app';
+const HOTEL_NAME='San Buenaventura Hostel Boutique';
+
+/* ---------- Utilidades ---------- */
+function sha256(ascii){function r(v,a){return(v>>>a)|(v<<(32-a))}var mp=Math.pow,mw=mp(2,32),i,j,res='',words=[],abl=ascii.length*8,hash=[],k=[],pc=0,ic={};for(var c=2;pc<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;hash[pc]=(mp(c,.5)*mw)|0;k[pc++]=(mp(c,1/3)*mw)|0}}hash=hash.slice(0,8);ascii+='\x80';while(ascii.length%64-56)ascii+='\x00';for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);if(j>>8)return '';words[i>>2]|=j<<((3-i)%4)*8}words[words.length]=((abl/mw)|0);words[words.length]=(abl);for(j=0;j<words.length;){var w=words.slice(j,j+=16),oh=hash;hash=hash.slice(0,8);for(i=0;i<64;i++){var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4],t1=hash[7]+(r(e,6)^r(e,11)^r(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(r(w15,7)^r(w15,18)^(w15>>>3))+w[i-7]+(r(w2,17)^r(w2,19)^(w2>>>10)))|0),t2=(r(a,2)^r(a,13)^r(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0}for(i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0}for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16)}}return res}
+const H=(user,pass)=>sha256(unescape(encodeURIComponent('muelle|'+user+'|'+pass)));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+const toUTC=s=>{const p=s.split('-').map(Number);return Date.UTC(p[0],p[1]-1,p[2]);};
+const addDays=(s,n)=>{const t=new Date(toUTC(s)+n*864e5);return t.getUTCFullYear()+'-'+pad(t.getUTCMonth()+1)+'-'+pad(t.getUTCDate());};
+const diff=(a,b)=>Math.round((toUTC(b)-toUTC(a))/864e5);
+const fmtD=s=>{if(!s)return '';const p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];};
+const DOW=['dom','lun','mar','mié','jue','vie','sáb'];
+const MON=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const dow=s=>DOW[new Date(toUTC(s)).getUTCDay()];
+const longD=s=>{const d=new Date(toUTC(s));return ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getUTCDay()]+' '+d.getUTCDate()+' de '+['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getUTCMonth()];};
+const money=n=>(n<0?'−':'')+new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Math.abs(Math.round(n||0)));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-3);
+const hhmm=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
+const ri=n=>Math.floor(Math.random()*n);
+const pick=a=>a[ri(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const plural=(n,s)=>n+' '+s+(n===1?'':'s');
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+const ST={confirmada:'Confirmada',hospedado:'En casa',salida:'Check-out',cancelada:'Cancelada',noshow:'No show'};
+const RST={limpia:'Limpia',sucia:'Sucia',bloqueada:'Bloqueada'};
+const ROLES={admin:'Administrador',auditor:'Auditor nocturno',recepcion:'Recepción'};
+const CH=['Directa','Walk-in','Booking.com','Expedia','Airbnb'];
+const METHODS=['Efectivo','Tarjeta débito','Tarjeta crédito','Transferencia','Nequi / Daviplata'];
+const DOCS=['CC','CE','Pasaporte','TI','PEP / PPT'];
+const MOTIVOS=['Vacaciones y recreo','Negocios','Eventos o congresos','Visita a familiares','Salud','Otro'];
+const FN=['Laura','Andrea','Valentina','Camila','Sofía','Mariana','Isabella','Daniela','Paula','Juliana','Diego','Santiago','Tomás','Sebastián','Felipe','Camilo','Nicolás','Juan Pablo','Luisa','Alejandro','Natalia','Ricardo','Carolina','Esteban'];
+const LN=['Martínez','Pacheco','Ríos','Herrera','Castro','Salgado','Ortega','Gómez','López','Mejía','Arango','Vargas','Restrepo','Cárdenas','Zapata','Pineda','Barrios','Márquez','Villalba','Rendón','Acosta','Montoya','Quintero','Buelvas'];
+const FOREIGN=[['James','Walker','Estados Unidos','Miami','Pasaporte'],['Lucas','Moreau','Francia','Lyon','Pasaporte'],['Emma','Schmidt','Alemania','Berlín','Pasaporte'],['Olivia','Clarke','Reino Unido','Londres','Pasaporte'],['Martín','Fernández','Argentina','Rosario','Pasaporte'],['Giulia','Rossi','Italia','Milán','Pasaporte'],['Ethan','Brown','Canadá','Toronto','Pasaporte'],['Valeria','Soto','Chile','Santiago','Pasaporte'],['Daniel','Pérez','Venezuela','Caracas','PEP / PPT'],['Noah','Jansen','Países Bajos','Ámsterdam','Pasaporte'],['Ana','Sousa','Brasil','São Paulo','Pasaporte'],['Diego','Ramírez','México','Guadalajara','Pasaporte']];
+const CITIES=['Bogotá','Medellín','Cali','Barranquilla','Bucaramanga','Pereira','Montería','Santa Marta','Sincelejo','Manizales'];
+const COLS=['rooms','guests','res','sales','closures','audits','log','users'];
+
+/* ---------- Estado compartido ---------- */
+let S={config:null,rooms:[],guests:[],res:[],sales:[],closures:[],audits:[],log:[],users:[]};
+let B=null, CUR=null, READY=false, AUTHED=false;
+const ME=()=>CUR?S.users.find(u=>u.id===CUR)||null:null;
+const isAdmin=()=>{const u=ME();return !!u&&u.role==='admin';};
+const canAudit=()=>{const u=ME();return !!u&&(u.role==='admin'||u.role==='auditor');};
+const C=()=>S.config;
+
+/* ---------- Escenario inicial (lo carga el administrador) ---------- */
+function newGuest(list,used,complete,foreign){
+  let g;
+  if(foreign){const f=shuffle(FOREIGN).find(x=>!used.has(x[0]+x[1]))||FOREIGN[0];used.add(f[0]+f[1]);
+    g={nombre:f[0],apellido:f[1],nac:f[2],city:f[3],docType:f[4],docNum:String(100000000+ri(899999999)),phone:'+'+(1+ri(60))+' '+(300+ri(600))+' '+(1000000+ri(8999999)),email:(f[0]+'.'+f[1]).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'@mail.com'};}
+  else{let n,a,t=0;do{n=pick(FN);a=pick(LN);t++;}while(used.has(n+a)&&t<200);used.add(n+a);
+    g={nombre:n,apellido:a,nac:'Colombia',city:pick(CITIES),docType:'CC',docNum:String(1000000000+ri(99999999)),phone:'3'+(ri(3)*10+ri(10))+String(1000000+ri(8999999)).padStart(8,'0'),email:(n.split(' ')[0]+'.'+a).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+ri(99)+'@correo.com'};}
+  g.id=uid();g.birth=(1965+ri(38))+'-'+pad(1+ri(12))+'-'+pad(1+ri(28));g.motivo=pick(MOTIVOS.slice(0,4));g.dataOk=true;
+  if(!complete){g.docNum='';g.birth='';g.dataOk=false;g.motivo='';if(!foreign)g.city='';}
+  list.push(g);return g;
+}
+function seed(){
+  const T=todayStr();
+  const config={hotel:{name:HOTEL_NAME,nit:'900.123.456-7',city:'Cartagena de Indias',ci:'15:00',co:'12:00'},biz:T,scn:{},
+    types:[{code:'EST',name:'Doble estándar',rate:180000,cap:2},{code:'SUP',name:'Superior',rate:250000,cap:3},{code:'SUI',name:'Suite con balcón',rate:380000,cap:4}],
+    products:[['Agua 600 ml',5000],['Gaseosa',6000],['Cerveza nacional',9000],['Caipirinha',28000],['Desayuno adicional',25000],['Lavandería (kilo)',15000],['Traslado aeropuerto',45000],['Tour Islas del Rosario',180000],['Late check-out',60000]].map(([n,p],i)=>({id:'p'+(i+1),name:n,price:p}))};
+  const rooms=[['101','EST'],['102','EST'],['103','EST'],['104','EST'],['201','SUP'],['202','SUP'],['203','SUP'],['204','SUP'],['301','SUI'],['302','SUI']].map(([n,t])=>({id:'r'+n,num:n,type:t,status:'limpia',note:''}));
+  const guests=[],res=[],used=new Set(),codes=new Set();
+  const rateOf=rm=>config.types.find(t=>t.code===rm.type).rate;
+  const capOf=rm=>config.types.find(t=>t.code===rm.type).cap;
+  const blocked=pick(rooms);blocked.status='bloqueada';blocked.note=pick(['Mantenimiento del aire acondicionado','Filtración en el baño','Cambio de colchón']);
+  const avail=(rm,a,b)=>rm.status!=='bloqueada'&&!res.some(r=>r.roomId===rm.id&&r.status!=='cancelada'&&r.status!=='noshow'&&r.in<b&&a<r.out);
+  const room=(a,b)=>shuffle(rooms).find(rm=>avail(rm,a,b));
+  const ts=(off,h)=>new Date(addDays(T,off)+'T'+pad(h||10)+':'+pad(ri(60))+':00').getTime();
+  const F=(type,concept,amount,method,off,kind)=>({id:uid(),d:addDays(T,off),ts:ts(off,8+ri(10)),type,concept,amount,method:method||'',user:'Turno anterior',userId:'sys',kind:kind||''});
+  const code=()=>{let c;do{c='R'+(1000+ri(9000));}while(codes.has(c));codes.add(c);return c;};
+  const R=(key,g,rm,a,b,source,status,o)=>{o=o||{};const r={id:uid(),code:code(),guestId:g.id,roomId:rm.id,in:addDays(T,a),out:addDays(T,b),adults:o.adults||Math.min(2,capOf(rm)),children:0,source,status,rate:o.rate||rateOf(rm),notes:o.notes||'',created:ts(Math.min(a,0)-5-ri(20)),by:source==='Directa'||source==='Walk-in'?'Turno anterior':source,folio:[],posted:[],rateOk:false};
+    if(status==='hospedado'||status==='salida'){for(let d=r.in;d<r.out&&d<T;d=addDays(d,1)){r.folio.push(nightEntry(r,d,rm.num));r.posted.push(d);}r.ciD=r.in;}
+    if(status==='salida')r.coD=r.out;res.push(r);if(key)config.scn[key]=r.id;return r;};
+  const lodg=r=>r.rate*diff(r.in,r.out);
+  const src=()=>pick(['Booking.com','Expedia','Airbnb','Directa']);
+  const rmX=room(addDays(T,-3),addDays(T,2));
+  const H1=R('H',newGuest(guests,used,true,Math.random()<.4),rmX,-3,0,src(),'salida');H1.folio.push(F('pago','Pago total',lodg(H1),pick(METHODS),-3));rmX.status='sucia';
+  const Fr=R('F',newGuest(guests,used,false,true),rmX,0,2,pick(['Airbnb','Expedia']),'confirmada',{notes:'Prepagada por el canal.'});Fr.folio.push(F('pago','Prepago del canal',lodg(Fr),'Tarjeta virtual OTA',-12));
+  let rm=room(addDays(T,-2),T);const A=R('A',newGuest(guests,used,true,Math.random()<.5),rm,-2,0,src(),'hospedado');
+  A.folio.push(F('pago','Pago del alojamiento',lodg(A),pick(METHODS),-2));
+  const p1=config.products[1+ri(3)],q1=1+ri(3),p2=config.products[4+ri(3)];A.folio.push(F('cargo',p1.name+' x'+q1,p1.price*q1,'',-1),F('cargo',p2.name+' x1',p2.price,'',-1));
+  rm=room(addDays(T,-1),addDays(T,3));const nB=2+ri(2);const Bq=R('B',newGuest(guests,used,true,Math.random()<.3),rm,-1,nB,src(),'hospedado');
+  Bq.folio.push(F('pago','Abono al llegar',Math.round(Bq.rate*(1+nB)/2/1000)*1000,pick(METHODS),-1));
+  rm=room(addDays(T,-1),addDays(T,2));const Cq=R('C',newGuest(guests,used,false,Math.random()<.5),rm,-1,2,pick(['Walk-in','Directa']),'hospedado',{notes:'El turno anterior hizo el check-in sin terminar la tarjeta de registro.'});
+  Cq.folio.push(F('pago','Pago del alojamiento',lodg(Cq),'Efectivo',-1));
+  rm=room(addDays(T,-2),addDays(T,2));const good=rateOf(rm);const D=R('D',newGuest(guests,used,true,Math.random()<.3),rm,-2,2,'Directa','hospedado',{rate:good/10});
+  D.folio.push(F('pago','Pago del alojamiento',D.rate*4,pick(METHODS),-2));
+  rm=room(T,addDays(T,3));const E=R('E',newGuest(guests,used,false,false),rm,0,3,'Directa','confirmada');E.folio.push(F('pago','Anticipo 50%',Math.round(lodg(E)/2/1000)*1000,'Transferencia',-6));
+  rm=room(addDays(T,-1),addDays(T,1));if(rm)R('G',newGuest(guests,used,false,Math.random()<.5),rm,-1,1,'Booking.com','confirmada',{notes:'Pago en el hotel. Tarjeta de garantía en el extranet.'});
+  rm=room(addDays(T,1),addDays(T,3));if(rm)R('I',newGuest(guests,used,false,false),rm,1,3,'Directa','confirmada');
+  for(let k=0;k<4;k++){const a=2+ri(7),b=a+1+ri(3);const r2=room(addDays(T,a),addDays(T,b));if(!r2)continue;const sc=pick(['Booking.com','Expedia','Airbnb']);const rr=R(null,newGuest(guests,used,false,Math.random()<.5),r2,a,b,sc,'confirmada',{notes:sc==='Booking.com'?'Pago en el hotel.':'Prepagada por el canal.'});if(sc!=='Booking.com')rr.folio.push(F('pago','Prepago del canal',lodg(rr),'Tarjeta virtual OTA',-3));}
+  return {config,rooms,guests,res};
+}
+function nightEntry(r,d,num){return {id:'n-'+d,d,ts:new Date(d+'T23:50:00').getTime(),type:'cargo',concept:'Alojamiento noche '+fmtD(d).slice(0,5)+', hab. '+num,amount:r.rate,method:'',user:'Auditoría nocturna',userId:'audit',kind:'aloj'};}
+
+/* ---------- Conexión: demostración local ---------- */
+function demoBackend(){
+  const K='sbhb-demo-v1';let st=null;
+  try{st=JSON.parse(localStorage.getItem(K)||'null');}catch(e){}
+  if(!st||!st.data){st={accounts:[{uid:'u-admin',user:ADMIN_USER,ph:'e940634756994bd7b72edc3b511180d8220214e43b3d161ef0a8c1867d648ebc'}],session:null,data:{config:null}};COLS.forEach(c=>st.data[c]={});st.data.users['u-admin']={id:'u-admin',name:'Profesor',user:ADMIN_USER,role:'admin',active:true,practice:[],created:Date.now()};}
+  let onData,onAuth;
+  const persist=()=>{try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}};
+  const emit=()=>{const d=clone(st.data),o={config:d.config};COLS.forEach(c=>o[c]=Object.values(d[c]));onData(o);};
+  const commit=()=>{persist();setTimeout(emit,0);};
+  const ok=()=>{if(!st.session)throw{code:'permission-denied'};};
+  return {mode:'demo',
+    init(od,oa){onData=od;onAuth=oa;emit();oa(st.session);},
+    async signIn(user,pass){const a=st.accounts.find(x=>x.user===user&&x.ph===H(user,pass));if(!a)throw{code:'auth/invalid-credential'};st.session=a.uid;persist();onAuth(a.uid);},
+    async signUp(name,user,pass){if(st.accounts.some(x=>x.user===user))throw{code:'auth/email-already-in-use'};const id='u'+uid();st.accounts.push({uid:id,user,ph:H(user,pass)});st.data.users[id]={id,name,user,role:user===ADMIN_USER?'admin':'recepcion',active:true,practice:[],created:Date.now()};st.session=id;persist();emit();onAuth(id);},
+    async signOut(){st.session=null;persist();onAuth(null);},
+    async changePass(o,n){const a=st.accounts.find(x=>x.uid===st.session);if(!a||a.ph!==H(a.user,o))throw{code:'auth/wrong-password'};a.ph=H(a.user,n);persist();},
+    async put(col,obj){ok();if(col==='config')st.data.config=clone(obj);else st.data[col][obj.id]=clone(obj);
+      if(col==='log'){const ks=Object.keys(st.data.log);if(ks.length>300){ks.sort((a,b)=>st.data.log[a].ts-st.data.log[b].ts).slice(0,ks.length-300).forEach(k=>delete st.data.log[k]);}}commit();},
+    async patch(col,id,f){ok();const t=col==='config'?st.data.config:st.data[col][id];if(!t)throw{code:'not-found'};Object.assign(t,clone(f));commit();},
+    async push(col,id,field,items){ok();const t=st.data[col][id];if(!t)throw{code:'not-found'};t[field]=t[field]||[];items.forEach(it=>{const s=JSON.stringify(it);if(!t[field].some(x=>JSON.stringify(x)===s))t[field].push(clone(it));});commit();},
+    async del(col,id){ok();delete st.data[col][id];commit();},
+    async reset(sd){ok();['rooms','guests','res','sales','closures','audits','log'].forEach(c=>st.data[c]={});['rooms','guests','res'].forEach(c=>sd[c].forEach(o=>st.data[c][o.id]=clone(o)));st.data.config=clone(sd.config);commit();}
+  };
+}
+/* ---------- Conexión: Firebase (base de datos compartida) ---------- */
+async function firebaseBackend(){
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,AU,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=A.initializeApp(FIREBASE_CONFIG),auth=AU.getAuth(app),db=F.getFirestore(app);
+  const mail=u=>u+'@'+DOMAIN;
+  let onData,unsubs=[],data={};
+  const emit=()=>{if(data.config===undefined||COLS.some(c=>!data[c]))return;onData(Object.assign({},data));};
+  const fail=e=>{console.error(e);if(e&&e.code==='permission-denied')toast('No tienes permiso para ver los datos. Revisa las reglas de Firestore.',true);};
+  const stop=()=>{unsubs.forEach(u=>u());unsubs=[];data={config:undefined};};
+  const start=()=>{stop();
+    unsubs.push(F.onSnapshot(F.doc(db,'config','main'),s=>{data.config=s.exists()?s.data():null;emit();},fail));
+    COLS.forEach(c=>{const q=c==='log'?F.query(F.collection(db,'log'),F.orderBy('ts','desc'),F.limit(60)):F.collection(db,c);
+      unsubs.push(F.onSnapshot(q,s=>{data[c]=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));emit();},fail));});};
+  const ref=(col,id)=>F.doc(db,col,col==='config'?'main':id);
+  return {mode:'firebase',
+    init(od,oa){onData=od;AU.onAuthStateChanged(auth,u=>{if(u)start();else stop();oa(u?u.uid:null);});},
+    signIn:(user,pass)=>AU.signInWithEmailAndPassword(auth,mail(user),pass),
+    async signUp(name,user,pass){const c=await AU.createUserWithEmailAndPassword(auth,mail(user),pass);await F.setDoc(F.doc(db,'users',c.user.uid),{id:c.user.uid,name,user,role:user===ADMIN_USER?'admin':'recepcion',active:true,practice:[],created:Date.now()});},
+    signOut:()=>AU.signOut(auth),
+    async changePass(o,n){const u=auth.currentUser;await AU.reauthenticateWithCredential(u,AU.EmailAuthProvider.credential(u.email,o));await AU.updatePassword(u,n);},
+    put:(col,o)=>F.setDoc(ref(col,o.id),clone(o)),
+    patch:(col,id,f)=>F.updateDoc(ref(col,id),clone(f)),
+    push:(col,id,field,items)=>F.updateDoc(ref(col,id),{[field]:F.arrayUnion.apply(null,clone(items))}),
+    del:(col,id)=>F.deleteDoc(ref(col,id)),
+    async reset(sd){const ops=[];
+      ['rooms','guests','res','sales','closures','audits'].forEach(c=>(S[c]||[]).forEach(o=>ops.push(['d',c,o.id])));
+      const ls=await F.getDocs(F.collection(db,'log'));ls.forEach(d=>ops.push(['d','log',d.id]));
+      ['rooms','guests','res'].forEach(c=>sd[c].forEach(o=>ops.push(['s',c,o])));ops.push(['s','config',sd.config]);
+      for(let i=0;i<ops.length;i+=400){const b=F.writeBatch(db);ops.slice(i,i+400).forEach(([t,c,o])=>{if(t==='d')b.delete(ref(c,o));else b.set(ref(c,o.id),clone(o));});await b.commit();}}
+  };
+}
+const ERR={'auth/invalid-credential':'Usuario o contraseña incorrectos.','auth/wrong-password':'La contraseña no es correcta.','auth/user-not-found':'Usuario o contraseña incorrectos.','auth/invalid-login-credentials':'Usuario o contraseña incorrectos.','auth/email-already-in-use':'Ese usuario ya existe. Escoge otro.','auth/weak-password':'La contraseña debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Espera un momento.','auth/network-request-failed':'Sin conexión a internet.','permission-denied':'No tienes permiso para esta acción.','not-found':'Ese registro ya no existe. Otro usuario pudo haberlo cambiado.','auth/requires-recent-login':'Vuelve a iniciar sesión e inténtalo de nuevo.','auth/unauthorized-domain':'Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).'};
+const errMsg=e=>ERR[e&&e.code]||'No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.';
+const W=p=>Promise.resolve(p).catch(e=>{console.error(e);toast(errMsg(e),true);});
+
+/* ---------- Escrituras ---------- */
+const putDoc=(col,o)=>W(B.put(col,o));
+const patchRes=(r,f)=>{Object.assign(r,f);return W(B.patch('res',r.id,f));};
+const addFolio=(r,es)=>{r.folio=r.folio||[];es.forEach(e=>{if(!r.folio.some(x=>x.id===e.id))r.folio.push(e);});return W(B.push('res',r.id,'folio',es));};
+const addPosted=(r,ds)=>{r.posted=r.posted||[];ds.forEach(d=>{if(!r.posted.includes(d))r.posted.push(d);});return W(B.push('res',r.id,'posted',ds));};
+const patchCfg=f=>{Object.assign(S.config,f);return W(B.patch('config','main',f));};
+function log(msg){const u=ME();const e={id:uid(),ts:Date.now(),u:u?u.name:'Sistema',msg};S.log.unshift(e);W(B.put('log',e));}
+function entry(type,concept,amount,method,kind){const u=ME();return {id:uid(),d:biz(),ts:Date.now(),type,concept,amount,method:method||'',user:u.name,userId:u.id,kind:kind||''};}
+
+/* ---------- Reglas del hotel ---------- */
+const biz=()=>S.config.biz;
+const room=id=>S.rooms.find(r=>r.id===id)||{id,num:'?',type:'EST',status:'limpia'};
+const rtype=code=>(S.config.types||[]).find(t=>t.code===code)||{name:'?',rate:0,cap:2};
+const guest=id=>S.guests.find(g=>g.id===id)||{nombre:'?',apellido:''};
+const gname=g=>(g.nombre+' '+g.apellido).trim();
+const resById=id=>S.res.find(r=>r.id===id);
+const nights=r=>diff(r.in,r.out);
+const occupying=r=>r.status!=='cancelada'&&r.status!=='noshow';
+const folio=r=>r.folio||[];
+const posted=r=>r.posted||[];
+const sumF=(r,t)=>folio(r).filter(f=>f.type===t).reduce((a,f)=>a+f.amount,0);
+const stayDates=r=>{const a=[];for(let d=r.in;d<r.out;d=addDays(d,1))a.push(d);return a;};
+const unpostedAll=r=>stayDates(r).filter(d=>!posted(r).includes(d)).length;
+const stayLimit=r=>{let lim=r.out<biz()?r.out:biz();if(lim<=r.in)lim=addDays(r.in,1);return lim;};
+const unpostedStayed=r=>stayDates(r).filter(d=>d<stayLimit(r)&&!posted(r).includes(d)).length;
+const est=r=>{if(!occupying(r))return 0;if(r.status==='salida')return sumF(r,'cargo')-sumF(r,'pago');return sumF(r,'cargo')+unpostedAll(r)*r.rate-sumF(r,'pago');};
+const due=r=>r.status==='hospedado'?sumF(r,'cargo')+unpostedStayed(r)*r.rate-sumF(r,'pago'):est(r);
+const regOk=g=>!!(g.docNum&&g.nombre&&g.apellido&&g.nac&&g.birth&&g.city&&g.phone&&g.dataOk);
+const noReg=r=>(r.status==='hospedado'||r.status==='salida')&&!regOk(guest(r.guestId));
+const rateOff=r=>(r.status==='hospedado'||r.status==='confirmada')&&!r.rateOk&&r.rate<rtype(room(r.roomId).type).rate*0.6;
+const available=(roomId,a,b,except)=>!S.res.some(r=>r.id!==except&&r.roomId===roomId&&occupying(r)&&r.in<b&&a<r.out);
+const newCode=()=>{let c;do{c='R'+(1000+ri(9000));}while(S.res.some(r=>r.code===c));return c;};
+
+/* ---------- UI ---------- */
+let toastT;
+function toast(msg,err){const old=$('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast'+(err?' err':'');t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),err?5500:3500);}
+let modalRes=null;
+function openModal(title,body,o){o=o||{};modalRes=o.resId||null;$('#modal-root').innerHTML=`<div class="backdrop" data-act="close-modal"><div class="modal ${o.wide?'wide':''}" role="dialog" aria-modal="true"><div class="modal-head"><h1>${title}</h1><button class="x" data-act="close-modal" aria-label="Cerrar">×</button></div>${body}</div></div>`;if(!o.nofocus&&window.innerWidth>860){const f=$('#modal-root input:not([type=hidden]):not([readonly]),#modal-root select');if(f)f.focus();}if(o.mount)o.mount();}
+function closeModal(){modalRes=null;$('#modal-root').innerHTML='';}
+const modalOpen=()=>!!$('#modal-root .backdrop');
+function confirmBox(msg,yes,label,danger){openModal('Confirmar',`<p>${msg}</p><div class="actions"><button class="btn ghost" data-act="close-modal">Volver</button><button class="btn ${danger?'danger':''}" id="yes">${label||'Confirmar'}</button></div>`,{nofocus:true,mount(){$('#yes').onclick=()=>{closeModal();yes();};}});}
+function formErr(f,msg){const e=f.querySelector('.form-err');if(e)e.textContent=msg;}
+const opts=(list,sel)=>list.map(v=>`<option ${v===sel?'selected':''}>${esc(v)}</option>`).join('');
+const badge=s=>`<span class="badge s-${s}">${ST[s]}</span>`;
+const rbadge=s=>`<span class="badge r-${s}">${RST[s]}</span>`;
+const flags=r=>(est(r)>0&&occupying(r)?'<span class="reddot" title="Saldo pendiente"></span>':'')+(noReg(r)?'<span class="warnflag">Sin registro</span>':'')+(rateOff(r)?'<span class="warnflag">Revisar tarifa</span>':'');
+
+const NAV=[['hoy','Hoy','1'],['rack','Rack','2'],['reservas','Reservas','3'],['huespedes','Huéspedes','4'],['habitaciones','Housekeeping','5'],['pos','Punto de venta','6'],['caja','Caja','7'],['auditoria','Auditoría nocturna','8'],['reportes','Reportes','9'],['practica','Casos de práctica','0']];
+let view='hoy',rackStart=null,qRes='',fRes='activas',qG='',cart=[],pending=false;
+
+function scheduleRender(){
+  const a=document.activeElement;
+  if(a&&$('#content')&&$('#content').contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){pending=true;return;}
+  render();
+  if(modalRes&&resById(modalRes)&&!$('#modal-root form'))openRes(modalRes);
+}
+document.addEventListener('focusout',()=>{if(pending){setTimeout(()=>{if(pending){pending=false;scheduleRender();}},50);}});
+
+function shell(inner){return `<div class="login"><div class="login-card"><div class="brand">San Buenaventura<span>Hostel Boutique, sistema de recepción</span></div>${inner}</div></div>`;}
+function render(){
+  if(!B){$('#root').innerHTML=shell('<p class="muted">Conectando…</p>');return;}
+  if(!CUR){renderLogin(loginTab);return;}
+  const u=ME();
+  if(!READY||!u){$('#root').innerHTML=shell('<p class="muted">Cargando el hotel…</p>');return;}
+  if(u.active===false){$('#root').innerHTML=shell('<p>Tu cuenta está desactivada. Habla con el profesor.</p><button class="btn ghost" data-act="logout">Salir</button>');return;}
+  if(!S.config){$('#root').innerHTML=shell(isAdmin()?'<p>El hotel todavía no tiene datos. Carga el escenario inicial para que tus estudiantes puedan trabajar.</p><button class="btn" data-act="seed">Cargar hotel inicial</button> <button class="btn ghost" data-act="logout">Salir</button>':'<p>El profesor todavía no ha abierto el hotel. Intenta de nuevo en unos minutos.</p><button class="btn ghost" data-act="logout">Salir</button>');return;}
+  if(!rackStart)rackStart=addDays(biz(),-2);
+  if((view==='usuarios'||view==='ajustes')&&!isAdmin())view='hoy';
+  const real=todayStr();
+  $('#root').innerHTML=`<div class="app">
+    <aside class="side"><div class="brand">San Buenaventura<span>Hostel Boutique</span></div>
+      <nav class="nav" aria-label="Secciones">${NAV.map(([k,l,n])=>`<button data-act="nav" data-view="${k}" ${view===k?'aria-current="page"':''}>${l}<kbd>${n}</kbd></button>`).join('')}
+      ${isAdmin()?`<div class="sep"></div><button data-act="nav" data-view="usuarios" ${view==='usuarios'?'aria-current="page"':''}>Usuarios</button><button data-act="nav" data-view="ajustes" ${view==='ajustes'?'aria-current="page"':''}>Ajustes</button>`:''}</nav>
+      <div class="hotel">${B.mode==='demo'?'Modo demostración<br>':''}${esc(C().hotel.city)}</div></aside>
+    <div class="main"><header class="top"><div class="bizdate"><small>Fecha del hotel${biz()!==real?' (simulada)':''}</small><b>${esc(longD(biz()))}</b></div><span class="grow"></span>
+      <span class="who">${esc(u.name)}, ${ROLES[u.role]||u.role}</span>
+      <button class="btn ghost sm hide-m" data-act="help">Atajos</button>
+      <button class="btn ghost sm" data-act="pwd">Contraseña</button>
+      <button class="btn ghost sm" data-act="logout">Salir</button>
+      <button class="btn sm" data-act="new-res">Nueva reserva</button></header>
+      <main class="content" id="content">${VIEWS[view]?VIEWS[view]():VIEWS.hoy()}</main></div></div>`;
+}
+let loginTab='in';
+function renderLogin(tab){loginTab=tab;
+  $('#root').innerHTML=shell(`<div class="tabs" role="tablist"><button role="tab" data-act="ltab" data-tab="in" aria-selected="${tab==='in'}">Ingresar</button><button role="tab" data-act="ltab" data-tab="up" aria-selected="${tab==='up'}">Crear cuenta</button></div>
+  ${tab==='in'?`<form id="login" class="stack"><label>Usuario<input name="user" autocomplete="username" autocapitalize="none" required></label><label>Contraseña<input name="pass" type="password" autocomplete="current-password" required></label><p class="form-err"></p><button class="btn">Ingresar</button></form>`
+  :`<form id="signup" class="stack"><label>Nombre completo<input name="name" required></label><label>Usuario<input name="user" autocomplete="username" autocapitalize="none" required></label><label>Contraseña (mínimo 6 caracteres)<input name="pass" type="password" autocomplete="new-password" required></label><label>Repite la contraseña<input name="pass2" type="password" autocomplete="new-password" required></label><p class="form-err"></p><button class="btn">Crear cuenta</button></form>`}
+  <div class="hint">${B.mode==='demo'?'Modo demostración: los datos se guardan solo en este navegador. Cuando conectes Firebase, todos trabajarán en el mismo hotel.':'Todos trabajan en el mismo hotel y ven los cambios de los demás al instante. No uses la misma contraseña de tu correo.'}</div>`);
+}
+
+/* ---------- Vistas ---------- */
+const rowR=(r,btn)=>{const g=guest(r.guestId),rm=room(r.roomId);return `<div class="list-row"><div class="who"><b>${esc(gname(g))}${flags(r)}</b><small>Hab. ${rm.num}, ${plural(nights(r),'noche')}, ${esc(r.source)}${est(r)>0?', saldo '+money(est(r)):''}</small></div>${btn||''}<button class="btn ghost sm" data-act="open-res" data-id="${r.id}">Ver</button></div>`;};
+const VIEWS={
+hoy(){
+  const T=biz();
+  const arr=S.res.filter(r=>r.status==='confirmada'&&r.in<=T);
+  const dep=S.res.filter(r=>r.status==='hospedado'&&r.out<=T);
+  const inh=S.res.filter(r=>r.status==='hospedado');
+  const tonight=S.res.filter(r=>(r.status==='hospedado'||r.status==='confirmada')&&r.in<=T&&r.out>T).length;
+  const dirty=S.rooms.filter(r=>r.status==='sucia').length;
+  return `<div class="toolbar"><h1>Resumen del turno</h1></div>
+  <div class="kpis"><div class="kpi"><b>${arr.length}</b><small>Llegadas pendientes</small></div><div class="kpi"><b>${dep.length}</b><small>Salidas pendientes</small></div><div class="kpi"><b>${inh.length}</b><small>Habitaciones en casa</small></div><div class="kpi"><b>${Math.round(tonight/Math.max(1,S.rooms.length)*100)}%</b><small>Ocupación esta noche</small></div><div class="kpi"><b>${dirty}</b><small>Por limpiar</small></div></div>
+  <div class="cols">
+   <section class="panel"><h2>Llegadas pendientes</h2>${arr.map(r=>rowR(r,`<button class="btn sm" data-act="ci" data-id="${r.id}">Check-in</button>`)).join('')||'<p class="empty">No quedan llegadas pendientes.</p>'}</section>
+   <section class="panel"><h2>Salidas pendientes</h2>${dep.map(r=>rowR(r,`<button class="btn sm" data-act="co" data-id="${r.id}">Check-out</button>`)).join('')||'<p class="empty">No quedan salidas pendientes.</p>'}</section>
+   <section class="panel"><h2>En casa</h2>${inh.map(r=>rowR(r)).join('')||'<p class="empty">No hay huéspedes hospedados.</p>'}</section>
+   <section class="panel"><h2>Actividad del equipo</h2>${S.log.slice(0,10).map(l=>`<div class="list-row"><div class="who"><b style="font-weight:600">${esc(l.msg)}</b><small>${esc(l.u)}, ${new Date(l.ts).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</small></div></div>`).join('')||'<p class="empty">Sin actividad todavía.</p>'}</section>
+  </div>`;
+},
+rack(){
+  const T=biz(),days=[...Array(14)].map((_,i)=>addDays(rackStart,i)),end=addDays(rackStart,14);
+  let h=`<div class="toolbar"><h1>Rack</h1><span class="grow"></span><button class="btn ghost sm" data-act="rack" data-d="-7">‹ Semana</button><button class="btn ghost sm" data-act="rack" data-d="0">Hoy</button><button class="btn ghost sm" data-act="rack" data-d="7">Semana ›</button><button class="btn ghost sm" data-act="ota">Simular reserva de OTA</button></div>
+  <div class="legend"><span><i class="dot s-confirmada"></i>Pendiente de check-in</span><span><i class="dot s-hospedado"></i>En casa</span><span><i class="dot s-salida"></i>Check-out</span><span><i class="dot" style="background:var(--dot)"></i>Saldo pendiente</span><span class="warnflag" style="margin:0">Sin registro</span><span><i class="dot r-sucia"></i>Hab. sucia</span></div>
+  <div class="rack-wrap"><table class="rack"><thead><tr><th class="rk">Hab.</th>${days.map(d=>`<th class="${d===T?'today':''}">${dow(d)}<b>${+d.slice(8)}</b>${d.slice(8)==='01'||d===rackStart?MON[+d.slice(5,7)-1]:''}</th>`).join('')}</tr></thead><tbody>`;
+  S.rooms.slice().sort((a,b)=>a.num.localeCompare(b.num)).forEach(rm=>{
+    h+=`<tr><th class="rk"><i class="dot r-${rm.status}" title="${RST[rm.status]}"></i>${rm.num}<small>${esc(rtype(rm.type).name)}</small></th>`;
+    const list=S.res.filter(r=>r.roomId===rm.id&&occupying(r)&&r.in<end&&r.out>rackStart);
+    let i=0;
+    while(i<14){const d=days[i];const r=list.find(x=>x.in<=d&&x.out>d);
+      if(r){const last=r.out<end?r.out:end;const span=Math.max(1,diff(d,last));const g=guest(r.guestId);const nr=noReg(r);
+        h+=`<td colspan="${span}"><button class="bar s-${r.status}${nr?' noreg':''}" data-act="open-res" data-id="${r.id}" title="${esc(gname(g))}, ${fmtD(r.in)} a ${fmtD(r.out)}">${est(r)>0?'<i class="due" aria-label="Saldo pendiente"></i>':''}${esc(gname(g))}<small>${nr?'Sin registro, ':''}${rateOff(r)?'Revisar tarifa, ':''}${esc(r.source)}</small></button></td>`;i+=span;}
+      else{const blocked=rm.status==='bloqueada';h+=`<td class="${blocked?'blocked':'free'} ${d===T?'today':''}" ${blocked||d<T?'':`data-act="new-res" data-room="${rm.id}" data-date="${d}"`}></td>`;i++;}
+    }
+    h+='</tr>';
+  });
+  return h+'</tbody></table></div>';
+},
+reservas(){
+  return `<div class="toolbar"><h1>Reservas</h1><span class="grow"></span><button class="btn ghost sm" data-act="ota">Simular reserva de OTA</button><button class="btn ghost sm" data-act="export" data-what="res">Exportar a Excel</button></div>
+  <div class="toolbar"><input id="qres" type="search" placeholder="Buscar nombre, código o habitación" value="${esc(qRes)}" style="max-width:340px"><select id="fres" style="max-width:190px">${[['activas','Activas'],['todas','Todas'],['confirmada','Pendientes de check-in'],['hospedado','En casa'],['salida','Check-out'],['cancelada','Canceladas'],['noshow','No show']].map(([v,l])=>`<option value="${v}" ${fRes===v?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="panel scroll"><table class="tbl"><thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Llegada</th><th>Salida</th><th>Canal</th><th>Estado</th><th class="num">Saldo</th></tr></thead><tbody id="tbody">${resRows()}</tbody></table></div>`;
+},
+huespedes(){
+  return `<div class="toolbar"><h1>Huéspedes</h1><span class="grow"></span><button class="btn ghost sm" data-act="export" data-what="guests">Exportar registro a Excel</button></div>
+  <div class="toolbar"><input id="qg" type="search" placeholder="Buscar por nombre o documento" value="${esc(qG)}" style="max-width:340px"></div>
+  <div class="panel scroll"><table class="tbl"><thead><tr><th>Nombre</th><th>Documento</th><th>Nacionalidad</th><th>Teléfono</th><th>Registro</th><th class="num">Estancias</th></tr></thead><tbody id="tbody">${guestRows()}</tbody></table></div>`;
+},
+habitaciones(){
+  const T=biz();
+  return `<div class="toolbar"><h1>Housekeeping</h1></div><p class="muted" style="margin-top:-8px">Una habitación solo se puede asignar en el check-in si está limpia.</p>
+  <div class="rooms">${S.rooms.slice().sort((a,b)=>a.num.localeCompare(b.num)).map(rm=>{const occ=S.res.find(r=>r.roomId===rm.id&&r.status==='hospedado');const arr=S.res.find(r=>r.roomId===rm.id&&r.status==='confirmada'&&r.in<=T);
+   return `<div class="room ${rm.status}"><div class="n">${rm.num}</div><small>${esc(rtype(rm.type).name)}</small><p style="margin:8px 0 4px">${rbadge(rm.status)} ${occ?'<span class="badge s-hospedado">Ocupada</span>':''}</p>
+   <small>${occ?'Huésped: '+esc(gname(guest(occ.guestId))):arr?'Llega hoy: '+esc(gname(guest(arr.guestId))):'Libre'}${rm.note?'<br>'+esc(rm.note):''}</small>
+   <div class="btns">${['limpia','sucia','bloqueada'].filter(s=>s!==rm.status).map(s=>`<button class="btn ghost sm" data-act="hk" data-id="${rm.id}" data-s="${s}">${s==='limpia'?'Marcar limpia':s==='sucia'?'Marcar sucia':'Bloquear'}</button>`).join('')}</div></div>`;}).join('')}</div>`;
+},
+pos(){
+  const inh=S.res.filter(r=>r.status==='hospedado');
+  const total=cart.reduce((a,c)=>a+c.price*c.qty,0);
+  return `<div class="toolbar"><h1>Punto de venta</h1></div><div class="pos"><section><div class="prods">${C().products.map(p=>`<button class="prod" data-act="cart-add" data-id="${p.id}"><b>${esc(p.name)}</b><small>${money(p.price)}</small></button>`).join('')}</div>
+   <div class="panel" style="margin-top:14px"><h2>Cargo libre</h2><p class="muted" style="font-size:12px">Para algo que no está en la lista.</p><form id="free" class="grid2"><label>Concepto<input name="concept" placeholder="Ej. Caipirinha de maracuyá"></label><label>Valor<input name="price" type="number" min="0" step="500"></label><p class="form-err span2" style="margin:0"></p><button class="btn ghost span2">Agregar a la cuenta</button></form></div></section>
+  <section class="panel"><h2>Cuenta</h2>${cart.length?`<table class="tbl"><tbody>${cart.map((c,i)=>`<tr><td>${esc(c.name)}</td><td style="white-space:nowrap"><button class="btn ghost sm" data-act="cart-q" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button> ${c.qty} <button class="btn ghost sm" data-act="cart-q" data-i="${i}" data-d="1" aria-label="Agregar uno">+</button></td><td class="num">${money(c.price*c.qty)}</td></tr>`).join('')}</tbody></table>`:'<p class="empty">Toca un producto o agrega un cargo libre.</p>'}
+  <div class="balance"><span>Total</span><b>${money(total)}</b></div>
+  <form id="pos" class="stack"><label>Destino<select name="dest" id="posdest"><option value="cash">Venta de contado (pago inmediato)</option>${inh.map(r=>`<option value="${r.id}">Cargar a hab. ${room(r.roomId).num}: ${esc(gname(guest(r.guestId)))}</option>`).join('')}</select></label>
+  <label id="posm">Medio de pago<select name="method">${opts(METHODS)}</select></label><p class="form-err"></p><button class="btn" ${cart.length?'':'disabled'}>Registrar venta</button></form></section></div>`;
+},
+caja(){
+  const u=ME(),mv=myMoves(u.id),by={};mv.forEach(m=>{by[m.method]=(by[m.method]||0)+m.amount;});
+  const total=mv.reduce((a,m)=>a+m.amount,0);
+  const cl=S.closures.filter(c=>isAdmin()||c.userId===u.id).sort((a,b)=>b.ts-a.ts);
+  return `<div class="toolbar"><h1>Caja de mi turno</h1><span class="grow"></span><button class="btn ghost sm" data-act="export" data-what="cash">Exportar a Excel</button><button class="btn sm" data-act="close-shift" ${mv.length?'':'disabled'}>Cerrar turno</button></div>
+  <div class="kpis">${Object.keys(by).map(m=>`<div class="kpi"><b>${money(by[m])}</b><small>${esc(m)}</small></div>`).join('')}<div class="kpi"><b>${money(total)}</b><small>Total del turno</small></div></div>
+  <div class="panel scroll" style="margin-top:16px"><h2>Mis movimientos desde el último cierre</h2>${mv.length?`<table class="tbl"><thead><tr><th>Fecha</th><th>Concepto</th><th>Referencia</th><th>Medio</th><th class="num">Valor</th></tr></thead><tbody>${mv.map(m=>`<tr><td>${fmtD(m.d)} ${hhmm(m.ts)}</td><td>${esc(m.concept)}</td><td>${esc(m.ref)}</td><td>${esc(m.method)}</td><td class="num">${money(m.amount)}</td></tr>`).join('')}</tbody></table>`:'<p class="empty">Aún no has recibido pagos en este turno.</p>'}</div>
+  <div class="panel scroll" style="margin-top:16px"><h2>${isAdmin()?'Cierres de turno del equipo':'Mis cierres de turno'}</h2>${cl.length?`<table class="tbl"><thead><tr><th>Fecha del hotel</th><th>Hora</th>${isAdmin()?'<th>Recepcionista</th>':''}<th class="num">Movimientos</th><th class="num">Total</th></tr></thead><tbody>${cl.map(c=>`<tr><td>${fmtD(c.d)}</td><td>${hhmm(c.ts)}</td>${isAdmin()?`<td>${esc(c.name)}</td>`:''}<td class="num">${c.count}</td><td class="num">${money(c.total)}</td></tr>`).join('')}</tbody></table>`:'<p class="empty">No hay cierres registrados.</p>'}</div>`;
+},
+auditoria(){
+  const T=biz(),c=auditChecks();
+  const item=(ok,type,title,desc,list)=>`<div class="chk"><span class="ic ${ok?'ok':type}">${ok?'✓':type==='bad'?'!':'i'}</span><div class="body"><b>${title}</b><small>${desc}</small>${!ok&&list?`<div style="margin-top:6px">${list}</div>`:''}</div></div>`;
+  const tonight=S.res.filter(r=>r.status==='hospedado'&&r.in<=T&&r.out>T&&!posted(r).includes(T));
+  const blockers=c.arr.length+c.dep.length+c.noreg.length+c.rates.length;
+  return `<div class="toolbar"><h1>Auditoría nocturna</h1><span class="grow"></span><span class="muted">Día a cerrar: <b style="color:var(--ink)">${fmtD(T)}</b></span></div>
+  <div class="note">El auditor revisa que el día esté en orden, carga la noche de alojamiento a cada habitación ocupada y cierra el día. Al cerrar, la fecha del hotel pasa al día siguiente para todo el equipo.</div>
+  <div class="cols" style="margin-top:0"><section class="panel"><h2>Lista de verificación</h2>
+   ${item(!c.arr.length,'bad','Llegadas sin resolver',`Cada reserva que debía llegar hasta hoy necesita check-in o no show. ${c.arr.length?plural(c.arr.length,'pendiente')+'.':''}`,c.arr.map(r=>rowR(r,`<button class="btn sm" data-act="ci" data-id="${r.id}">Check-in</button><button class="btn ghost sm" data-act="noshow" data-id="${r.id}">No show</button>`)).join(''))}
+   ${item(!c.dep.length,'bad','Salidas sin resolver',`Los huéspedes que debían salir hasta hoy necesitan check-out o extender la estadía. ${c.dep.length?plural(c.dep.length,'pendiente')+'.':''}`,c.dep.map(r=>rowR(r,`<button class="btn sm" data-act="co" data-id="${r.id}">Check-out</button><button class="btn ghost sm" data-act="extend" data-id="${r.id}">Extender</button>`)).join(''))}
+   ${item(!c.noreg.length,'bad','Tarjetas de registro incompletas','Todo huésped en casa debe tener su registro completo (documento, nacionalidad, procedencia y autorización de datos).',c.noreg.map(r=>rowR(r,`<button class="btn sm" data-act="reg" data-id="${r.id}">Completar registro</button>`)).join(''))}
+   ${item(!c.rates.length,'bad','Tarifas fuera de rango','Tarifas por debajo del 60% de la tarifa del tipo de habitación. Corrígela o apruébala con una justificación.',c.rates.map(r=>rowR(r,`<button class="btn sm" data-act="rate" data-id="${r.id}">Revisar tarifa</button>`)).join(''))}
+   ${item(!c.bal.length,'info','Folios en casa con saldo pendiente','No bloquea el cierre, pero debes reportarlos al gerente o al turno de la mañana.',c.bal.map(r=>rowR(r)).join(''))}
+   ${item(!c.dirty.length,'info','Habitaciones sucias',c.dirty.length?'Habitaciones: '+c.dirty.map(r=>r.num).join(', ')+'. Informa a housekeeping para el día siguiente.':'Todas las habitaciones están limpias o bloqueadas.')}
+   ${item(!c.open.length,'info','Cajas sin cerrar',c.open.length?'Recepcionistas con turno abierto: '+c.open.map(esc).join(', ')+'.':'Todas las cajas están cerradas.')}
+  </section>
+  <section class="panel"><h2>Cierre del día</h2><p>Esta noche se cargarán ${plural(tonight.length,'noche')} de alojamiento por <b>${money(tonight.reduce((a,r)=>a+r.rate,0))}</b>.</p>
+   ${blockers?`<div class="note red">Hay ${plural(blockers,'pendiente')} que bloquean el cierre. Resuélvelos primero.</div>`:'<p class="muted">Todo en orden para cerrar el día.</p>'}
+   ${canAudit()?`<button class="btn" data-act="close-day" ${blockers?'disabled':''}>Cerrar el día ${fmtD(T).slice(0,5)}</button>`:'<p class="muted">Solo el auditor nocturno o el administrador pueden cerrar el día. Tú puedes ayudar a resolver los pendientes.</p>'}
+   <h2 style="margin-top:22px">Reportes de auditoría</h2>${S.audits.length?`<table class="tbl"><thead><tr><th>Día</th><th class="num">Ocup.</th><th class="num">Aloj.</th><th></th></tr></thead><tbody>${S.audits.slice().sort((a,b)=>b.d<a.d?-1:1).map(a=>`<tr class="click" data-act="audit-rep" data-id="${a.id}"><td>${fmtD(a.d)}</td><td class="num">${a.occPct}%</td><td class="num">${money(a.roomRev)}</td><td class="num"><span class="btn ghost sm">Ver</span></td></tr>`).join('')}</tbody></table>`:'<p class="empty">Aún no se ha cerrado ningún día.</p>'}
+  </section></div>`;
+},
+reportes(){
+  const T=biz(),n=Math.max(1,S.rooms.length);
+  const occ=d=>S.res.filter(r=>occupying(r)&&r.in<=d&&r.out>d).length;
+  const inT=S.res.filter(r=>(r.status==='hospedado'||r.status==='confirmada')&&r.in<=T&&r.out>T);
+  const rev=inT.reduce((a,r)=>a+r.rate,0);
+  const byCh={};S.res.filter(occupying).forEach(r=>{const c=byCh[r.source]||(byCh[r.source]={n:0,rn:0,v:0});c.n++;c.rn+=nights(r);c.v+=r.rate*nights(r);});
+  return `<div class="toolbar"><h1>Reportes</h1><span class="grow"></span><button class="btn ghost sm" data-act="export" data-what="res">Reservas a Excel</button><button class="btn ghost sm" data-act="export" data-what="guests">Huéspedes a Excel</button><button class="btn ghost sm" data-act="export" data-what="allcash">Pagos a Excel</button></div>
+  <div class="kpis"><div class="kpi"><b>${Math.round(inT.length/n*100)}%</b><small>Ocupación esta noche</small></div><div class="kpi"><b>${money(inT.length?rev/inT.length:0)}</b><small>ADR: tarifa promedio</small></div><div class="kpi"><b>${money(rev/n)}</b><small>RevPAR</small></div><div class="kpi"><b>${S.res.filter(r=>r.status==='cancelada').length}</b><small>Cancelaciones</small></div></div>
+  <div class="cols"><section class="panel bars"><h2>Ocupación próximos 14 días</h2>${[...Array(14)].map((_,i)=>{const d=addDays(T,i),p=Math.round(occ(d)/n*100);return `<div class="row"><span>${dow(d)} ${fmtD(d).slice(0,5)}</span><div class="track"><div class="fill" style="width:${p}%"></div></div><b>${p}%</b></div>`;}).join('')}</section>
+  <section class="panel scroll"><h2>Producción por canal</h2><table class="tbl"><thead><tr><th>Canal</th><th class="num">Reservas</th><th class="num">Noches</th><th class="num">Ingreso</th></tr></thead><tbody>${Object.keys(byCh).map(k=>`<tr><td>${esc(k)}</td><td class="num">${byCh[k].n}</td><td class="num">${byCh[k].rn}</td><td class="num">${money(byCh[k].v)}</td></tr>`).join('')}</tbody></table>
+  <p class="muted" style="margin-top:12px;font-size:12px">ADR = ingreso de habitaciones ÷ habitaciones vendidas. RevPAR = ingreso de habitaciones ÷ habitaciones disponibles.</p></section></div>`;
+},
+practica(){
+  const cs=cases(),done=ME().practice||[],adm=isAdmin();let sec='',h='';
+  cs.forEach((c,i)=>{if(c.sec!==sec){if(sec)h+='</div>';sec=c.sec;h+=`<div class="panel" style="margin-top:16px"><h2>${esc(sec)}</h2>`;}
+    const ok=done.includes(c.id);
+    h+=`<label class="case ${ok?'done':''}"><input type="checkbox" data-act="case" data-id="${c.id}" ${ok?'checked':''}><span><b>${i+1}. ${esc(c.t)}</b><span>${c.d}</span><span class="think">Para pensar: ${esc(c.think)}</span>${adm?`<span class="guide">Guía del profesor: ${c.ans}</span>`:''}</span></label>`;});
+  if(sec)h+='</div>';
+  const cnt=cs.filter(c=>done.includes(c.id)).length;
+  return `<div class="toolbar"><h1>Casos de práctica</h1><span class="grow"></span><span class="muted">${cnt} de ${cs.length} resueltos</span></div>
+  <p class="muted">Resuelve los casos en el sistema y responde la pregunta para pensar en tu cuaderno o en un documento. El hotel puede ser compartido: si un compañero ya resolvió un caso, revisa el historial de la reserva y explícalo con tus palabras.</p>${h}`;
+},
+usuarios(){
+  const us=S.users.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  return `<div class="toolbar"><h1>Usuarios</h1></div><p class="muted">Los estudiantes crean su propia cuenta desde la pantalla de ingreso. Aquí les asignas la función.</p>
+  <div class="panel scroll"><table class="tbl"><thead><tr><th>Nombre</th><th>Usuario</th><th>Función</th><th>Casos</th><th>Estado</th><th></th></tr></thead><tbody>${us.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.user)}</td><td>${u.role==='admin'?'Administrador':`<select data-role="${u.id}" style="min-width:150px"><option value="recepcion" ${u.role==='recepcion'?'selected':''}>Recepción</option><option value="auditor" ${u.role==='auditor'?'selected':''}>Auditor nocturno</option></select>`}</td><td>${(u.practice||[]).filter(x=>typeof x==='string').length}</td><td>${u.active===false?'<span class="badge s-cancelada">Desactivado</span>':'<span class="badge s-hospedado">Activo</span>'}</td><td class="num">${u.role==='admin'?'':`<button class="btn ghost sm" data-act="user-toggle" data-id="${u.id}">${u.active===false?'Activar':'Desactivar'}</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+},
+ajustes(){
+  const h=C().hotel;
+  return `<div class="toolbar"><h1>Ajustes del hotel</h1></div><p class="muted" style="margin-top:-8px">Los cambios que hagas aquí los ve todo el equipo.</p><div class="cols" style="margin-top:0">
+  <section class="panel"><h2>Datos del hotel</h2><form id="hotel" class="stack"><label>Nombre<input name="name" value="${esc(h.name)}" required></label><label>NIT<input name="nit" value="${esc(h.nit)}"></label><label>Ciudad<input name="city" value="${esc(h.city)}"></label><div class="grid2"><label>Hora de check-in<input name="ci" type="time" value="${esc(h.ci)}"></label><label>Hora de check-out<input name="co" type="time" value="${esc(h.co)}"></label></div><p class="form-err"></p><button class="btn">Guardar datos</button></form></section>
+  <section class="panel"><h2>Tarifas por tipo de habitación</h2><form id="rates" class="stack">${C().types.map(t=>`<div class="grid2"><label>${esc(t.name)}: tarifa por noche<input name="rate_${t.code}" type="number" min="0" step="1000" value="${t.rate}"></label><label>Capacidad máxima<input name="cap_${t.code}" type="number" min="1" max="10" value="${t.cap}"></label></div>`).join('')}<p class="muted" style="font-size:12px">Las reservas ya creadas conservan su tarifa.</p><p class="form-err"></p><button class="btn">Guardar tarifas</button></form></section>
+  <section class="panel"><h2>Productos y servicios</h2><form id="products" class="stack">${C().products.map(p=>`<div class="grid2"><label>Nombre<input name="n_${p.id}" value="${esc(p.name)}"></label><label>Precio (0 para quitarlo)<input name="p_${p.id}" type="number" min="0" step="500" value="${p.price}"></label></div>`).join('')}<div class="grid2"><label>Nuevo producto<input name="n_new" placeholder="Opcional"></label><label>Precio<input name="p_new" type="number" min="0" step="500"></label></div><p class="form-err"></p><button class="btn">Guardar productos</button></form></section>
+  <section class="panel"><h2>Reiniciar el hotel</h2><p class="muted">Borra reservas, huéspedes, pagos, cierres y auditorías, y carga un escenario nuevo con fecha de hoy. Las cuentas de los estudiantes se conservan.</p><button class="btn danger" data-act="reset">Reiniciar hotel para todos</button></section></div>`;
+}};
+
+function cases(){
+  const scn=C().scn||{};
+  const n=k=>{const r=scn[k]&&resById(scn[k]);return r?{g:esc(gname(guest(r.guestId))),rm:room(r.roomId).num,code:r.code,src:esc(r.source)}:null;};
+  const E=n('E'),F=n('F'),A=n('A'),Bq=n('B'),Cq=n('C'),D=n('D'),G=n('G'),I=n('I'),H1=n('H');
+  const blk=S.rooms.find(r=>r.status==='bloqueada');
+  const L=[];const add=(sec,id,t,d,think,ans)=>L.push({sec,id,t,d,think,ans});
+  const S1='Conoce el sistema',S2='Operación de recepción',S3='Situaciones para pensar',S4='Caja, auditoría y cierre',S5='Archivos y Excel';
+  add(S1,'k1','Recorrido por el menú','Entra a cada sección del menú y escribe en una frase para qué sirve cada una.','¿Cuál crees que vas a usar más en un turno real y por qué?','Hoy: resumen del turno. Rack: disponibilidad por habitación y día. Reservas y Huéspedes: búsqueda y registro. Housekeeping: estado de limpieza. Punto de venta: consumos. Caja: pagos del turno. Auditoría: cierre del día. Reportes: indicadores.');
+  add(S1,'k2','Aprende a leer el rack','Encuentra en el rack un ejemplo de cada señal: azul, verde, gris, punto rojo y borde punteado naranja. Anota el nombre del huésped en cada caso.','Si llegas a un turno y solo tienes 30 segundos para mirar el rack, ¿qué buscarías primero?','Azul: pendiente de check-in. Verde: en casa. Gris: ya hizo check-out. Punto rojo: saldo pendiente. Punteado naranja: en casa sin tarjeta de registro completa.');
+  add(S1,'k3','La fecha del hotel','Ubica la fecha del hotel en la parte de arriba. Compárala con la fecha de tu celular.','¿Por qué un hotel maneja su propia fecha y quién la cambia?','La fecha de trabajo la avanza el auditor nocturno al cerrar el día. Hasta que no se cierra, el sistema sigue en la fecha anterior aunque ya sea madrugada.');
+  if(H1)add(S1,'k4','Busca sin mirar el rack',`Con el buscador de Reservas encuentra la reserva ${H1.code}. ¿Quién es el huésped, qué habitación tuvo, por qué canal llegó y cómo pagó?`,'¿En qué situaciones te toca buscar una reserva por código y no por nombre?',`Debe usar el filtro "Todas" o "Check-out", porque ya salió. Huésped ${H1.g}, habitación ${H1.rm}, canal ${H1.src}. El medio de pago está en el folio.`);
+  if(blk)add(S1,'k5','Habitación fuera de servicio','Encuentra la habitación bloqueada. ¿Por qué está bloqueada? Intenta reservarla desde el rack.','¿Qué pasa con los ingresos del hotel cuando una habitación está bloqueada muchos días?',`Es la ${blk.num} (${esc(blk.note||'mantenimiento')}). El rack no deja crear reservas en ella y no aparece disponible en Nueva reserva.`);
+  add(S1,'k6','Trabaja sin mouse','Recorre el sistema solo con el teclado: números del 1 al 0 para las secciones, N para nueva reserva, / para buscar y Esc para cerrar.','¿Cuánto tiempo crees que ahorras en un turno con fila en recepción?','Los atajos están en el botón Atajos. Evalúa que lo haga sin tocar el mouse.');
+  add(S1,'k7','¿Quién hizo qué?','En Hoy, revisa la Actividad reciente. Identifica la última acción y quién la hizo.','¿Por qué es importante que el sistema guarde quién hizo cada cosa?','Trazabilidad: permite aclarar errores, faltantes de caja y reclamos. Cada usuario responde por sus movimientos.');
+
+  if(E)add(S2,'o1','Check-in con reserva directa',`${E.g} llega con reserva directa y ya pagó un anticipo. Completa su tarjeta de registro y haz el check-in.`,'¿Qué datos del huésped son obligatorios y para qué los necesita el hotel?','Debe completar documento, nacionalidad, fecha de nacimiento, procedencia, teléfono y autorización de datos. El anticipo aparece en el folio.');
+  if(F)add(S2,'o2','Habitación sucia a la llegada',`${F.g} llega hoy y su habitación (${F.rm}) todavía está sucia porque el huésped anterior salió esta mañana.`,'¿Es mejor hacerlo esperar o cambiarle la habitación? ¿Qué le dirías al huésped?','Dos salidas válidas: pedir a housekeeping que la marque limpia y luego hacer el check-in, o asignarle otra habitación limpia del mismo tipo en la tarjeta de check-in.');
+  add(S2,'o3','Walk-in','Llega una pareja sin reserva por 2 noches. Busca disponibilidad, crea la reserva con canal Walk-in, cobra el 50% de anticipo y haz el check-in.','¿Qué tarifa le darías a alguien que llega sin reserva un sábado en temporada alta?','Canal Walk-in, anticipo al crear la reserva o con Registrar anticipo, luego check-in con registro completo.');
+  add(S2,'o4','Reserva que entra por OTA','Usa Simular reserva de OTA y ubícala en el rack.','¿Viene prepagada por el canal o se cobra en el hotel? ¿Cómo lo sabes?','Expedia y Airbnb llegan prepagadas (pago con tarjeta virtual en el folio). Booking.com llega con "Pago en el hotel" en las notas.');
+  if(Bq)add(S2,'o5','Una gaseosa y una caipirinha',`${Bq.g}, de la habitación ${Bq.rm}, pide una gaseosa y una caipirinha de maracuyá. Carga la gaseosa de la lista y la caipirinha como cargo libre.`,'¿Cuándo conviene usar un cargo libre y cuándo es mejor pedir que agreguen el producto a la lista?','Gaseosa desde la lista; la caipirinha de maracuyá como Cargo libre con su valor. Ambas deben verse en el folio.');
+  if(A)add(S2,'o6','Check-out con saldo pendiente',`${A.g}, de la habitación ${A.rm}, sale hoy. Revisa el folio, cobra el saldo y haz el check-out.`,'¿Qué revisas en el folio antes de cobrar para evitar un reclamo?','Revisar cargos uno por uno con el huésped, cobrar el saldo exacto, hacer check-out. La barra queda gris y la habitación sucia.');
+  if(Cq)add(S2,'o7','Registro incompleto',`${Cq.g}, de la habitación ${Cq.rm}, entró sin tarjeta de registro completa.`,'¿Qué riesgo corre el hotel si un huésped está en casa sin registro?','Usar Completar registro. Riesgo: sanciones y no poder reportar al registro de viajeros.');
+  if(I)add(S2,'o8','Cancelación',`${I.g} llama para cancelar su reserva de mañana. Cancélala dejando el motivo.`,'¿Le cobrarías penalidad? ¿De qué depende?','Cancelar con motivo. La penalidad depende de la política de cancelación informada al reservar.');
+  if(G)add(S2,'o9','No show',`${G.g} debía llegar ayer y no llegó. Márcala como no show.`,'¿Cuál es la diferencia entre una cancelación y un no show?','Cancelación: el huésped avisa. No show: no llega ni avisa. En Booking se puede cobrar la garantía según la política.');
+  add(S2,'o10','Anticipo por transferencia','Escoge una reserva futura sin pagos y registra un anticipo del 30% por transferencia, con número de referencia.','¿Por qué es importante anotar la referencia de la transferencia?','Registrar anticipo con medio Transferencia y referencia. Sirve para conciliar con el extracto bancario.');
+
+  if(Bq)add(S3,'p1','Se tiene que ir antes',`${Bq.g}, de la habitación ${Bq.rm}, tiene una emergencia familiar y se va hoy, antes de lo previsto. Haz el check-out anticipado.`,'Si ya pagó noches que no va a usar, ¿le devuelves todo? ¿Qué dice la política del hotel?','Si hay saldo a favor, el sistema pide registrar la devolución antes del check-out. Debe discutir la política de salida anticipada.');
+  if(Cq)add(S3,'p2','Una noche más',`${Cq.g} quiere quedarse una noche más. Extiende su estadía.`,'Si su habitación ya está reservada para otra persona, ¿qué opciones le das?','Usar Extender estadía. Si la habitación está ocupada, el sistema no deja; opciones: otra habitación con nueva reserva o recomendar otro hotel.');
+  add(S3,'p3','Consumo cobrado dos veces','Carga por error dos veces el mismo consumo a un huésped y luego anula uno desde el folio.','¿Por qué los sistemas no dejan borrar un cargo sino que obligan a anularlo con motivo?','Botón Anular en la línea del folio. Queda el cargo y su anulación: así hay rastro para auditoría y se evitan fraudes.');
+  add(S3,'p4','¿Me haces un descuento?','Un huésped directo pide 50% de descuento por quedarse 5 noches. Crea la reserva con esa tarifa y revisa qué pasa en la auditoría.','¿Quién debería autorizar un descuento así y por qué?','La auditoría la marca como tarifa fuera de rango. Debe corregirse o aprobarse con justificación. Autoriza el jefe o gerente.');
+  add(S3,'p5','Llega sin documento','Un huésped extranjero dice que dejó el pasaporte en el taxi. Intenta hacerle el check-in.','¿Qué le dirías? ¿Qué otras formas de identificación podrías aceptar?','El sistema no deja sin número de documento. Discutir: foto del pasaporte, denuncio, copia; el registro de extranjeros es obligatorio.');
+  add(S3,'p6','Viaja con un menor','Llega una familia con un niño de 10 años. Crea la reserva con un niño y haz el check-in de los adultos.','¿Qué documentos debes pedir para el menor y por qué? Investiga la Ley 1336 de 2009.','Pedir documento del menor y prueba del parentesco (registro civil) o autorización. Es una medida de prevención de la explotación de menores en turismo.');
+  add(S3,'p7','Dos reservas, una habitación','Intenta crear dos reservas en la misma habitación para las mismas fechas.','¿Qué es un overbooking? ¿Por qué algunos hoteles venden de más a propósito y qué hacen si todos llegan?','El sistema no lo permite. Overbooking: vender más de lo disponible contando con cancelaciones; si todos llegan se reubica al huésped en otro hotel a costo del hotel.');
+  add(S3,'p8','Cliente del bar','Una persona que no está hospedada compra dos caipirinhas. Registra la venta.','¿Por qué esta venta no va a ningún folio?','Punto de venta, destino Venta de contado. No hay folio porque no es huésped; el pago entra directo a la caja.');
+
+  if(D)add(S4,'c1','Tarifa mal digitada',`La reserva de ${D.g} (habitación ${D.rm}) tiene una tarifa muy por debajo de la normal. Encuéntrala y corrígela.`,'¿Cuánta plata hubiera perdido el hotel si nadie la revisaba?','La auditoría la marca. Al corregirla se genera un ajuste por las noches ya cargadas. Pérdida = diferencia por noche por noches de estadía.');
+  add(S4,'c2','Cuadra tu caja','Antes de cerrar turno, suma a mano el efectivo que recibiste y compáralo con lo que muestra Caja.','¿Qué haces si te falta plata? ¿Y si te sobra?','Debe coincidir con el total en Efectivo. Si no cuadra, revisar movimientos antes de cerrar e informar; nunca cubrir la diferencia sin reportarla.');
+  add(S4,'c3','Cierre de turno','Cierra tu turno y exporta los movimientos a Excel.','¿Por qué cada recepcionista cierra su propia caja y no una sola para todos?','Cada cierre queda con nombre y total, así cada uno responde por lo suyo.');
+  add(S4,'c4','Auditoría nocturna','Deja en verde los pendientes de la auditoría. El auditor asignado cierra el día.','¿Qué pendiente te pareció más difícil de resolver y por qué?','Llegadas, salidas, registros y tarifas en verde. Luego Cerrar el día.');
+  add(S4,'c5','Lee el reporte','Abre el último reporte de auditoría y explica con tus palabras la ocupación, el ADR y el RevPAR.','Si fueras el gerente, ¿qué harías para subir el RevPAR la próxima semana?','Ocupación: habitaciones vendidas sobre disponibles. ADR: tarifa promedio. RevPAR: ingreso por habitación disponible; sube con más ocupación o mejor tarifa.');
+  add(S4,'c6','Nota para el turno de la mañana','Después de la auditoría, escribe una nota corta para el turno siguiente con los folios con saldo, las habitaciones sucias y lo que quedó pendiente.','¿Qué pasa en un hotel cuando los turnos no se comunican?','Evalúa claridad y que incluya los datos de la auditoría.');
+
+  add(S5,'a1','Registro de huéspedes','Exporta el registro de huéspedes a Excel, filtra por nacionalidad y guárdalo con un nombre estandarizado.','¿Por qué el nombre del archivo debe llevar la fecha al inicio (AAAA-MM-DD)?','Ejemplo: 2026-10-03_registro-huespedes.xlsx. La fecha al inicio ordena los archivos solos por fecha.');
+  add(S5,'a2','Del sistema a Excel','Exporta las reservas y en Excel calcula el ingreso por canal con SUMAR.SI o una tabla dinámica.','¿Qué canal le deja más plata al hotel? ¿Y cuál le cuesta más en comisión?','La tabla debe coincidir con Producción por canal en Reportes. Las OTAs cobran comisión; la directa no.');
+  add(S5,'a3','Carpeta del turno','Crea una carpeta con la fecha del turno y dentro las subcarpetas Caja, Registro y Auditoría. Guarda allí los archivos que exportaste.','¿Cómo encontraría un compañero tus archivos si tú no estás?','Evalúa estructura, nombres estandarizados y que cada archivo esté en su carpeta.');
+  add(S5,'a4','Carta de confirmación','Con los datos de una reserva, llena una plantilla de carta de confirmación en Word.','¿Qué datos no pueden faltar en una confirmación de reserva?','Nombre, código, fechas, habitación, tarifa, anticipo, política de cancelación y datos del hotel.');
+  return L;
+}
+function openCash(){const names=[];S.users.forEach(u=>{if(myMoves(u.id).length)names.push(u.name);});return names;}
+function auditChecks(){
+  const T=biz();
+  return {arr:S.res.filter(r=>r.status==='confirmada'&&r.in<=T),dep:S.res.filter(r=>r.status==='hospedado'&&r.out<=T),
+    noreg:S.res.filter(r=>r.status==='hospedado'&&!regOk(guest(r.guestId))),rates:S.res.filter(rateOff),
+    bal:S.res.filter(r=>r.status==='hospedado'&&due(r)>0),dirty:S.rooms.filter(r=>r.status==='sucia'),open:openCash()};
+}
+function resRows(){
+  const q=qRes.trim().toLowerCase();
+  const list=S.res.filter(r=>{
+    if(fRes==='activas'&&!(r.status==='confirmada'||r.status==='hospedado'))return false;
+    if(fRes!=='activas'&&fRes!=='todas'&&r.status!==fRes)return false;
+    if(!q)return true;return (gname(guest(r.guestId))+' '+r.code+' '+room(r.roomId).num+' '+r.source).toLowerCase().includes(q);
+  }).sort((a,b)=>a.in<b.in?-1:a.in>b.in?1:0);
+  return list.map(r=>`<tr class="click" data-act="open-res" data-id="${r.id}"><td><b>${r.code}</b></td><td>${esc(gname(guest(r.guestId)))}${flags(r)}</td><td>${room(r.roomId).num}</td><td>${fmtD(r.in)}</td><td>${fmtD(r.out)}</td><td>${esc(r.source)}</td><td>${badge(r.status)}</td><td class="num">${occupying(r)?money(est(r)):'—'}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">No hay reservas con ese filtro.</td></tr>';
+}
+function guestRows(){
+  const q=qG.trim().toLowerCase();
+  return S.guests.filter(g=>!q||(gname(g)+' '+g.docNum).toLowerCase().includes(q)).sort((a,b)=>gname(a).localeCompare(gname(b))).map(g=>`<tr class="click" data-act="open-guest" data-id="${g.id}"><td><b>${esc(gname(g))}</b></td><td>${g.docNum?esc(g.docType+' '+g.docNum):'<span class="muted">Sin registrar</span>'}</td><td>${esc(g.nac)}</td><td>${esc(g.phone)}</td><td>${regOk(g)?'<span class="badge s-hospedado">Completo</span>':'<span class="badge b-warn">Incompleto</span>'}</td><td class="num">${S.res.filter(r=>r.guestId===g.id).length}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">No hay huéspedes con esa búsqueda.</td></tr>';
+}
+function myMoves(userId){
+  const last=S.closures.filter(c=>c.userId===userId).reduce((a,c)=>Math.max(a,c.ts),0);const mv=[];
+  S.res.forEach(r=>folio(r).forEach(f=>{if(f.type==='pago'&&f.userId===userId&&f.ts>last)mv.push({d:f.d,ts:f.ts,concept:f.concept,ref:r.code+', hab. '+room(r.roomId).num,method:f.method,amount:f.amount});}));
+  S.sales.forEach(s=>{if(s.userId===userId&&s.ts>last)mv.push({d:s.d,ts:s.ts,concept:s.concept,ref:'Venta de contado',method:s.method,amount:s.amount});});
+  return mv.sort((a,b)=>a.ts-b.ts);
+}
+
+/* ---------- Ventanas de reserva ---------- */
+function openRes(id){
+  const r=resById(id);if(!r){closeModal();return;}const g=guest(r.guestId),rm=room(r.roomId),T=biz();
+  const b=est(r),d=due(r);let acts='';
+  if(r.status==='confirmada'){
+    acts+=`<button class="btn ghost" data-act="pay" data-id="${r.id}">Registrar anticipo</button><button class="btn ghost" data-act="rate" data-id="${r.id}">Cambiar tarifa</button><button class="btn ghost" data-act="cancel" data-id="${r.id}">Cancelar reserva</button>`;
+    if(r.in<=T)acts+=`<button class="btn ghost" data-act="noshow" data-id="${r.id}">Marcar no show</button><button class="btn" data-act="ci" data-id="${r.id}">Hacer check-in</button>`;
+  }else if(r.status==='hospedado'){
+    acts+=`<button class="btn ghost" data-act="charge" data-id="${r.id}">Agregar cargo</button><button class="btn ghost" data-act="pay" data-id="${r.id}">Registrar pago</button><button class="btn ghost" data-act="rate" data-id="${r.id}">Cambiar tarifa</button><button class="btn ghost" data-act="extend" data-id="${r.id}">Extender estadía</button>${noReg(r)?`<button class="btn ghost" data-act="reg" data-id="${r.id}">Completar registro</button>`:''}<button class="btn" data-act="co" data-id="${r.id}">Hacer check-out</button>`;
+  }
+  acts+=`<button class="btn ghost" data-act="print" data-id="${r.id}">${r.status==='salida'?'Ver factura':'Estado de cuenta'}</button>`;
+  const fl=folio(r).slice().sort((a,b)=>a.ts-b.ts);
+  const notes=[];
+  if(noReg(r))notes.push('<div class="note">Este huésped está en casa sin tarjeta de registro completa. Complétala antes de la auditoría.</div>');
+  if(rateOff(r))notes.push(`<div class="note">La tarifa (${money(r.rate)}) está muy por debajo de la tarifa ${esc(rtype(rm.type).name)} (${money(rtype(rm.type).rate)}). Revísala.</div>`);
+  if(r.status==='confirmada'&&rm.status!=='limpia'&&r.in<=T)notes.push(`<div class="note">La habitación ${rm.num} está ${RST[rm.status].toLowerCase()}. Debe estar limpia para el check-in.</div>`);
+  openModal(`${r.code} ${badge(r.status)}${est(r)>0&&occupying(r)?'<span class="reddot" title="Saldo pendiente"></span>':''}`,`${notes.join('')}
+   <div class="facts"><div><small>Huésped</small><b>${esc(gname(g))}</b></div><div><small>Documento</small><b>${g.docNum?esc(g.docType+' '+g.docNum):'Sin registrar'}</b></div><div><small>Contacto</small><b>${esc(g.phone||g.email||'')}</b></div>
+   <div><small>Habitación</small><b>${rm.num}, ${esc(rtype(rm.type).name)}</b></div><div><small>Estadía</small><b>${fmtD(r.in)} al ${fmtD(r.out)}</b></div><div><small>Noches y personas</small><b>${plural(nights(r),'noche')}, ${plural(r.adults,'adulto')}${r.children?', '+plural(r.children,'niño'):''}</b></div>
+   <div><small>Canal</small><b>${esc(r.source)}</b></div><div><small>Tarifa por noche</small><b>${money(r.rate)}</b></div><div><small>Creada por</small><b>${esc(r.by)}</b></div></div>
+   ${r.notes?`<p><small class="muted">Notas:</small> ${esc(r.notes)}</p>`:''}
+   <h2>Folio</h2>${r.status!=='salida'&&occupying(r)?'<p class="muted" style="font-size:12px">Cada noche de alojamiento se carga al correr la auditoría nocturna.</p>':''}
+   <div class="scroll">${fl.length?`<table class="tbl"><thead><tr><th>Fecha</th><th>Concepto</th><th>Medio</th><th>Usuario</th><th class="num">Cargo</th><th class="num">Pago</th><th></th></tr></thead><tbody>${fl.map(f=>{const vd=fl.some(x=>x.voidOf===f.id);const can=r.status==='hospedado'&&f.type==='cargo'&&f.kind!=='aloj'&&f.amount>0&&!f.voidOf&&!vd;return `<tr${vd?' style="opacity:.55"':''}><td>${fmtD(f.d)}</td><td>${esc(f.concept)}${vd?' <span class="badge b-warn">Anulado</span>':''}</td><td>${esc(f.method)}</td><td>${esc(f.user)}</td><td class="num">${f.type==='cargo'?money(f.amount):''}</td><td class="num">${f.type==='pago'?money(f.amount):''}</td><td class="num">${can?`<button class="btn ghost sm" data-act="void" data-id="${r.id}" data-f="${f.id}">Anular</button>`:''}</td></tr>`;}).join('')}</tbody></table>`:'<p class="empty">Sin movimientos.</p>'}</div>
+   ${r.status==='hospedado'?`<div class="balance"><span>Saldo a la fecha (para check-out hoy)</span><b style="color:${d>0?'var(--danger)':d<0?'var(--warn)':'var(--ok)'}">${money(d)}</b></div>`:''}
+   ${occupying(r)?`<div class="balance"><span>${r.status==='salida'?'Saldo final':'Saldo de toda la estadía'}</span><b style="color:${b>0?'var(--danger)':'var(--ok)'}">${money(b)}</b></div>`:''}
+   <div class="actions">${acts}</div>`,{wide:true,nofocus:true,resId:id});
+}
+function resForm(pre){
+  pre=pre||{};const T=biz();const inD=pre.date&&pre.date>=T?pre.date:T;
+  openModal('Nueva reserva',`<form id="newres"><div class="grid2">
+   <label class="span2">Huésped<select name="guest" id="rf-guest"><option value="new">Nuevo huésped</option>${S.guests.slice().sort((a,b)=>gname(a).localeCompare(gname(b))).map(g=>`<option value="${g.id}">${esc(gname(g))}${g.docNum?' ('+esc(g.docNum)+')':''}</option>`).join('')}</select></label>
+   <div class="grid2" id="rf-new" style="grid-column:1/-1"><label>Nombres<input name="nombre"></label><label>Apellidos<input name="apellido"></label><label>Teléfono<input name="phone" type="tel"></label><label>Correo<input name="email" type="email"></label></div>
+   <label>Llegada<input name="in" id="rf-in" type="date" min="${T}" value="${inD}" required></label><label>Salida<input name="out" id="rf-out" type="date" value="${addDays(inD,1)}" required></label>
+   <label>Adultos<input name="adults" type="number" min="1" max="10" value="2"></label><label>Niños<input name="children" type="number" min="0" max="10" value="0"></label>
+   <label class="span2">Habitación<select name="room" id="rf-room"></select></label>
+   <label>Tarifa por noche (COP)<input name="rate" id="rf-rate" type="number" min="0" step="1000"></label><label>Canal<select name="source">${opts(CH,'Directa')}</select></label>
+   <label>Anticipo (opcional)<input name="deposit" type="number" min="0" step="1000" value="0"></label><label>Medio del anticipo<select name="method">${opts(METHODS)}</select></label>
+   <label class="span2">Notas<textarea name="notes" rows="2" placeholder="Solicitudes especiales, hora de llegada, etc."></textarea></label></div>
+   <div class="balance"><span id="rf-sum">Total</span><b id="rf-total">$0</b></div>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="close-modal">Cancelar</button><button class="btn">Crear reserva</button></div></form>`,{nofocus:true,mount(){
+    const inE=$('#rf-in'),outE=$('#rf-out'),rmE=$('#rf-room'),rateE=$('#rf-rate'),gE=$('#rf-guest');let sel=pre.room||'';
+    const sum=()=>{const n=inE.value&&outE.value?diff(inE.value,outE.value):0;$('#rf-sum').textContent=n>0?'Total '+plural(n,'noche'):'Revisa las fechas';$('#rf-total').textContent=money(n>0?n*(+rateE.value||0):0);};
+    const setRate=()=>{const rm=S.rooms.find(x=>x.id===rmE.value);rateE.value=rm?rtype(rm.type).rate:'';sum();};
+    const fill=()=>{const a=inE.value,b=outE.value;rmE.innerHTML=S.rooms.slice().sort((x,y)=>x.num.localeCompare(y.num)).map(rm=>{const ok=a&&b&&a<b&&rm.status!=='bloqueada'&&available(rm.id,a,b);return `<option value="${rm.id}" ${ok?'':'disabled'}>${rm.num}, ${esc(rtype(rm.type).name)} (${money(rtype(rm.type).rate)})${ok?'':rm.status==='bloqueada'?', bloqueada':', no disponible'}</option>`;}).join('');
+      const o=[...rmE.options];const p=o.find(x=>x.value===sel&&!x.disabled)||o.find(x=>!x.disabled);if(p){rmE.value=p.value;sel=p.value;}else rmE.value='';setRate();};
+    inE.onchange=()=>{if(!outE.value||outE.value<=inE.value)outE.value=addDays(inE.value,1);fill();};
+    outE.onchange=fill;rmE.onchange=()=>{sel=rmE.value;setRate();};rateE.oninput=sum;
+    gE.onchange=()=>{$('#rf-new').style.display=gE.value==='new'?'':'none';};fill();}});
+}
+const regFields=g=>`<div class="grid3"><label>Tipo de documento<select name="docType">${opts(DOCS,g.docType||'CC')}</select></label><label class="span2">Número de documento<input name="docNum" value="${esc(g.docNum)}" required></label>
+   <label>Nombres<input name="nombre" value="${esc(g.nombre)}" required></label><label>Apellidos<input name="apellido" value="${esc(g.apellido)}" required></label><label>Nacionalidad<input name="nac" value="${esc(g.nac)}" required></label>
+   <label>Fecha de nacimiento<input name="birth" type="date" value="${esc(g.birth)}" required></label><label>Ciudad de procedencia<input name="city" value="${esc(g.city)}" required></label><label>Motivo del viaje<select name="motivo">${opts(MOTIVOS,g.motivo||'Vacaciones y recreo')}</select></label>
+   <label>Teléfono<input name="phone" value="${esc(g.phone)}" required></label><label class="span2">Correo<input name="email" type="email" value="${esc(g.email)}"></label>
+   <label class="check span3"><input type="checkbox" name="dataOk" ${g.dataOk?'checked':''}> El huésped autoriza el tratamiento de sus datos personales (Ley 1581 de 2012).</label></div>`;
+function readReg(d,f){for(const k of ['docNum','nombre','apellido','nac','birth','city','phone'])if(!String(d[k]||'').trim()){formErr(f,'Completa todos los campos obligatorios de la tarjeta de registro.');return false;}
+  if(d.birth>=biz()){formErr(f,'Revisa la fecha de nacimiento.');return false;}
+  if(!d.dataOk){formErr(f,'Falta la autorización de tratamiento de datos del huésped.');return false;}return true;}
+function applyReg(g,d){['docType','docNum','nombre','apellido','nac','birth','city','motivo','phone','email'].forEach(k=>g[k]=String(d[k]||'').trim());g.dataOk=true;}
+function checkinForm(id){
+  const r=resById(id),g=guest(r.guestId),T=biz();
+  if(r.status!=='confirmada'){toast('Esta reserva ya no está pendiente de check-in. Otro usuario pudo haberla atendido.',true);openRes(id);return;}
+  if(r.in>T){toast(`Esta reserva llega el ${fmtD(r.in)}. No se puede hacer check-in antes de la fecha.`,true);return;}
+  const ok=S.rooms.filter(rm=>rm.id===r.roomId||(rm.status!=='bloqueada'&&available(rm.id,r.in,r.out,r.id))).sort((a,b)=>a.num.localeCompare(b.num));
+  openModal(`Check-in ${r.code}`,`<form id="checkin"><input type="hidden" name="rid" value="${r.id}"><p class="muted">Tarjeta de registro hotelero.</p>${regFields(g)}
+   <label style="margin-top:12px">Habitación asignada<select name="room">${ok.map(rm=>`<option value="${rm.id}" ${rm.id===r.roomId?'selected':''}>${rm.num}, ${esc(rtype(rm.type).name)}, ${RST[rm.status].toLowerCase()}</option>`).join('')}</select></label>
+   <div class="balance"><span>Valor de la estadía (${plural(nights(r),'noche')})</span><b>${money(r.rate*nights(r))}</b></div>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="close-modal">Cancelar</button><button class="btn">Confirmar check-in</button></div></form>`,{wide:true});
+}
+function regForm(id){const r=resById(id),g=guest(r.guestId);
+  openModal('Completar registro',`<form id="reg"><input type="hidden" name="rid" value="${id}">${regFields(g)}<p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn">Guardar registro</button></div></form>`,{wide:true});}
+function chargeForm(id,free){const r=resById(id);const P=C().products;
+  openModal('Agregar cargo',`<div class="tabs"><button type="button" data-act="charge" data-id="${id}" aria-selected="${!free}">De la lista</button><button type="button" data-act="charge-free" data-id="${id}" aria-selected="${!!free}">Cargo libre</button></div>
+   <form id="charge"><input type="hidden" name="rid" value="${id}"><input type="hidden" name="free" value="${free?1:''}"><div class="grid2">
+   ${free?`<label class="span2">Concepto<input name="concept" placeholder="Ej. Caipirinha, cóctel de la casa, toalla extra"></label>`:`<label class="span2">Producto o servicio<select name="prod" id="cf-prod">${P.map(p=>`<option value="${p.id}">${esc(p.name)} (${money(p.price)})</option>`).join('')}</select></label>`}
+   <label>Cantidad<input name="qty" type="number" min="1" value="1"></label><label>Valor unitario<input name="price" id="cf-price" type="number" min="0" step="500" value="${free?'':P[0]?P[0].price:0}"></label></div>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn">Cargar a la hab. ${room(r.roomId).num}</button></div></form>`,{mount(){
+    const s=$('#cf-prod');if(s)s.onchange=e=>{const p=P.find(x=>x.id===e.target.value);if(p)$('#cf-price').value=p.price;};}});}
+function payForm(id,refund){const r=resById(id),b=refund?-due(r):est(r);
+  openModal(refund?'Devolver saldo a favor':r.status==='confirmada'?'Registrar anticipo':'Registrar pago',`<form id="pay"><input type="hidden" name="rid" value="${id}"><input type="hidden" name="refund" value="${refund?1:''}">
+   <div class="balance"><span>${refund?'Saldo a favor del huésped':'Saldo de la estadía'}</span><b>${money(b)}</b></div><div class="grid2">
+   <label>Valor<input name="amount" type="number" min="1" step="1" value="${Math.max(b,0)}" ${refund?'readonly':''} required></label><label>Medio de ${refund?'devolución':'pago'}<select name="method">${opts(METHODS)}</select></label>
+   <label class="span2">Referencia o número de aprobación (opcional)<input name="ref" placeholder="Ej. voucher 004512"></label></div>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn">${refund?'Registrar devolución':'Registrar pago'}</button></div></form>`);}
+function rateForm(id){const r=resById(id),t=rtype(room(r.roomId).type),pn=posted(r).length;
+  openModal('Revisar tarifa '+r.code,`<form id="rate"><input type="hidden" name="rid" value="${id}"><p>Tarifa actual: <b>${money(r.rate)}</b>. Tarifa ${esc(t.name)}: <b>${money(t.rate)}</b>.</p>
+   ${pn?`<p class="muted">Ya hay ${plural(pn,'noche')} cargada${pn>1?'s':''}. Si cambias la tarifa, se registra un cargo de ajuste por la diferencia.</p>`:''}
+   <div class="grid2"><label>Nueva tarifa por noche<input name="rate" type="number" min="0" step="1000" value="${t.rate}"></label><label>Motivo<input name="why" placeholder="Ej. error de digitación"></label>
+   <label class="check span2"><input type="checkbox" name="keep"> La tarifa actual es correcta (cortesía o convenio). Aprobarla sin cambios.</label></div>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn">Guardar</button></div></form>`);}
+function extendForm(id){const r=resById(id),min=addDays(r.out>biz()?r.out:biz(),1);
+  openModal('Extender estadía '+r.code,`<form id="extend"><input type="hidden" name="rid" value="${id}"><p>Salida actual: <b>${fmtD(r.out)}</b>.</p><label>Nueva fecha de salida<input name="out" type="date" min="${min}" value="${min}" required></label>
+   <p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn">Extender</button></div></form>`);}
+function printFolio(id){const r=resById(id),g=guest(r.guestId),h=C().hotel,b=est(r);
+  openModal(r.status==='salida'?'Factura':'Estado de cuenta',`<div style="border:1px solid var(--line);border-radius:10px;padding:18px">
+   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b style="font-size:17px">${esc(h.name)}</b><br><small>NIT ${esc(h.nit)}, ${esc(h.city)}</small></div><div style="text-align:right"><b>${r.status==='salida'?'Factura de venta':'Estado de cuenta'}</b><br><small>${r.status==='salida'?'FV-':''}${r.code}, ${fmtD(biz())}</small></div></div>
+   <p style="margin-top:14px"><b>${esc(gname(g))}</b><br><small>${esc((g.docType||'')+' '+(g.docNum||''))}, hab. ${room(r.roomId).num}, del ${fmtD(r.in)} al ${fmtD(r.out)}</small></p>
+   <table class="tbl"><tbody>${folio(r).filter(f=>f.type==='cargo').map(f=>`<tr><td>${esc(f.concept)}</td><td class="num">${money(f.amount)}</td></tr>`).join('')}
+   ${r.status!=='salida'&&unpostedAll(r)?`<tr><td>Noches por cargar (${unpostedAll(r)})</td><td class="num">${money(unpostedAll(r)*r.rate)}</td></tr>`:''}
+   ${folio(r).filter(f=>f.type==='pago').map(f=>`<tr><td>${f.amount<0?'Devolución':'Pago'}: ${esc(f.method)}</td><td class="num">${money(-f.amount)}</td></tr>`).join('')}
+   <tr><td><b>Saldo</b></td><td class="num"><b>${money(b)}</b></td></tr></tbody></table>
+   <p class="muted" style="font-size:11px;margin-top:10px">Documento de práctica sin validez fiscal.</p></div>
+   <div class="actions"><button class="btn ghost" data-act="back-res" data-id="${id}">Volver</button><button class="btn" data-act="doprint">Imprimir o guardar PDF</button></div>`,{nofocus:true});}
+function auditReport(id){const a=S.audits.find(x=>x.id===id);if(!a)return;
+  openModal('Reporte de auditoría '+fmtD(a.d),`<div class="kpis" style="margin-bottom:14px"><div class="kpi"><b>${a.occPct}%</b><small>Ocupación (${a.occ} de ${a.avail})</small></div><div class="kpi"><b>${money(a.adr)}</b><small>ADR</small></div><div class="kpi"><b>${money(a.revpar)}</b><small>RevPAR</small></div></div>
+   <table class="tbl"><tbody><tr><td>Ingreso de alojamiento</td><td class="num">${money(a.roomRev)}</td></tr><tr><td>Otros ingresos (consumos y servicios)</td><td class="num">${money(a.other)}</td></tr><tr><td><b>Total ingresos del día</b></td><td class="num"><b>${money(a.roomRev+a.other)}</b></td></tr>
+   ${Object.keys(a.pay||{}).map(m=>`<tr><td>Recaudo: ${esc(m)}</td><td class="num">${money(a.pay[m])}</td></tr>`).join('')}
+   <tr><td>Llegadas</td><td class="num">${a.arr}</td></tr><tr><td>Salidas</td><td class="num">${a.dep}</td></tr><tr><td>No show</td><td class="num">${a.ns}</td></tr><tr><td>Cancelaciones</td><td class="num">${a.cx}</td></tr><tr><td>Folios en casa con saldo</td><td class="num">${a.withBal}</td></tr></tbody></table>
+   <p class="muted" style="font-size:12px;margin-top:8px">Auditor: ${esc(a.by)}.</p><div class="actions"><button class="btn" data-act="doprint">Imprimir o guardar PDF</button></div>`,{nofocus:true});}
+function exportData(what){
+  let title,rows;
+  if(what==='res'){title='Reservas';rows=[['Código','Huésped','Documento','Habitación','Tipo','Llegada','Salida','Noches','Adultos','Canal','Estado','Tarifa','Saldo','Registro']].concat(S.res.map(r=>{const g=guest(r.guestId),rm=room(r.roomId);return [r.code,gname(g),g.docNum?g.docType+' '+g.docNum:'',rm.num,rtype(rm.type).name,fmtD(r.in),fmtD(r.out),nights(r),r.adults,r.source,ST[r.status],r.rate,est(r),regOk(g)?'Completo':'Incompleto'];}));}
+  else if(what==='guests'){title='Registro de huéspedes';rows=[['Tipo doc.','Número','Nombres','Apellidos','Nacionalidad','Fecha nacimiento','Procedencia','Motivo del viaje','Teléfono','Correo','Autoriza datos']].concat(S.guests.map(g=>[g.docType,g.docNum,g.nombre,g.apellido,g.nac,fmtD(g.birth),g.city,g.motivo,g.phone,g.email,g.dataOk?'Sí':'No']));}
+  else if(what==='cash'){title='Caja de mi turno';rows=[['Fecha','Hora','Concepto','Referencia','Medio','Valor']].concat(myMoves(CUR).map(m=>[fmtD(m.d),hhmm(m.ts),m.concept,m.ref,m.method,m.amount]));}
+  else{title='Todos los pagos';const all=[];S.res.forEach(r=>folio(r).forEach(f=>{if(f.type==='pago')all.push([fmtD(f.d),hhmm(f.ts),r.code,f.concept,f.method,f.user,f.amount]);}));S.sales.forEach(s=>all.push([fmtD(s.d),hhmm(s.ts),'Contado',s.concept,s.method,s.user,s.amount]));rows=[['Fecha','Hora','Reserva','Concepto','Medio','Usuario','Valor']].concat(all);}
+  const tsv=rows.map(r=>r.map(c=>String(c==null?'':c).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  openModal('Exportar a Excel: '+esc(title),`<p>Copia estos datos y pégalos en la celda A1 de una hoja de Excel o Google Sheets. Cada dato cae en su propia columna.</p>
+   <textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea>
+   <div class="actions"><button class="btn ghost" data-act="close-modal">Cerrar</button><button class="btn" data-act="copy">Copiar datos</button></div>`,{nofocus:true});
+}
+
+/* ---------- Formularios ---------- */
+const reopen=id=>{render();openRes(id);};
+const busy=f=>{const b=f.querySelector('button:not([type=button])');if(b){b.disabled=true;setTimeout(()=>{b.disabled=false;},2500);}};
+const FORMS={
+ async login(d,f){const user=d.user.trim().toLowerCase();busy(f);try{await B.signIn(user,d.pass);}catch(e){formErr(f,errMsg(e));}},
+ async signup(d,f){const name=d.name.trim(),user=d.user.trim().toLowerCase();
+  if(!name){formErr(f,'Escribe tu nombre.');return;}
+  if(!/^[a-z0-9._-]{3,30}$/.test(user)){formErr(f,'El usuario debe tener al menos 3 caracteres, sin espacios ni tildes.');return;}
+  if(d.pass.length<6){formErr(f,'La contraseña debe tener al menos 6 caracteres.');return;}
+  if(d.pass!==d.pass2){formErr(f,'Las contraseñas no coinciden.');return;}
+  busy(f);try{await B.signUp(name,user,d.pass);toast('Cuenta creada. Bienvenido, '+name);}catch(e){formErr(f,errMsg(e));}},
+ newres(d,f){const T=biz();let g,isNew=d.guest==='new';
+  if(isNew){if(!d.nombre.trim()||!d.apellido.trim()){formErr(f,'Escribe nombres y apellidos del huésped.');return;}if(!d.phone.trim()&&!d.email.trim()){formErr(f,'Registra al menos un teléfono o correo de contacto.');return;}
+   g={id:uid(),nombre:d.nombre.trim(),apellido:d.apellido.trim(),docType:'CC',docNum:'',nac:'',birth:'',city:'',phone:d.phone.trim(),email:d.email.trim(),motivo:'',dataOk:false};}
+  else g=guest(d.guest);
+  if(!d.in||!d.out||d.out<=d.in){formErr(f,'La fecha de salida debe ser posterior a la llegada.');return;}
+  if(d.in<T){formErr(f,'La llegada no puede ser anterior a la fecha del hotel.');return;}
+  const rm=S.rooms.find(x=>x.id===d.room);if(!rm){formErr(f,'No hay habitaciones disponibles para esas fechas.');return;}
+  if(!available(rm.id,d.in,d.out)){formErr(f,`La habitación ${rm.num} ya está ocupada en esas fechas.`);return;}
+  const cap=rtype(rm.type).cap;if((+d.adults||0)+(+d.children||0)>cap){formErr(f,`La habitación ${rm.num} admite máximo ${cap} personas.`);return;}
+  if(!(+d.rate>0)){formErr(f,'Escribe una tarifa por noche mayor a cero.');return;}
+  const r={id:uid(),code:newCode(),guestId:g.id,roomId:rm.id,in:d.in,out:d.out,adults:+d.adults||1,children:+d.children||0,source:d.source,status:'confirmada',rate:+d.rate,notes:d.notes.trim(),created:Date.now(),by:ME().name,folio:[],posted:[],rateOk:false};
+  if(+d.deposit>0){if(+d.deposit>r.rate*nights(r)){formErr(f,'El anticipo no puede superar el valor de la estadía.');return;}r.folio.push(entry('pago','Anticipo',+d.deposit,d.method));}
+  if(isNew){S.guests.push(g);putDoc('guests',g);}
+  S.res.push(r);putDoc('res',r);log(`Creó la reserva ${r.code} para ${gname(g)} (hab. ${rm.num})`);reopen(r.id);toast(`Reserva ${r.code} creada`);},
+ checkin(d,f){const r=resById(d.rid),rm=room(d.room);if(!readReg(d,f))return;
+  if(r.status!=='confirmada'){formErr(f,'Esta reserva ya no está pendiente. Otro usuario pudo haber hecho el check-in.');return;}
+  if(rm.status!=='limpia'){formErr(f,`La habitación ${rm.num} está ${RST[rm.status].toLowerCase()}. Pide a housekeeping que la marque como limpia o asigna otra.`);return;}
+  if(rm.id!==r.roomId&&!available(rm.id,r.in,r.out,r.id)){formErr(f,`La habitación ${rm.num} no está disponible para toda la estadía.`);return;}
+  const g=guest(r.guestId);applyReg(g,d);putDoc('guests',g);const moved=rm.id!==r.roomId;
+  patchRes(r,{roomId:rm.id,status:'hospedado',ciD:biz()});
+  log(`Hizo check-in de ${gname(g)} en la hab. ${rm.num}${moved?' (cambio de habitación)':''}`);reopen(r.id);toast('Check-in realizado. Entrega la llave de la habitación '+rm.num);},
+ reg(d,f){const r=resById(d.rid);if(!readReg(d,f))return;const g=guest(r.guestId);applyReg(g,d);putDoc('guests',g);log(`Completó la tarjeta de registro de ${gname(g)}`);reopen(r.id);toast('Registro completo');},
+ charge(d,f){const r=resById(d.rid),free=!!d.free,p=free?null:C().products.find(x=>x.id===d.prod),qty=+d.qty||0,price=+d.price||0;
+  const concept=p?p.name:String(d.concept||'').trim();if(!concept){formErr(f,'Escribe el concepto del cargo.');return;}
+  if(qty<1||price<=0){formErr(f,'Revisa la cantidad y el valor.');return;}
+  if(r.status!=='hospedado'){formErr(f,'Solo se pueden cargar consumos a huéspedes en casa.');return;}
+  addFolio(r,[entry('cargo',`${concept} x${qty}`,qty*price)]);log(`Cargó ${concept} x${qty} a la hab. ${room(r.roomId).num}`);reopen(r.id);toast('Cargo registrado');},
+ pay(d,f){const r=resById(d.rid);
+  if(d.refund){const amt=-due(r);if(amt<=0){closeModal();return;}addFolio(r,[entry('pago','Devolución de saldo a favor'+(d.ref.trim()?', ref. '+d.ref.trim():''),-amt,d.method)]);log(`Devolvió ${money(amt)} a ${gname(guest(r.guestId))}`);reopen(r.id);toast('Devolución registrada');return;}
+  const amt=Math.round(+d.amount||0),b=est(r);
+  if(amt<=0){formErr(f,'Escribe un valor mayor a cero.');return;}
+  if(amt>b){formErr(f,`El pago supera el saldo de la estadía (${money(b)}).`);return;}
+  addFolio(r,[entry('pago',(r.status==='confirmada'?'Anticipo':'Pago')+(d.ref.trim()?', ref. '+d.ref.trim():''),amt,d.method)]);
+  log(`Registró un pago de ${money(amt)} (${d.method}) en ${r.code}`);reopen(r.id);toast('Pago registrado');},
+ rate(d,f){const r=resById(d.rid);if(!d.why.trim()){formErr(f,'Escribe el motivo.');return;}
+  if(d.keep){patchRes(r,{rateOk:true});log(`Aprobó la tarifa de ${r.code}: ${d.why.trim()}`);reopen(r.id);toast('Tarifa aprobada');return;}
+  const nr=+d.rate;if(!(nr>0)){formErr(f,'Escribe una tarifa mayor a cero.');return;}
+  const pn=posted(r).length,old=r.rate;if(nr===old){formErr(f,'La tarifa nueva es igual a la actual.');return;}
+  patchRes(r,{rate:nr,rateOk:false});if(pn)addFolio(r,[entry('cargo',`Ajuste de tarifa (${plural(pn,'noche')}): ${d.why.trim()}`,(nr-old)*pn,'','aloj')]);
+  log(`Cambió la tarifa de ${r.code} de ${money(old)} a ${money(nr)}`);reopen(r.id);toast('Tarifa actualizada');},
+ extend(d,f){const r=resById(d.rid);if(!d.out||d.out<=r.out){formErr(f,'Escoge una fecha posterior a la salida actual.');return;}
+  if(!available(r.roomId,r.in,d.out,r.id)){formErr(f,`La habitación ${room(r.roomId).num} está reservada en esas fechas. Cambia de habitación o escoge otra fecha.`);return;}
+  const old=r.out;patchRes(r,{out:d.out});log(`Extendió ${r.code} del ${fmtD(old)} al ${fmtD(d.out)}`);reopen(r.id);toast('Estadía extendida');},
+ void(d,f){const r=resById(d.rid),x=folio(r).find(e=>e.id===d.fid);if(!d.why.trim()){formErr(f,'Escribe el motivo de la anulación.');return;}
+  if(!x||folio(r).some(e=>e.voidOf===x.id)){formErr(f,'Ese cargo ya fue anulado.');return;}
+  const e=entry('cargo',`Anulación: ${x.concept} (${d.why.trim()})`,-x.amount);e.voidOf=x.id;addFolio(r,[e]);log(`Anuló el cargo "${x.concept}" en ${r.code}: ${d.why.trim()}`);reopen(r.id);toast('Cargo anulado');},
+ free(d,f){const c=String(d.concept||'').trim(),p=+d.price||0;if(!c||p<=0){formErr(f,'Escribe el concepto y un valor mayor a cero.');return;}cart.push({id:'free-'+uid(),name:c,price:p,qty:1});render();},
+ pos(d,f){if(!cart.length)return;
+  if(d.dest==='cash'){const u=ME(),total=cart.reduce((a,c)=>a+c.price*c.qty,0);const s={id:uid(),d:biz(),ts:Date.now(),concept:cart.map(c=>c.name+' x'+c.qty).join(', '),amount:total,method:d.method,user:u.name,userId:u.id};S.sales.push(s);putDoc('sales',s);log(`Venta de contado por ${money(total)}`);toast('Venta registrada en caja');}
+  else{const r=resById(d.dest);addFolio(r,cart.map(c=>entry('cargo',`${c.name} x${c.qty}`,c.price*c.qty)));log(`Cargó consumos a la hab. ${room(r.roomId).num}`);toast('Consumo cargado a la habitación '+room(r.roomId).num);}
+  cart=[];render();},
+ async setpass(d,f){if(d.pass.length<6){formErr(f,'La contraseña nueva debe tener al menos 6 caracteres.');return;}busy(f);try{await B.changePass(d.old,d.pass);closeModal();toast('Contraseña actualizada');}catch(e){formErr(f,errMsg(e));}},
+ hotel(d,f){if(!d.name.trim()){formErr(f,'El nombre es obligatorio.');return;}patchCfg({hotel:{name:d.name.trim(),nit:d.nit.trim(),city:d.city.trim(),ci:d.ci,co:d.co}});log('Actualizó los datos del hotel');render();toast('Datos guardados para todo el equipo');},
+ rates(d,f){for(const t of C().types){if(!(+d['rate_'+t.code]>0)||!(+d['cap_'+t.code]>=1)){formErr(f,'Tarifas y capacidades deben ser mayores a cero.');return;}}
+  patchCfg({types:C().types.map(t=>Object.assign({},t,{rate:+d['rate_'+t.code],cap:+d['cap_'+t.code]}))});log('Actualizó las tarifas');render();toast('Tarifas guardadas para todo el equipo');},
+ products(d,f){let list=C().products.map(p=>{const n=String(d['n_'+p.id]||'').trim(),pr=+d['p_'+p.id];return Object.assign({},p,{name:n||p.name,price:pr});}).filter(p=>p.price>0);
+  if(String(d.n_new||'').trim()){if(!(+d.p_new>0)){formErr(f,'Escribe el precio del producto nuevo.');return;}list.push({id:'p'+uid(),name:d.n_new.trim(),price:+d.p_new});}
+  patchCfg({products:list});log('Actualizó productos y servicios');render();toast('Productos guardados para todo el equipo');}
+};
+
+/* ---------- Acciones ---------- */
+function otaSim(silent){
+  const T=biz(),used=new Set(S.guests.map(g=>g.nombre+g.apellido));const src=pick(['Booking.com','Expedia','Airbnb']);
+  for(let t=0;t<40;t++){const inD=addDays(T,ri(10)),outD=addDays(inD,1+ri(4));
+    const list=S.rooms.filter(rm=>rm.status!=='bloqueada'&&available(rm.id,inD,outD));if(!list.length)continue;
+    const rm=pick(list),rate=Math.round(rtype(rm.type).rate*(src==='Airbnb'?1:1.1)/1000)*1000;
+    const tmp=[];const g=newGuest(tmp,used,false,Math.random()<.5);S.guests.push(g);putDoc('guests',g);
+    const r={id:uid(),code:newCode(),guestId:g.id,roomId:rm.id,in:inD,out:outD,adults:Math.min(2,rtype(rm.type).cap),children:0,source:src,status:'confirmada',rate,notes:src==='Booking.com'?'Pago en el hotel. Tarjeta de garantía en el extranet.':'Prepagada por el canal.',created:Date.now(),by:src,folio:[],posted:[],rateOk:false};
+    if(src!=='Booking.com')r.folio.push({id:uid(),d:T,ts:Date.now(),type:'pago',concept:'Prepago del canal',amount:rate*diff(inD,outD),method:'Tarjeta virtual OTA',user:src,userId:'ota',kind:''});
+    S.res.push(r);putDoc('res',r);log(`Entró la reserva ${r.code} desde ${src} para ${gname(g)}`);
+    if(!silent){render();toast(`Nueva reserva de ${src}: ${r.code}, hab. ${rm.num}, llega el ${fmtD(inD)}`);}return r;}
+  if(!silent)toast('No hay disponibilidad en los próximos 10 días para simular una reserva.',true);return null;
+}
+function closeDay(){
+  const T=biz(),u=ME();
+  if(S.audits.some(a=>a.d===T)){toast('Este día ya fue cerrado por otro auditor.',true);return;}
+  const inh=S.res.filter(r=>r.status==='hospedado'&&r.in<=T&&r.out>T);
+  let roomRev=0;inh.forEach(r=>{if(!posted(r).includes(T)){addFolio(r,[nightEntry(r,T,room(r.roomId).num)]);addPosted(r,[T]);roomRev+=r.rate;}});
+  const avail=S.rooms.filter(r=>r.status!=='bloqueada').length,occ=inh.length;
+  let other=0;const pay={};
+  S.res.forEach(r=>folio(r).forEach(f=>{if(f.d!==T)return;if(f.type==='cargo'&&f.kind!=='aloj')other+=f.amount;if(f.type==='pago'&&f.userId!=='ota'&&f.userId!=='sys')pay[f.method]=(pay[f.method]||0)+f.amount;}));
+  S.sales.forEach(s=>{if(s.d===T){other+=s.amount;pay[s.method]=(pay[s.method]||0)+s.amount;}});
+  const cnt=k=>S.res.filter(r=>r[k]===T).length;
+  const a={id:'a-'+T,d:T,ts:Date.now(),by:u.name,occ,avail,occPct:avail?Math.round(occ/avail*100):0,roomRev,other,adr:occ?Math.round(roomRev/occ):0,revpar:avail?Math.round(roomRev/avail):0,pay,arr:cnt('ciD'),dep:cnt('coD'),ns:cnt('nsD'),cx:cnt('cxD'),withBal:S.res.filter(r=>r.status==='hospedado'&&due(r)>0).length};
+  S.audits.push(a);putDoc('audits',a);patchCfg({biz:addDays(T,1)});rackStart=addDays(biz(),-2);
+  let n=0;const k=ri(3);for(let i=0;i<k;i++)if(otaSim(true))n++;
+  S.rooms.forEach(rm=>{if(rm.status==='limpia'&&S.res.some(r=>r.roomId===rm.id&&r.status==='hospedado')&&Math.random()<.5){rm.status='sucia';putDoc('rooms',rm);}});
+  log(`Cerró el día ${fmtD(T)}. Ocupación ${a.occPct}%, alojamiento ${money(roomRev)}`);render();auditReport(a.id);
+  toast(`Día cerrado. Nueva fecha del hotel: ${fmtD(biz())}${n?'. Entraron '+plural(n,'reserva')+' por OTA durante la noche':''}`);
+}
+const ACTS={
+ 'close-modal'(el,e){if(el.classList.contains('backdrop')&&e.target!==el)return;closeModal();},
+ nav(el){view=el.dataset.view;closeModal();render();const c=$('#content');if(c)c.scrollTop=0;},
+ ltab(el){renderLogin(el.dataset.tab);},
+ logout(){if(ME())log('Cerró sesión');closeModal();W(B.signOut());},
+ seed(){const sd=seed();W(B.reset(sd)).then(()=>toast('Hotel cargado. Ya pueden ingresar los estudiantes.'));},
+ 'new-res'(el){resForm({room:el.dataset.room,date:el.dataset.date});},
+ 'open-res'(el){openRes(el.dataset.id);},
+ 'back-res'(el){openRes(el.dataset.id);},
+ ci(el){checkinForm(el.dataset.id);},
+ reg(el){regForm(el.dataset.id);},
+ rate(el){rateForm(el.dataset.id);},
+ extend(el){extendForm(el.dataset.id);},
+ co(el){const r=resById(el.dataset.id);if(r.status!=='hospedado'){toast('Esta reserva ya no está en casa.',true);openRes(r.id);return;}const d=due(r);
+  if(d>0){toast(`Saldo pendiente de ${money(d)}. Registra el pago antes del check-out.`,true);openRes(r.id);return;}
+  if(d<0){openModal('Saldo a favor',`<p>El huésped tiene un saldo a favor de <b>${money(-d)}</b> (pagó noches que no va a usar). Registra la devolución antes del check-out.</p><div class="actions"><button class="btn ghost" data-act="back-res" data-id="${r.id}">Volver</button><button class="btn" data-act="refund" data-id="${r.id}">Registrar devolución</button></div>`,{nofocus:true});return;}
+  const early=r.out>biz();
+  confirmBox(`¿Confirmas el check-out de ${esc(gname(guest(r.guestId)))} de la habitación ${room(r.roomId).num}?${early?' Su salida estaba programada para el '+fmtD(r.out)+'; las noches restantes no se cobran.':''}`,()=>{
+    const ds=stayDates(r).filter(x=>x<stayLimit(r)&&!posted(r).includes(x));
+    if(ds.length){addFolio(r,ds.map(x=>nightEntry(r,x,room(r.roomId).num)));addPosted(r,ds);}
+    const f={status:'salida',coD:biz()};if(early)f.out=biz()>r.in?biz():addDays(r.in,1);patchRes(r,f);
+    const rm=room(r.roomId);rm.status='sucia';putDoc('rooms',rm);
+    log(`Hizo check-out de ${gname(guest(r.guestId))} (hab. ${rm.num})`);reopen(r.id);toast('Check-out realizado. La habitación quedó sucia para housekeeping.');},'Hacer check-out');},
+ refund(el){payForm(el.dataset.id,true);},
+ void(el){const r=resById(el.dataset.id),f=folio(r).find(x=>x.id===el.dataset.f);if(!f)return;openModal('Anular cargo',`<form id="void"><input type="hidden" name="rid" value="${r.id}"><input type="hidden" name="fid" value="${f.id}"><p>Vas a anular <b>${esc(f.concept)}</b> por <b>${money(f.amount)}</b>. El cargo no se borra: queda en el folio junto con su anulación.</p><label>Motivo de la anulación<input name="why" placeholder="Ej. cargo duplicado"></label><p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${r.id}">Volver</button><button class="btn danger">Anular cargo</button></div></form>`);},
+ charge(el){const r=resById(el.dataset.id);if(r.status!=='hospedado'){toast('Solo se pueden cargar consumos a huéspedes en casa.',true);return;}chargeForm(el.dataset.id,false);},
+ 'charge-free'(el){chargeForm(el.dataset.id,true);},
+ pay(el){payForm(el.dataset.id);},
+ print(el){printFolio(el.dataset.id);},
+ doprint(){window.print();},
+ cancel(el){const r=resById(el.dataset.id);openModal('Cancelar reserva '+r.code,`<form id="docancel"><p>Vas a cancelar la reserva de ${esc(gname(guest(r.guestId)))} del ${fmtD(r.in)} al ${fmtD(r.out)}.${sumF(r,'pago')?` Tiene pagos por ${money(sumF(r,'pago'))}: revisa la política de devoluciones.`:''}</p><label>Motivo de la cancelación<input id="cmot" placeholder="Ej. el huésped cambió sus planes"></label><p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="back-res" data-id="${r.id}">Volver</button><button type="button" class="btn danger" data-act="do-cancel" data-id="${r.id}">Cancelar reserva</button></div></form>`);},
+ 'do-cancel'(el){const r=resById(el.dataset.id),m=$('#cmot').value.trim();if(!m){formErr($('#docancel'),'Escribe el motivo de la cancelación.');return;}patchRes(r,{status:'cancelada',cxD:biz(),notes:(r.notes?r.notes+' ':'')+'Cancelada: '+m});log(`Canceló la reserva ${r.code}`);reopen(r.id);toast('Reserva cancelada');},
+ noshow(el){const r=resById(el.dataset.id);confirmBox(`¿Marcar la reserva ${r.code} como no show? La habitación queda libre para vender.`,()=>{patchRes(r,{status:'noshow',nsD:biz()});log(`Marcó como no show la reserva ${r.code}`);render();toast('Reserva marcada como no show');},'Marcar no show',true);},
+ hk(el){const rm=room(el.dataset.id),s=el.dataset.s;rm.status=s;rm.note=s==='bloqueada'?'Bloqueada por recepción':'';putDoc('rooms',rm);log(`Marcó la hab. ${rm.num} como ${RST[s].toLowerCase()}`);render();},
+ rack(el){const d=+el.dataset.d;rackStart=d===0?addDays(biz(),-2):addDays(rackStart,d);render();},
+ ota(){otaSim();},
+ 'close-day'(){if(!canAudit())return;const T=biz();confirmBox(`Vas a cerrar el día ${fmtD(T)}. Se cargará la noche de alojamiento a cada habitación ocupada y la fecha del hotel pasará al ${fmtD(addDays(T,1))} para todo el equipo. Esta acción no se puede deshacer.`,closeDay,'Cerrar el día');},
+ 'audit-rep'(el){auditReport(el.dataset.id);},
+ 'open-guest'(el){const g=guest(el.dataset.id),rs=S.res.filter(r=>r.guestId===g.id);openModal(esc(gname(g)),`<div class="facts"><div><small>Documento</small><b>${g.docNum?esc(g.docType+' '+g.docNum):'Sin registrar'}</b></div><div><small>Nacionalidad</small><b>${esc(g.nac||'')}</b></div><div><small>Nacimiento</small><b>${fmtD(g.birth)}</b></div><div><small>Procedencia</small><b>${esc(g.city||'')}</b></div><div><small>Teléfono</small><b>${esc(g.phone||'')}</b></div><div><small>Correo</small><b>${esc(g.email||'')}</b></div></div><h2>Estancias</h2><div class="scroll"><table class="tbl"><tbody>${rs.map(r=>`<tr class="click" data-act="open-res" data-id="${r.id}"><td>${r.code}</td><td>Hab. ${room(r.roomId).num}</td><td>${fmtD(r.in)} al ${fmtD(r.out)}</td><td>${badge(r.status)}</td></tr>`).join('')}</tbody></table></div>`,{nofocus:true});},
+ 'cart-add'(el){const p=C().products.find(x=>x.id===el.dataset.id);if(!p)return;const c=cart.find(x=>x.id===p.id);if(c)c.qty++;else cart.push({id:p.id,name:p.name,price:p.price,qty:1});render();},
+ 'cart-q'(el){const c=cart[+el.dataset.i];c.qty+=+el.dataset.d;if(c.qty<1)cart.splice(+el.dataset.i,1);render();},
+ 'close-shift'(){const u=ME(),mv=myMoves(u.id),total=mv.reduce((a,m)=>a+m.amount,0);confirmBox(`Vas a cerrar tu turno con ${plural(mv.length,'movimiento')} por ${money(total)}. Verifica que el efectivo en caja coincida antes de confirmar.`,()=>{const c={id:uid(),d:biz(),ts:Date.now(),userId:u.id,name:u.name,total,count:mv.length};S.closures.push(c);putDoc('closures',c);log(`Cerró turno por ${money(total)}`);render();toast('Turno cerrado');},'Cerrar turno');},
+ export(el){exportData(el.dataset.what);},
+ copy(){const t=$('#tsv');t.focus();t.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  const msg=ok=>toast(ok?'Datos copiados. Pégalos en Excel con Ctrl+V.':'Selecciona el texto y cópialo con Ctrl+C.',!ok);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(()=>msg(true),()=>msg(ok));else msg(ok);},
+ case(el){const u=ME(),i=el.dataset.id,arr=(u.practice||[]).filter(x=>typeof x==='string'),k=arr.indexOf(i);if(k>=0)arr.splice(k,1);else arr.push(i);u.practice=arr;W(B.patch('users',u.id,{practice:arr}));render();},
+ 'user-toggle'(el){const u=S.users.find(x=>x.id===el.dataset.id);const v=u.active===false;u.active=v;W(B.patch('users',u.id,{active:v}));render();toast(v?'Usuario activado':'Usuario desactivado');},
+ pwd(){openModal('Cambiar mi contraseña',`<form id="setpass" class="stack"><label>Contraseña actual<input name="old" type="password" required></label><label>Nueva contraseña<input name="pass" type="password" required></label><p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="close-modal">Cancelar</button><button class="btn">Guardar</button></div></form>`);},
+ reset(){confirmBox('Se borrarán reservas, huéspedes, pagos, cierres y auditorías de todo el equipo, y se cargará un escenario nuevo con fecha de hoy. Las cuentas se conservan.',()=>{const sd=seed();rackStart=null;cart=[];W(B.reset(sd)).then(()=>{log('Reinició el hotel con un escenario nuevo');toast('Hotel reiniciado para todos');});},'Reiniciar para todos',true);},
+ help(){openModal('Atajos de teclado',`<table class="tbl"><tbody>${NAV.map(([k,l,n])=>`<tr><td><kbd class="k">${n}</kbd></td><td>Ir a ${l}</td></tr>`).join('')}<tr><td><kbd class="k">N</kbd></td><td>Nueva reserva</td></tr><tr><td><kbd class="k">/</kbd></td><td>Ir al buscador</td></tr><tr><td><kbd class="k">Esc</kbd></td><td>Cerrar la ventana abierta</td></tr><tr><td><kbd class="k">?</kbd></td><td>Ver esta ayuda</td></tr></tbody></table>`,{nofocus:true});}
+};
+
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el,e);});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.getAttribute('id');if(FORMS[id])FORMS[id](d,f);});
+document.addEventListener('input',e=>{if(e.target.id==='qres'){qRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='qg'){qG=e.target.value;$('#tbody').innerHTML=guestRows();}});
+document.addEventListener('change',e=>{if(e.target.id==='fres'){fRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='posdest'){$('#posm').style.display=e.target.value==='cash'?'':'none';}
+  if(e.target.dataset.role){const u=S.users.find(x=>x.id===e.target.dataset.role);u.role=e.target.value;W(B.patch('users',u.id,{role:u.role}));toast(`${u.name} ahora es ${ROLES[u.role]}`);}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&modalOpen()){closeModal();return;}
+  if(!READY||!ME()||!S.config||modalOpen())return;const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
+  const n=NAV.find(x=>x[2]===e.key);if(n){view=n[0];render();return;}
+  if(e.key==='n'||e.key==='N'){e.preventDefault();resForm();return;}
+  if(e.key==='/'){const s=$('#content input[type=search]');if(s){e.preventDefault();s.focus();}return;}
+  if(e.key==='?')ACTS.help();
+});
+
+/* ---------- Arranque ---------- */
+function onData(d){S.config=d.config||null;COLS.forEach(c=>S[c]=d[c]||[]);S.log.sort((a,b)=>b.ts-a.ts);READY=true;
+  if(CUR&&!ME()&&B.mode==='firebase'){/* perfil aún creándose */}
+  scheduleRender();}
+function onAuth(id){const changed=CUR!==id;CUR=id;if(!id)loginTab='in';if(changed){view='hoy';rackStart=null;cart=[];closeModal();if(B.mode==='firebase')READY=false;}render();}
+async function boot(){
+  render();
+  try{B=FIREBASE_CONFIG.apiKey?await firebaseBackend():demoBackend();}
+  catch(e){console.error(e);$('#root').innerHTML=shell('<p>No se pudo conectar con la base de datos. Revisa tu conexión a internet y la configuración de Firebase.</p>');return;}
+  B.init(onData,onAuth);
+}
+boot();
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+})();
+
+</script>
+</body>
+</html>
