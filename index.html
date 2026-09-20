@@ -207,6 +207,15 @@ label.case>span>span{display:block}
 .case .think{display:block;margin-top:6px;font-style:italic;color:#0B6E6A}
 .case .guide{display:block;margin-top:6px;font-size:12px;background:#FFF7E6;border-left:3px solid var(--warn);padding:6px 10px;border-radius:6px;color:#7A4A0A}
 .login .brand{color:var(--accent)}
+
+.modes{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;margin-bottom:6px;max-width:520px}
+.modes button{flex:1;border:0;background:none;padding:8px 6px;border-radius:7px;cursor:pointer;font-weight:700;color:var(--muted);white-space:nowrap;font-size:13px}
+.modes button[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.mode-help{font-size:12px;color:var(--muted);margin:0 0 14px}
+.chk .ic.pend{background:var(--line);color:var(--muted)}
+.inline-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.inline-form input,.inline-form select{max-width:280px}
+.answer{background:var(--soft);border-radius:8px;padding:8px 10px;margin-top:6px;white-space:pre-wrap;font-size:13px}
 </style>
 </head>
 <body>
@@ -222,12 +231,12 @@ label.case>span>span{display:block}
    vacío, el sistema funciona en MODO DEMOSTRACIÓN (solo en este navegador).
    ===================================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
-  authDomain: "sanbuenaventurahostel.firebaseapp.com",
-  projectId: "sanbuenaventurahostel",
-  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
-  messagingSenderId: "278880962197",
-  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 const ADMIN_USER='admin', DOMAIN='sbhb.app';
 const HOTEL_NAME='San Buenaventura Hostel Boutique';
@@ -255,6 +264,7 @@ const pick=a=>a[ri(a.length)];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const plural=(n,s)=>n+' '+s+(n===1?'':'s');
 const clone=o=>JSON.parse(JSON.stringify(o));
+function deepMerge(t,s){Object.keys(s).forEach(k=>{if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]&&typeof t[k]==='object')deepMerge(t[k],s[k]);else t[k]=s[k];});return t;}
 
 const ST={confirmada:'Confirmada',hospedado:'En casa',salida:'Check-out',cancelada:'Cancelada',noshow:'No show'};
 const RST={limpia:'Limpia',sucia:'Sucia',bloqueada:'Bloqueada'};
@@ -272,9 +282,12 @@ const COLS=['rooms','guests','res','sales','closures','audits','log','users'];
 /* ---------- Estado compartido ---------- */
 let S={config:null,rooms:[],guests:[],res:[],sales:[],closures:[],audits:[],log:[],users:[]};
 let B=null, CUR=null, READY=false, AUTHED=false;
+let SH=S, MODE='shared', pvKind=null, pvTimer=null, GR={}, gradesUnsub=null, lastG='';
+const M=()=>S.meta||(S.meta={visited:[],keys:0,exports:{},answers:{},quiz:{},expect:{}});
 const ME=()=>CUR?S.users.find(u=>u.id===CUR)||null:null;
 const isAdmin=()=>{const u=ME();return !!u&&u.role==='admin';};
-const canAudit=()=>{const u=ME();return !!u&&(u.role==='admin'||u.role==='auditor');};
+const canAudit=()=>{const u=ME();return !!u&&(MODE!=='shared'||u.role==='admin'||u.role==='auditor');};
+const canConfig=()=>isAdmin()||MODE!=='shared';
 const C=()=>S.config;
 
 /* ---------- Escenario inicial (lo carga el administrador) ---------- */
@@ -333,7 +346,8 @@ function demoBackend(){
   const K='sbhb-demo-v1';let st=null;
   try{st=JSON.parse(localStorage.getItem(K)||'null');}catch(e){}
   if(!st||!st.data){st={accounts:[{uid:'u-admin',user:ADMIN_USER,ph:'e940634756994bd7b72edc3b511180d8220214e43b3d161ef0a8c1867d648ebc'}],session:null,data:{config:null}};COLS.forEach(c=>st.data[c]={});st.data.users['u-admin']={id:'u-admin',name:'Profesor',user:ADMIN_USER,role:'admin',active:true,practice:[],created:Date.now()};}
-  let onData,onAuth;
+  let onData,onAuth,gcb=null;
+  const emitG=()=>{if(!gcb)return;const all=st.data.grades||{};gcb.cb(gcb.adm?clone(all):(all[st.session]?{[st.session]:clone(all[st.session])}:{}));};
   const persist=()=>{try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}};
   const emit=()=>{const d=clone(st.data),o={config:d.config};COLS.forEach(c=>o[c]=Object.values(d[c]));onData(o);};
   const commit=()=>{persist();setTimeout(emit,0);};
@@ -349,6 +363,10 @@ function demoBackend(){
     async patch(col,id,f){ok();const t=col==='config'?st.data.config:st.data[col][id];if(!t)throw{code:'not-found'};Object.assign(t,clone(f));commit();},
     async push(col,id,field,items){ok();const t=st.data[col][id];if(!t)throw{code:'not-found'};t[field]=t[field]||[];items.forEach(it=>{const s=JSON.stringify(it);if(!t[field].some(x=>JSON.stringify(x)===s))t[field].push(clone(it));});commit();},
     async del(col,id){ok();delete st.data[col][id];commit();},
+    async loadPrivate(kind){return localStorage.getItem('sbhb-demo-'+kind+'-'+st.session);},
+    async savePrivate(kind,json){try{localStorage.setItem('sbhb-demo-'+kind+'-'+st.session,json);}catch(e){}},
+    watchGrades(adm,cb){gcb={adm,cb};emitG();return ()=>{gcb=null;};},
+    async saveGrade(id,p){ok();st.data.grades=st.data.grades||{};const g=st.data.grades[id]||(st.data.grades[id]={});deepMerge(g,clone(p));persist();setTimeout(emitG,0);},
     async reset(sd){ok();['rooms','guests','res','sales','closures','audits','log'].forEach(c=>st.data[c]={});['rooms','guests','res'].forEach(c=>sd[c].forEach(o=>st.data[c][o.id]=clone(o)));st.data.config=clone(sd.config);commit();}
   };
 }
@@ -377,6 +395,10 @@ async function firebaseBackend(){
     patch:(col,id,f)=>F.updateDoc(ref(col,id),clone(f)),
     push:(col,id,field,items)=>F.updateDoc(ref(col,id),{[field]:F.arrayUnion.apply(null,clone(items))}),
     del:(col,id)=>F.deleteDoc(ref(col,id)),
+    async loadPrivate(kind){const s=await F.getDoc(F.doc(db,kind,auth.currentUser.uid));return s.exists()?s.data().json:null;},
+    savePrivate:(kind,json)=>F.setDoc(F.doc(db,kind,auth.currentUser.uid),{json,updated:Date.now()}),
+    watchGrades(adm,cb){const u=adm?F.onSnapshot(F.collection(db,'grades'),s=>{const m={};s.forEach(d=>m[d.id]=d.data());cb(m);},fail):F.onSnapshot(F.doc(db,'grades',auth.currentUser.uid),s=>cb(s.exists()?{[s.id]:s.data()}:{}),fail);unsubs.push(u);return u;},
+    saveGrade:(id,p)=>F.setDoc(F.doc(db,'grades',id),clone(p),{merge:true}),
     async reset(sd){const ops=[];
       ['rooms','guests','res','sales','closures','audits'].forEach(c=>(S[c]||[]).forEach(o=>ops.push(['d',c,o.id])));
       const ls=await F.getDocs(F.collection(db,'log'));ls.forEach(d=>ops.push(['d','log',d.id]));
@@ -385,16 +407,39 @@ async function firebaseBackend(){
   };
 }
 const ERR={'auth/invalid-credential':'Usuario o contraseña incorrectos.','auth/wrong-password':'La contraseña no es correcta.','auth/user-not-found':'Usuario o contraseña incorrectos.','auth/invalid-login-credentials':'Usuario o contraseña incorrectos.','auth/email-already-in-use':'Ese usuario ya existe. Escoge otro.','auth/weak-password':'La contraseña debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Espera un momento.','auth/network-request-failed':'Sin conexión a internet.','permission-denied':'No tienes permiso para esta acción.','not-found':'Ese registro ya no existe. Otro usuario pudo haberlo cambiado.','auth/requires-recent-login':'Vuelve a iniciar sesión e inténtalo de nuevo.','auth/unauthorized-domain':'Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).'};
-const errMsg=e=>ERR[e&&e.code]||'No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.';
+Object.assign(ERR,{'auth/operation-not-allowed':'El inicio de sesión con correo y contraseña no está activado en Firebase (Authentication > Método de inicio de sesión).','auth/configuration-not-found':'Authentication no está configurado en Firebase. Entra a Authentication, dale Comenzar y activa Correo electrónico/contraseña.','auth/invalid-api-key':'La apiKey pegada en el código no es válida. Revisa FIREBASE_CONFIG.','auth/requests-from-referer-are-blocked':'La clave está restringida y bloquea esta página. Revisa las restricciones de sitios web en Google Cloud.','auth/invalid-email':'El usuario solo puede tener letras sin tilde, números, punto, guion o guion bajo.'});
+const errMsg=e=>{const c=e&&e.code||'';if(ERR[c])return ERR[c];if(/referer|referrer/i.test(c+(e&&e.message||'')))return ERR['auth/requests-from-referer-are-blocked'];if(/api-key/i.test(c))return ERR['auth/invalid-api-key'];return 'No se pudo completar la acción'+(c?' (código: '+c+')':'')+'. Mándale este código al profesor.';};
 const W=p=>Promise.resolve(p).catch(e=>{console.error(e);toast(errMsg(e),true);});
 
 /* ---------- Escrituras ---------- */
-const putDoc=(col,o)=>W(B.put(col,o));
-const patchRes=(r,f)=>{Object.assign(r,f);return W(B.patch('res',r.id,f));};
-const addFolio=(r,es)=>{r.folio=r.folio||[];es.forEach(e=>{if(!r.folio.some(x=>x.id===e.id))r.folio.push(e);});return W(B.push('res',r.id,'folio',es));};
-const addPosted=(r,ds)=>{r.posted=r.posted||[];ds.forEach(d=>{if(!r.posted.includes(d))r.posted.push(d);});return W(B.push('res',r.id,'posted',ds));};
-const patchCfg=f=>{Object.assign(S.config,f);return W(B.patch('config','main',f));};
-function log(msg){const u=ME();const e={id:uid(),ts:Date.now(),u:u?u.name:'Sistema',msg};S.log.unshift(e);W(B.put('log',e));}
+const D={
+  put(col,o){if(MODE==='shared')return B.put(col,o);if(col==='config')S.config=o;else{const a=S[col];const i=a.findIndex(x=>x.id===o.id);if(i>=0)a[i]=o;else a.push(o);if(col==='log'&&a.length>200)a.length=200;}persistSoon();return Promise.resolve();},
+  patch(col,id,f){if(MODE==='shared')return B.patch(col,id,f);const t=col==='config'?S.config:S[col].find(x=>x.id===id);if(t)Object.assign(t,f);persistSoon();return Promise.resolve();},
+  push(col,id,field,items){if(MODE==='shared')return B.push(col,id,field,items);const t=S[col].find(x=>x.id===id);if(t){t[field]=t[field]||[];items.forEach(it=>{const j=JSON.stringify(it);if(!t[field].some(x=>JSON.stringify(x)===j))t[field].push(it);});}persistSoon();return Promise.resolve();},
+  reset(sd){if(MODE==='shared')return B.reset(sd);const u=S.users;Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,newPrivate(sd));S.users=u;persistSoon(true);return Promise.resolve();}
+};
+function newPrivate(sd){const blk=sd.rooms.find(r=>r.status==='bloqueada');const H=sd.res.find(r=>r.id===sd.config.scn.H);const A=sd.res.find(r=>r.id===sd.config.scn.A);
+  return {config:sd.config,rooms:sd.rooms,guests:sd.guests,res:sd.res,sales:[],closures:[],audits:[],log:[{id:uid(),ts:Date.now(),u:'Sistema',msg:'Se creó tu hotel privado'}],users:[],
+    meta:{visited:[],keys:0,exports:{},answers:{},quiz:{},expect:{blk:blk?blk.num:'',hSrc:H?H.source:'',aCode:A?A.code:''}}};}
+function persistSoon(now){if(!pvKind)return;clearTimeout(pvTimer);const k=pvKind,data=S;pvTimer=setTimeout(()=>{pvTimer=null;savePV(k,data);},now?0:600);}
+function savePV(k,data){const o=Object.assign({},data);delete o.users;W(B.savePrivate(k,JSON.stringify(o)));}
+function flushPV(){if(pvTimer){clearTimeout(pvTimer);pvTimer=null;if(pvKind)savePV(pvKind,S);}}
+async function setMode(m){
+  if(m===MODE)return;flushPV();closeModal();
+  if(m==='shared'){MODE='shared';pvKind=null;S=SH;view='hoy';rackStart=null;cart=[];render();return;}
+  {const c=$('#content');if(c)c.innerHTML='<p class="muted">Abriendo tu hotel…</p>';}
+  let raw=null;try{raw=await B.loadPrivate(m);}catch(e){toast(errMsg(e),true);return;}
+  let pv=null;try{pv=raw?JSON.parse(raw):null;}catch(e){}
+  if(!pv||!pv.config)pv=newPrivate(seed());
+  pv.users=SH.users;MODE=m;pvKind=m;S=pv;M();if(!raw)persistSoon(true);
+  view=m==='retos'?'retos':'hoy';rackStart=null;cart=[];lastG='';render();
+}
+const putDoc=(col,o)=>W(D.put(col,o));
+const patchRes=(r,f)=>{Object.assign(r,f);return W(D.patch('res',r.id,f));};
+const addFolio=(r,es)=>{r.folio=r.folio||[];es.forEach(e=>{if(!r.folio.some(x=>x.id===e.id))r.folio.push(e);});return W(D.push('res',r.id,'folio',es));};
+const addPosted=(r,ds)=>{r.posted=r.posted||[];ds.forEach(d=>{if(!r.posted.includes(d))r.posted.push(d);});return W(D.push('res',r.id,'posted',ds));};
+const patchCfg=f=>{Object.assign(S.config,f);return W(D.patch('config','main',f));};
+function log(msg){const u=ME();const e={id:uid(),ts:Date.now(),u:u?u.name:'Sistema',msg};S.log.unshift(e);W(D.put('log',e));}
 function entry(type,concept,amount,method,kind){const u=ME();return {id:uid(),d:biz(),ts:Date.now(),type,concept,amount,method:method||'',user:u.name,userId:u.id,kind:kind||''};}
 
 /* ---------- Reglas del hotel ---------- */
@@ -447,28 +492,40 @@ function scheduleRender(){
 document.addEventListener('focusout',()=>{if(pending){setTimeout(()=>{if(pending){pending=false;scheduleRender();}},50);}});
 
 function shell(inner){return `<div class="login"><div class="login-card"><div class="brand">San Buenaventura<span>Hostel Boutique, sistema de recepción</span></div>${inner}</div></div>`;}
+const VISIT=['hoy','rack','reservas','huespedes','habitaciones','pos','caja','auditoria','reportes'];
+const MODES=[['shared','Hotel del grupo'],['retos','Mis retos'],['libre','Zona libre']];
+const MODE_HELP={shared:'Todos trabajan en el mismo hotel y ven los cambios de los demás.',retos:'Tu hotel privado. Lo que haces aquí se califica solo.',libre:'Tu hotel para practicar y equivocarte sin nota. Lo puedes reiniciar cuando quieras.'};
+function navItems(){return NAV.map(x=>x[0]==='practica'&&MODE==='retos'?['retos','Mis retos','0']:x);}
+function ensureGrades(){if(!gradesUnsub&&CUR&&READY&&ME()){gradesUnsub=B.watchGrades(isAdmin(),m=>{GR=m;if(view==='calificaciones'||view==='retos')scheduleRender();});}}
 function render(){
   if(!B){$('#root').innerHTML=shell('<p class="muted">Conectando…</p>');return;}
   if(!CUR){renderLogin(loginTab);return;}
   const u=ME();
   if(!READY||!u){$('#root').innerHTML=shell('<p class="muted">Cargando el hotel…</p>');return;}
+  ensureGrades();
   if(u.active===false){$('#root').innerHTML=shell('<p>Tu cuenta está desactivada. Habla con el profesor.</p><button class="btn ghost" data-act="logout">Salir</button>');return;}
-  if(!S.config){$('#root').innerHTML=shell(isAdmin()?'<p>El hotel todavía no tiene datos. Carga el escenario inicial para que tus estudiantes puedan trabajar.</p><button class="btn" data-act="seed">Cargar hotel inicial</button> <button class="btn ghost" data-act="logout">Salir</button>':'<p>El profesor todavía no ha abierto el hotel. Intenta de nuevo en unos minutos.</p><button class="btn ghost" data-act="logout">Salir</button>');return;}
+  if(!S.config){$('#root').innerHTML=shell(isAdmin()?'<p>El hotel todavía no tiene datos. Carga el escenario inicial para que tus estudiantes puedan trabajar.</p><button class="btn" data-act="seed">Cargar hotel inicial</button> <button class="btn ghost" data-act="logout">Salir</button>':'<p>El profesor todavía no ha abierto el hotel del grupo. Mientras tanto puedes trabajar en tus retos o en la zona libre.</p><div class="actions" style="justify-content:flex-start"><button class="btn" data-act="mode" data-m="retos">Mis retos</button><button class="btn ghost" data-act="mode" data-m="libre">Zona libre</button><button class="btn ghost" data-act="logout">Salir</button></div>');return;}
   if(!rackStart)rackStart=addDays(biz(),-2);
-  if((view==='usuarios'||view==='ajustes')&&!isAdmin())view='hoy';
-  const real=todayStr();
+  if((view==='usuarios'||view==='calificaciones')&&!isAdmin())view='hoy';
+  if(view==='ajustes'&&!canConfig())view='hoy';
+  if(view==='retos'&&MODE!=='retos')view='hoy';
+  if(view==='practica'&&MODE==='retos')view='retos';
+  if(MODE!=='shared'&&VISIT.includes(view)&&!M().visited.includes(view)){M().visited.push(view);persistSoon();}
+  const real=todayStr(),items=navItems();
+  const adminNav=isAdmin()?`<div class="sep"></div><button data-act="nav" data-view="calificaciones" ${view==='calificaciones'?'aria-current="page"':''}>Calificaciones</button><button data-act="nav" data-view="usuarios" ${view==='usuarios'?'aria-current="page"':''}>Usuarios</button>`:'';
+  const cfgNav=canConfig()?`${isAdmin()?'':'<div class="sep"></div>'}<button data-act="nav" data-view="ajustes" ${view==='ajustes'?'aria-current="page"':''}>Ajustes${MODE!=='shared'?' de mi hotel':''}</button>`:'';
   $('#root').innerHTML=`<div class="app">
     <aside class="side"><div class="brand">San Buenaventura<span>Hostel Boutique</span></div>
-      <nav class="nav" aria-label="Secciones">${NAV.map(([k,l,n])=>`<button data-act="nav" data-view="${k}" ${view===k?'aria-current="page"':''}>${l}<kbd>${n}</kbd></button>`).join('')}
-      ${isAdmin()?`<div class="sep"></div><button data-act="nav" data-view="usuarios" ${view==='usuarios'?'aria-current="page"':''}>Usuarios</button><button data-act="nav" data-view="ajustes" ${view==='ajustes'?'aria-current="page"':''}>Ajustes</button>`:''}</nav>
+      <nav class="nav" aria-label="Secciones">${items.map(([k,l,n])=>`<button data-act="nav" data-view="${k}" ${view===k?'aria-current="page"':''}>${l}<kbd>${n}</kbd></button>`).join('')}${adminNav}${cfgNav}</nav>
       <div class="hotel">${B.mode==='demo'?'Modo demostración<br>':''}${esc(C().hotel.city)}</div></aside>
-    <div class="main"><header class="top"><div class="bizdate"><small>Fecha del hotel${biz()!==real?' (simulada)':''}</small><b>${esc(longD(biz()))}</b></div><span class="grow"></span>
+    <div class="main"><header class="top"><div class="bizdate"><small>${MODE==='shared'?'Hotel del grupo':MODE==='retos'?'Mis retos':'Zona libre'}, fecha del hotel${biz()!==real?' (simulada)':''}</small><b>${esc(longD(biz()))}</b></div><span class="grow"></span>
       <span class="who">${esc(u.name)}, ${ROLES[u.role]||u.role}</span>
       <button class="btn ghost sm hide-m" data-act="help">Atajos</button>
       <button class="btn ghost sm" data-act="pwd">Contraseña</button>
       <button class="btn ghost sm" data-act="logout">Salir</button>
       <button class="btn sm" data-act="new-res">Nueva reserva</button></header>
-      <main class="content" id="content">${VIEWS[view]?VIEWS[view]():VIEWS.hoy()}</main></div></div>`;
+      <main class="content" id="content"><div class="modes" role="tablist">${MODES.map(([k,l])=>`<button role="tab" data-act="mode" data-m="${k}" aria-selected="${MODE===k}">${l}</button>`).join('')}</div><p class="mode-help">${MODE_HELP[MODE]}</p>${VIEWS[view]?VIEWS[view]():VIEWS.hoy()}</main></div></div>`;
+  if(MODE==='retos')syncGrade();
 }
 let loginTab='in';
 function renderLogin(tab){loginTab=tab;
@@ -596,19 +653,114 @@ practica(){
   return `<div class="toolbar"><h1>Casos de práctica</h1><span class="grow"></span><span class="muted">${cnt} de ${cs.length} resueltos</span></div>
   <p class="muted">Resuelve los casos en el sistema y responde la pregunta para pensar en tu cuaderno o en un documento. El hotel puede ser compartido: si un compañero ya resolvió un caso, revisa el historial de la reserva y explícalo con tus palabras.</p>${h}`;
 },
+
+retos(){
+  const au=evalRetos(),m=M(),g=Object.assign({},GR[CUR]||{},{auto:au}),c=calc(g),ts=g.teacher||{};
+  const task=t=>{const ok=au[t.id];
+    if(t.k==='auto')return `<div class="chk"><span class="ic ${ok?'ok':'pend'}">${ok?'✓':''}</span><div class="body"><b>${esc(t.t)}</b><small>${t.d()}</small></div></div>`;
+    if(t.k==='quiz'){const v=m.quiz[t.id]||'';return `<div class="chk"><span class="ic ${ok?'ok':'pend'}">${ok?'✓':'?'}</span><div class="body"><b>${esc(t.t)}</b><small>${t.d()}</small>
+      <form data-form="quiz" data-tid="${t.id}" class="inline-form">${t.sel?`<select name="v"><option value="">Escoge…</option>${t.sel.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`:`<input name="v" value="${esc(v)}" placeholder="Tu respuesta" autocomplete="off">`}<button class="btn sm ${ok?'ghost':''}">Comprobar</button></form>
+      ${v&&!ok?'<small style="color:var(--danger)">Todavía no es correcto. Revisa en el sistema y vuelve a intentar.</small>':''}</div></div>`;}
+    const a=m.answers[t.id]||'',sc=ts[t.id];
+    return `<div class="chk"><span class="ic ${a?'info':'pend'}">✎</span><div class="body"><b>${esc(t.t)}</b><small>${t.d()}</small>
+      <form data-form="answer" data-tid="${t.id}" class="stack" style="margin-top:6px;gap:6px"><textarea name="v" rows="3" placeholder="Escribe tu respuesta">${esc(a)}</textarea><div><button class="btn sm ghost">Guardar respuesta</button> ${sc!=null&&sc!==''?`<span class="badge s-hospedado">Nota del profesor: ${g1(+sc)}</span>`:a?'<small>Pendiente de calificar</small>':''}</div></form></div></div>`;};
+  return `<div class="toolbar"><h1>Mis retos</h1></div>
+  <div class="kpis"><div class="kpi"><b>${g1(c.auto)}</b><small>Nota automática (${c.done} de ${c.totalA})</small></div><div class="kpi"><b>${c.graded?g1(c.written):'—'}</b><small>Respuestas escritas (${c.graded} de ${c.totalW} calificadas)</small></div><div class="kpi"><b>${c.graded?g1(c.final):'—'}</b><small>Nota final</small></div></div>
+  <p class="muted" style="margin-top:12px">Todos los retos están abiertos: puedes adelantar. Las tareas se marcan solas cuando el sistema detecta que las hiciste bien. Las respuestas escritas las califica el profesor.</p>
+  ${RETOS.map(R=>`<section class="panel" style="margin-top:16px"><h2>Reto ${R.n}: ${esc(R.t)} <span class="muted" style="font-weight:600;font-size:13px">${retoProgress(R,au)}</span></h2>${R.tasks.map(task).join('')}</section>`).join('')}
+  <section class="panel" style="margin-top:16px"><h2>Empezar de nuevo</h2><p class="muted">Genera un hotel nuevo. Se borra todo tu avance en los retos.</p><button class="btn danger" data-act="reset">Reiniciar mis retos</button></section>`;
+},
+calificaciones(){
+  const us=SH.users.filter(u=>u.role!=='admin').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const w=(SH.config&&SH.config.gradeW!=null)?SH.config.gradeW:70;
+  return `<div class="toolbar"><h1>Calificaciones</h1><span class="grow"></span><button class="btn ghost sm" data-act="export-grades">Exportar a Excel</button></div>
+  <form data-form="weights" class="panel inline-form" style="margin-bottom:16px"><label style="flex-direction:row;align-items:center;gap:8px">Peso de lo automático<input name="w" type="number" min="0" max="100" value="${w}" style="width:80px">%</label><span class="muted">Respuestas escritas: ${100-w}%. Escala de 1.0 a 5.0.</span><button class="btn sm">Guardar</button></form>
+  <div class="panel scroll"><table class="tbl"><thead><tr><th>Estudiante</th>${RETOS.map(R=>`<th class="num">R${R.n}</th>`).join('')}<th class="num">Automática</th><th class="num">Escrita</th><th class="num">Final</th></tr></thead><tbody>
+  ${us.map(u=>{const g=GR[u.id]||{},c=calc(g),au=g.auto||{};return `<tr class="click" data-act="grade-detail" data-id="${u.id}"><td><b>${esc(u.name)}</b><br><small>${esc(u.user)}</small></td>${RETOS.map(R=>`<td class="num">${retoProgress(R,au)}</td>`).join('')}<td class="num">${g1(c.auto)}</td><td class="num">${g1(c.written)}<br><small>${c.graded}/${c.totalW}</small></td><td class="num"><b>${g1(c.final)}</b></td></tr>`;}).join('')||'<tr><td colspan="11" class="empty">Todavía no hay estudiantes registrados.</td></tr>'}
+  </tbody></table></div><p class="muted" style="margin-top:10px;font-size:12px">Toca un estudiante para ver el detalle y calificar sus respuestas escritas. Las respuestas sin calificar cuentan como 1.0.</p>`;
+},
 usuarios(){
   const us=S.users.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   return `<div class="toolbar"><h1>Usuarios</h1></div><p class="muted">Los estudiantes crean su propia cuenta desde la pantalla de ingreso. Aquí les asignas la función.</p>
   <div class="panel scroll"><table class="tbl"><thead><tr><th>Nombre</th><th>Usuario</th><th>Función</th><th>Casos</th><th>Estado</th><th></th></tr></thead><tbody>${us.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.user)}</td><td>${u.role==='admin'?'Administrador':`<select data-role="${u.id}" style="min-width:150px"><option value="recepcion" ${u.role==='recepcion'?'selected':''}>Recepción</option><option value="auditor" ${u.role==='auditor'?'selected':''}>Auditor nocturno</option></select>`}</td><td>${(u.practice||[]).filter(x=>typeof x==='string').length}</td><td>${u.active===false?'<span class="badge s-cancelada">Desactivado</span>':'<span class="badge s-hospedado">Activo</span>'}</td><td class="num">${u.role==='admin'?'':`<button class="btn ghost sm" data-act="user-toggle" data-id="${u.id}">${u.active===false?'Activar':'Desactivar'}</button>`}</td></tr>`).join('')}</tbody></table></div>`;
 },
 ajustes(){
-  const h=C().hotel;
-  return `<div class="toolbar"><h1>Ajustes del hotel</h1></div><p class="muted" style="margin-top:-8px">Los cambios que hagas aquí los ve todo el equipo.</p><div class="cols" style="margin-top:0">
+  const h=C().hotel;if(!canConfig())return '';
+  return `<div class="toolbar"><h1>Ajustes del hotel</h1></div><p class="muted" style="margin-top:-8px">${MODE==='shared'?'Los cambios que hagas aquí los ve todo el equipo.':'Estos cambios solo afectan tu hotel privado.'}</p><div class="cols" style="margin-top:0">
   <section class="panel"><h2>Datos del hotel</h2><form id="hotel" class="stack"><label>Nombre<input name="name" value="${esc(h.name)}" required></label><label>NIT<input name="nit" value="${esc(h.nit)}"></label><label>Ciudad<input name="city" value="${esc(h.city)}"></label><div class="grid2"><label>Hora de check-in<input name="ci" type="time" value="${esc(h.ci)}"></label><label>Hora de check-out<input name="co" type="time" value="${esc(h.co)}"></label></div><p class="form-err"></p><button class="btn">Guardar datos</button></form></section>
   <section class="panel"><h2>Tarifas por tipo de habitación</h2><form id="rates" class="stack">${C().types.map(t=>`<div class="grid2"><label>${esc(t.name)}: tarifa por noche<input name="rate_${t.code}" type="number" min="0" step="1000" value="${t.rate}"></label><label>Capacidad máxima<input name="cap_${t.code}" type="number" min="1" max="10" value="${t.cap}"></label></div>`).join('')}<p class="muted" style="font-size:12px">Las reservas ya creadas conservan su tarifa.</p><p class="form-err"></p><button class="btn">Guardar tarifas</button></form></section>
   <section class="panel"><h2>Productos y servicios</h2><form id="products" class="stack">${C().products.map(p=>`<div class="grid2"><label>Nombre<input name="n_${p.id}" value="${esc(p.name)}"></label><label>Precio (0 para quitarlo)<input name="p_${p.id}" type="number" min="0" step="500" value="${p.price}"></label></div>`).join('')}<div class="grid2"><label>Nuevo producto<input name="n_new" placeholder="Opcional"></label><label>Precio<input name="p_new" type="number" min="0" step="500"></label></div><p class="form-err"></p><button class="btn">Guardar productos</button></form></section>
-  <section class="panel"><h2>Reiniciar el hotel</h2><p class="muted">Borra reservas, huéspedes, pagos, cierres y auditorías, y carga un escenario nuevo con fecha de hoy. Las cuentas de los estudiantes se conservan.</p><button class="btn danger" data-act="reset">Reiniciar hotel para todos</button></section></div>`;
+  <section class="panel"><h2>Reiniciar el hotel</h2><p class="muted">${MODE==='shared'?'Borra reservas, huéspedes, pagos, cierres y auditorías, y carga un escenario nuevo con fecha de hoy. Las cuentas de los estudiantes se conservan.':'Genera un hotel nuevo para ti.'}</p><button class="btn danger" data-act="reset">${MODE==='shared'?'Reiniciar hotel para todos':'Reiniciar mi hotel'}</button></section></div>`;
 }};
+
+
+/* ---------- Retos evaluados ---------- */
+const norm=v=>String(v==null?'':v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
+const scnR=k=>{const id=(C().scn||{})[k];return id?resById(id):null;};
+const scnG=k=>{const r=scnR(k);return r?esc(gname(guest(r.guestId))):'el huésped';};
+const scnRm=k=>{const r=scnR(k);return r?room(r.roomId).num:'?';};
+const mine=f=>f.userId===CUR;
+const inOrOut=r=>!!r&&(r.status==='hospedado'||r.status==='salida');
+const prodNames=()=>C().products.map(p=>p.name);
+const myCharges=r=>r?folio(r).filter(f=>mine(f)&&f.type==='cargo'&&f.kind!=='aloj'&&!f.voidOf&&f.amount>0):[];
+const RETOS=[
+ {n:1,t:'Introducción: cómo trabajar en el programa',tasks:[
+  {id:'r1a',k:'auto',t:'Recorre todo el sistema',d:()=>'Entra por lo menos una vez a cada sección del menú, de Hoy a Reportes.',ok:()=>VISIT.every(v=>M().visited.includes(v))},
+  {id:'r1b',k:'quiz',t:'Habitación fuera de servicio',d:()=>'¿Qué número de habitación está bloqueada?',exp:()=>M().expect.blk},
+  {id:'r1c',k:'quiz',t:'Detective de reservas',d:()=>`Hoy hizo check-out ${scnG('H')}. ¿Por qué canal llegó su reserva?`,sel:CH,exp:()=>M().expect.hSrc},
+  {id:'r1d',k:'quiz',t:'Busca por nombre',d:()=>`¿Cuál es el código de la reserva de ${scnG('A')}?`,exp:()=>M().expect.aCode},
+  {id:'r1e',k:'auto',t:'Trabaja sin mouse',d:()=>'Cambia de sección con el teclado (números del 1 al 9) por lo menos 5 veces.',ok:()=>M().keys>=5},
+  {id:'r1f',k:'write',t:'Para pensar',d:()=>'Explica qué significan en el rack el azul, el verde, el gris, el punto rojo y el borde naranja punteado. ¿Qué buscarías primero al empezar un turno?'}]},
+ {n:2,t:'Llegadas',tasks:[
+  {id:'r2a',k:'auto',t:'Check-in con reserva directa',d:()=>`Completa la tarjeta de registro de ${scnG('E')} y hazle el check-in.`,ok:()=>{const r=scnR('E');return inOrOut(r)&&regOk(guest(r.guestId));}},
+  {id:'r2b',k:'auto',t:'Habitación sucia a la llegada',d:()=>`${scnG('F')} llega y su habitación (${scnRm('F')}) está sucia. Resuélvelo y hazle el check-in.`,ok:()=>inOrOut(scnR('F'))},
+  {id:'r2c',k:'auto',t:'Walk-in con anticipo',d:()=>'Llega una pareja sin reserva. Crea la reserva con canal Walk-in, cobra un anticipo y hazle el check-in.',ok:()=>S.res.some(r=>r.createdById===CUR&&r.source==='Walk-in'&&inOrOut(r)&&folio(r).some(f=>f.type==='pago'&&f.amount>0&&mine(f)))},
+  {id:'r2d',k:'auto',t:'No show',d:()=>`${scnG('G')} debía llegar ayer y no llegó. Márcala como no show.`,ok:()=>{const r=scnR('G');return !!r&&r.status==='noshow';}},
+  {id:'r2e',k:'write',t:'Para pensar',d:()=>'Cuando la habitación estaba sucia, ¿qué decidiste y qué le dijiste al huésped? ¿Por qué?'}]},
+ {n:3,t:'Durante la estadía',tasks:[
+  {id:'r3a',k:'auto',t:'Consumo de la lista',d:()=>`Carga a ${scnG('B')} (habitación ${scnRm('B')}) una gaseosa de la lista de productos.`,ok:()=>myCharges(scnR('B')).some(f=>prodNames().some(n=>f.concept.startsWith(n+' x')))},
+  {id:'r3b',k:'auto',t:'Cargo libre',d:()=>`Carga a ${scnG('B')} una caipirinha de maracuyá como cargo libre.`,ok:()=>myCharges(scnR('B')).some(f=>!prodNames().some(n=>f.concept.startsWith(n+' x'))&&!/^Ajuste/.test(f.concept))},
+  {id:'r3c',k:'auto',t:'Anula un cargo',d:()=>'Carga por error un consumo dos veces a cualquier huésped y anula uno desde el folio, con su motivo.',ok:()=>S.res.some(r=>folio(r).some(f=>f.voidOf&&mine(f)))},
+  {id:'r3d',k:'auto',t:'Registro incompleto',d:()=>`${scnG('C')}, de la habitación ${scnRm('C')}, entró sin tarjeta de registro completa. Complétala.`,ok:()=>{const r=scnR('C');return !!r&&regOk(guest(r.guestId));}},
+  {id:'r3e',k:'auto',t:'Una noche más',d:()=>`${scnG('B')} quiere quedarse una noche más. Extiende su estadía (si no hay disponibilidad, extiende la de otro huésped en casa).`,ok:()=>S.res.some(r=>r.ext)},
+  {id:'r3f',k:'auto',t:'Cliente del bar',d:()=>'Una persona que no está hospedada compra dos caipirinhas. Regístralo como venta de contado.',ok:()=>S.sales.some(x=>x.userId===CUR)},
+  {id:'r3g',k:'write',t:'Para pensar',d:()=>'¿Por qué los sistemas hoteleros no dejan borrar un cargo sino que obligan a anularlo con un motivo?'}]},
+ {n:4,t:'Salidas y caja',tasks:[
+  {id:'r4a',k:'auto',t:'Check-out con saldo',d:()=>`${scnG('A')}, de la habitación ${scnRm('A')}, sale hoy. Cobra el saldo exacto y haz el check-out.`,ok:()=>{const r=scnR('A');return !!r&&r.status==='salida'&&Math.abs(est(r))<1;}},
+  {id:'r4b',k:'auto',t:'Cancelación',d:()=>`${scnG('I')} llama a cancelar su reserva de mañana. Cancélala con el motivo.`,ok:()=>{const r=scnR('I');return !!r&&r.status==='cancelada';}},
+  {id:'r4c',k:'auto',t:'Anticipo por transferencia',d:()=>'Registra un anticipo por transferencia a una reserva futura, con el número de referencia.',ok:()=>S.res.some(r=>folio(r).some(f=>mine(f)&&f.type==='pago'&&f.method==='Transferencia'&&/ref\./.test(f.concept)))},
+  {id:'r4d',k:'auto',t:'Cierre de turno',d:()=>'Revisa los pagos de tu turno y cierra tu caja.',ok:()=>S.closures.some(c=>c.userId===CUR)},
+  {id:'r4e',k:'write',t:'Para pensar',d:()=>'Si al cerrar la caja te falta plata, ¿qué haces? ¿Y si te sobra?'}]},
+ {n:5,t:'Situaciones difíciles',tasks:[
+  {id:'r5a',k:'auto',t:'Salida anticipada',d:()=>`${scnG('C')} tiene una emergencia y se va hoy, antes de lo previsto. Como ya pagó toda la estadía, haz la devolución y el check-out.`,ok:()=>{const r=scnR('C');return !!r&&r.status==='salida'&&folio(r).some(f=>f.type==='pago'&&f.amount<0);}},
+  {id:'r5b',k:'auto',t:'Descuento autorizado',d:()=>'Un huésped pide 50% de descuento por quedarse 5 noches. Crea la reserva con esa tarifa y apruébala con una justificación en Cambiar tarifa.',ok:()=>S.res.some(r=>r.createdById===CUR&&r.rateOk&&r.rate<rtype(room(r.roomId).type).rate*0.6)},
+  {id:'r5c',k:'auto',t:'Familia con un niño',d:()=>'Llega una familia con un niño de 10 años. Crea la reserva con un niño y hazles el check-in.',ok:()=>S.res.some(r=>r.createdById===CUR&&r.children>0&&inOrOut(r))},
+  {id:'r5d',k:'write',t:'Para pensar: sin documento',d:()=>'Un huésped extranjero dice que dejó el pasaporte en el taxi. ¿Le haces el check-in? ¿Qué le dices y qué alternativas tienes?'},
+  {id:'r5e',k:'write',t:'Para pensar: menores de edad',d:()=>'¿Qué documentos debes pedir cuando se hospeda un menor de edad y por qué? Investiga la Ley 1336 de 2009.'}]},
+ {n:6,t:'Auditoría nocturna',tasks:[
+  {id:'r6a',k:'auto',t:'Tarifa mal digitada',d:()=>`La reserva de ${scnG('D')} (habitación ${scnRm('D')}) tiene una tarifa muy baja. Corrígela.`,ok:()=>{const r=scnR('D');return !!r&&r.rate>=rtype(room(r.roomId).type).rate*0.6;}},
+  {id:'r6b',k:'auto',t:'Cierra el día',d:()=>'Deja en verde los pendientes de la auditoría nocturna y cierra el día.',ok:()=>S.audits.length>0},
+  {id:'r6c',k:'write',t:'Lee el reporte',d:()=>'Abre tu reporte de auditoría y explica con tus palabras la ocupación, el ADR y el RevPAR de ese día.'},
+  {id:'r6d',k:'write',t:'Nota para el turno de la mañana',d:()=>'Escribe la nota que le dejarías al turno de la mañana: folios con saldo, habitaciones sucias y pendientes.'}]},
+ {n:7,t:'Del sistema a Excel',tasks:[
+  {id:'r7a',k:'auto',t:'Exporta el registro de huéspedes',d:()=>'Exporta el registro de huéspedes y pégalo en Excel.',ok:()=>!!M().exports.guests},
+  {id:'r7b',k:'auto',t:'Exporta las reservas',d:()=>'Exporta las reservas y pégalas en Excel.',ok:()=>!!M().exports.res},
+  {id:'r7c',k:'auto',t:'Exporta tu caja',d:()=>'Exporta los movimientos de tu caja.',ok:()=>!!M().exports.cash},
+  {id:'r7d',k:'quiz',t:'Nombre estandarizado',d:()=>'Escribe el nombre con el que guardaste el archivo del registro de huéspedes. Debe empezar con la fecha así: 2026-10-03_registro-huespedes.xlsx',re:/^\d{4}-\d{2}-\d{2}_[a-z0-9-]+\.(xlsx|xls|csv)$/i},
+  {id:'r7e',k:'write',t:'Para pensar',d:()=>'En Excel, calcula cuánto produjo cada canal. ¿Cuál le deja más ingresos al hotel y cómo lo calculaste?'}]}
+];
+const ALLT=[].concat(...RETOS.map(R=>R.tasks.map(t=>Object.assign({reto:R.n},t))));
+function quizOk(t){const v=M().quiz[t.id];if(v==null||v==='')return false;return t.re?t.re.test(String(v).trim()):norm(v)===norm(t.exp());}
+function evalRetos(){const r={};ALLT.forEach(t=>{if(t.k==='auto'){let ok=false;try{ok=!!t.ok();}catch(e){}r[t.id]=ok;}else if(t.k==='quiz')r[t.id]=quizOk(t);});return r;}
+function calc(g){g=g||{};const at=ALLT.filter(t=>t.k!=='write'),wt=ALLT.filter(t=>t.k==='write'),au=g.auto||{},ts=g.teacher||{};
+  const done=at.filter(t=>au[t.id]).length,auto=1+4*done/at.length,graded=wt.filter(t=>ts[t.id]!=null&&ts[t.id]!=='').length;
+  const written=wt.reduce((s,t)=>s+(ts[t.id]!=null&&ts[t.id]!==''?+ts[t.id]:1),0)/wt.length;
+  const w=((SH.config&&SH.config.gradeW!=null)?SH.config.gradeW:70)/100;return {done,totalA:at.length,auto,graded,totalW:wt.length,written,final:w*auto+(1-w)*written,w};}
+const g1=n=>(Math.round(n*10)/10).toFixed(1);
+function syncGrade(){const u=ME();if(!u||MODE!=='retos')return;const r=evalRetos(),m=M();
+  const p={id:u.id,name:u.name,user:u.user,auto:r,quiz:m.quiz,answers:m.answers,autoPct:Math.round(100*Object.values(r).filter(Boolean).length/Object.keys(r).length)};
+  const j=JSON.stringify(p);if(j===lastG)return;lastG=j;p.updated=Date.now();GR[u.id]=deepMerge(GR[u.id]||{},clone(p));W(B.saveGrade(u.id,p));}
+function retoProgress(R,au){const ts=R.tasks.filter(t=>t.k!=='write');return ts.filter(t=>au[t.id]).length+'/'+ts.length;}
 
 function cases(){
   const scn=C().scn||{};
@@ -799,6 +951,7 @@ function exportData(what){
   else if(what==='guests'){title='Registro de huéspedes';rows=[['Tipo doc.','Número','Nombres','Apellidos','Nacionalidad','Fecha nacimiento','Procedencia','Motivo del viaje','Teléfono','Correo','Autoriza datos']].concat(S.guests.map(g=>[g.docType,g.docNum,g.nombre,g.apellido,g.nac,fmtD(g.birth),g.city,g.motivo,g.phone,g.email,g.dataOk?'Sí':'No']));}
   else if(what==='cash'){title='Caja de mi turno';rows=[['Fecha','Hora','Concepto','Referencia','Medio','Valor']].concat(myMoves(CUR).map(m=>[fmtD(m.d),hhmm(m.ts),m.concept,m.ref,m.method,m.amount]));}
   else{title='Todos los pagos';const all=[];S.res.forEach(r=>folio(r).forEach(f=>{if(f.type==='pago')all.push([fmtD(f.d),hhmm(f.ts),r.code,f.concept,f.method,f.user,f.amount]);}));S.sales.forEach(s=>all.push([fmtD(s.d),hhmm(s.ts),'Contado',s.concept,s.method,s.user,s.amount]));rows=[['Fecha','Hora','Reserva','Concepto','Medio','Usuario','Valor']].concat(all);}
+  if(MODE!=='shared'){M().exports[what]=true;persistSoon();}
   const tsv=rows.map(r=>r.map(c=>String(c==null?'':c).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
   openModal('Exportar a Excel: '+esc(title),`<p>Copia estos datos y pégalos en la celda A1 de una hoja de Excel o Google Sheets. Cada dato cae en su propia columna.</p>
    <textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea>
@@ -809,6 +962,9 @@ function exportData(what){
 const reopen=id=>{render();openRes(id);};
 const busy=f=>{const b=f.querySelector('button:not([type=button])');if(b){b.disabled=true;setTimeout(()=>{b.disabled=false;},2500);}};
 const FORMS={
+ quiz(d,f){const tid=f.dataset.tid,t=ALLT.find(x=>x.id===tid);M().quiz[tid]=String(d.v||'').trim();persistSoon();const ok=quizOk(t);render();toast(ok?'¡Correcto!':'Todavía no. Revisa en el sistema y vuelve a intentar.',!ok);},
+ answer(d,f){const tid=f.dataset.tid;M().answers[tid]=String(d.v||'').trim();persistSoon();render();toast('Respuesta guardada');},
+ weights(d,f){const w=Math.max(0,Math.min(100,Math.round(+d.w)));if(isNaN(w))return;SH.config.gradeW=w;W(B.patch('config','main',{gradeW:w}));render();toast('Pesos guardados');},
  async login(d,f){const user=d.user.trim().toLowerCase();busy(f);try{await B.signIn(user,d.pass);}catch(e){formErr(f,errMsg(e));}},
  async signup(d,f){const name=d.name.trim(),user=d.user.trim().toLowerCase();
   if(!name){formErr(f,'Escribe tu nombre.');return;}
@@ -826,7 +982,7 @@ const FORMS={
   if(!available(rm.id,d.in,d.out)){formErr(f,`La habitación ${rm.num} ya está ocupada en esas fechas.`);return;}
   const cap=rtype(rm.type).cap;if((+d.adults||0)+(+d.children||0)>cap){formErr(f,`La habitación ${rm.num} admite máximo ${cap} personas.`);return;}
   if(!(+d.rate>0)){formErr(f,'Escribe una tarifa por noche mayor a cero.');return;}
-  const r={id:uid(),code:newCode(),guestId:g.id,roomId:rm.id,in:d.in,out:d.out,adults:+d.adults||1,children:+d.children||0,source:d.source,status:'confirmada',rate:+d.rate,notes:d.notes.trim(),created:Date.now(),by:ME().name,folio:[],posted:[],rateOk:false};
+  const r={id:uid(),code:newCode(),guestId:g.id,roomId:rm.id,in:d.in,out:d.out,adults:+d.adults||1,children:+d.children||0,source:d.source,status:'confirmada',rate:+d.rate,notes:d.notes.trim(),created:Date.now(),by:ME().name,createdById:CUR,folio:[],posted:[],rateOk:false};
   if(+d.deposit>0){if(+d.deposit>r.rate*nights(r)){formErr(f,'El anticipo no puede superar el valor de la estadía.');return;}r.folio.push(entry('pago','Anticipo',+d.deposit,d.method));}
   if(isNew){S.guests.push(g);putDoc('guests',g);}
   S.res.push(r);putDoc('res',r);log(`Creó la reserva ${r.code} para ${gname(g)} (hab. ${rm.num})`);reopen(r.id);toast(`Reserva ${r.code} creada`);},
@@ -858,7 +1014,7 @@ const FORMS={
   log(`Cambió la tarifa de ${r.code} de ${money(old)} a ${money(nr)}`);reopen(r.id);toast('Tarifa actualizada');},
  extend(d,f){const r=resById(d.rid);if(!d.out||d.out<=r.out){formErr(f,'Escoge una fecha posterior a la salida actual.');return;}
   if(!available(r.roomId,r.in,d.out,r.id)){formErr(f,`La habitación ${room(r.roomId).num} está reservada en esas fechas. Cambia de habitación o escoge otra fecha.`);return;}
-  const old=r.out;patchRes(r,{out:d.out});log(`Extendió ${r.code} del ${fmtD(old)} al ${fmtD(d.out)}`);reopen(r.id);toast('Estadía extendida');},
+  const old=r.out;patchRes(r,{out:d.out,ext:true});log(`Extendió ${r.code} del ${fmtD(old)} al ${fmtD(d.out)}`);reopen(r.id);toast('Estadía extendida');},
  void(d,f){const r=resById(d.rid),x=folio(r).find(e=>e.id===d.fid);if(!d.why.trim()){formErr(f,'Escribe el motivo de la anulación.');return;}
   if(!x||folio(r).some(e=>e.voidOf===x.id)){formErr(f,'Ese cargo ya fue anulado.');return;}
   const e=entry('cargo',`Anulación: ${x.concept} (${d.why.trim()})`,-x.amount);e.voidOf=x.id;addFolio(r,[e]);log(`Anuló el cargo "${x.concept}" en ${r.code}: ${d.why.trim()}`);reopen(r.id);toast('Cargo anulado');},
@@ -910,8 +1066,8 @@ const ACTS={
  'close-modal'(el,e){if(el.classList.contains('backdrop')&&e.target!==el)return;closeModal();},
  nav(el){view=el.dataset.view;closeModal();render();const c=$('#content');if(c)c.scrollTop=0;},
  ltab(el){renderLogin(el.dataset.tab);},
- logout(){if(ME())log('Cerró sesión');closeModal();W(B.signOut());},
- seed(){const sd=seed();W(B.reset(sd)).then(()=>toast('Hotel cargado. Ya pueden ingresar los estudiantes.'));},
+ logout(){if(ME()&&MODE==='shared')log('Cerró sesión');flushPV();closeModal();W(B.signOut());},
+ seed(){if(MODE!=='shared')return;const sd=seed();W(B.reset(sd)).then(()=>toast('Hotel cargado. Ya pueden ingresar los estudiantes.'));},
  'new-res'(el){resForm({room:el.dataset.room,date:el.dataset.date});},
  'open-res'(el){openRes(el.dataset.id);},
  'back-res'(el){openRes(el.dataset.id);},
@@ -955,29 +1111,41 @@ const ACTS={
  case(el){const u=ME(),i=el.dataset.id,arr=(u.practice||[]).filter(x=>typeof x==='string'),k=arr.indexOf(i);if(k>=0)arr.splice(k,1);else arr.push(i);u.practice=arr;W(B.patch('users',u.id,{practice:arr}));render();},
  'user-toggle'(el){const u=S.users.find(x=>x.id===el.dataset.id);const v=u.active===false;u.active=v;W(B.patch('users',u.id,{active:v}));render();toast(v?'Usuario activado':'Usuario desactivado');},
  pwd(){openModal('Cambiar mi contraseña',`<form id="setpass" class="stack"><label>Contraseña actual<input name="old" type="password" required></label><label>Nueva contraseña<input name="pass" type="password" required></label><p class="form-err"></p><div class="actions"><button type="button" class="btn ghost" data-act="close-modal">Cancelar</button><button class="btn">Guardar</button></div></form>`);},
- reset(){confirmBox('Se borrarán reservas, huéspedes, pagos, cierres y auditorías de todo el equipo, y se cargará un escenario nuevo con fecha de hoy. Las cuentas se conservan.',()=>{const sd=seed();rackStart=null;cart=[];W(B.reset(sd)).then(()=>{log('Reinició el hotel con un escenario nuevo');toast('Hotel reiniciado para todos');});},'Reiniciar para todos',true);},
+ reset(){if(MODE!=='shared'){confirmBox(MODE==='retos'?'Se generará un hotel nuevo y <b>se borrará todo tu avance en los retos</b>. ¿Seguro?':'Se generará un hotel nuevo para tu zona libre.',()=>{rackStart=null;cart=[];D.reset(seed());lastG='';render();toast('Hotel nuevo generado');},'Generar hotel nuevo',true);return;}
+  confirmBox('Se borrarán reservas, huéspedes, pagos, cierres y auditorías de todo el equipo, y se cargará un escenario nuevo con fecha de hoy. Las cuentas se conservan.',()=>{const sd=seed();rackStart=null;cart=[];W(B.reset(sd)).then(()=>{log('Reinició el hotel con un escenario nuevo');toast('Hotel reiniciado para todos');});},'Reiniciar para todos',true);},
+ mode(el){setMode(el.dataset.m);},
+ 'grade-detail'(el){gradeDetail(el.dataset.id);},
+ 'export-grades'(){const us=SH.users.filter(u=>u.role!=='admin').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const rows=[['Estudiante','Usuario'].concat(RETOS.map(R=>'Reto '+R.n),['Nota automática','Nota escrita','Nota final'])].concat(us.map(u=>{const g=GR[u.id]||{},c=calc(g);return [u.name,u.user].concat(RETOS.map(R=>retoProgress(R,g.auto||{})),[g1(c.auto),g1(c.written),g1(c.final)]);}));
+  const tsv=rows.map(r=>r.join('\t')).join('\n');openModal('Exportar calificaciones',`<p>Copia y pega en Excel.</p><textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea><div class="actions"><button class="btn ghost" data-act="close-modal">Cerrar</button><button class="btn" data-act="copy">Copiar datos</button></div>`,{nofocus:true});},
  help(){openModal('Atajos de teclado',`<table class="tbl"><tbody>${NAV.map(([k,l,n])=>`<tr><td><kbd class="k">${n}</kbd></td><td>Ir a ${l}</td></tr>`).join('')}<tr><td><kbd class="k">N</kbd></td><td>Nueva reserva</td></tr><tr><td><kbd class="k">/</kbd></td><td>Ir al buscador</td></tr><tr><td><kbd class="k">Esc</kbd></td><td>Cerrar la ventana abierta</td></tr><tr><td><kbd class="k">?</kbd></td><td>Ver esta ayuda</td></tr></tbody></table>`,{nofocus:true});}
 };
 
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el,e);});
-document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.getAttribute('id');if(FORMS[id])FORMS[id](d,f);});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.getAttribute('id')||f.dataset.form;if(FORMS[id])FORMS[id](d,f);});
 document.addEventListener('input',e=>{if(e.target.id==='qres'){qRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='qg'){qG=e.target.value;$('#tbody').innerHTML=guestRows();}});
-document.addEventListener('change',e=>{if(e.target.id==='fres'){fRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='posdest'){$('#posm').style.display=e.target.value==='cash'?'':'none';}
+function gradeDetail(id){const u=SH.users.find(x=>x.id===id);if(!u)return;const g=GR[id]||{},c=calc(g),au=g.auto||{},ts=g.teacher||{},an=g.answers||{},qz=g.quiz||{};
+  openModal(esc(u.name),`<div class="kpis" style="margin-bottom:12px"><div class="kpi"><b>${g1(c.auto)}</b><small>Automática</small></div><div class="kpi"><b>${g1(c.written)}</b><small>Escrita (${c.graded}/${c.totalW})</small></div><div class="kpi"><b>${g1(c.final)}</b><small>Final</small></div></div>
+  ${RETOS.map(R=>`<h2 style="margin-top:14px">Reto ${R.n}: ${esc(R.t)}</h2>${R.tasks.map(t=>t.k==='write'?`<div class="chk"><span class="ic ${an[t.id]?'info':'pend'}">✎</span><div class="body"><b>${esc(t.t)}</b><div class="answer">${an[t.id]?esc(an[t.id]):'<span class="muted">Sin responder</span>'}</div><label style="flex-direction:row;align-items:center;gap:8px;margin-top:6px">Nota<select data-grade="${id}" data-tid="${t.id}" style="width:90px"><option value="">—</option>${[1,1.5,2,2.5,3,3.5,4,4.5,5].map(n=>`<option ${+ts[t.id]===n?'selected':''}>${n.toFixed(1)}</option>`).join('')}</select></label></div></div>`:`<div class="chk"><span class="ic ${au[t.id]?'ok':'bad'}">${au[t.id]?'✓':'✗'}</span><div class="body"><b>${esc(t.t)}</b>${t.k==='quiz'&&qz[t.id]?`<small>Respondió: ${esc(qz[t.id])}</small>`:''}</div></div>`).join('')}`).join('')}`,{wide:true,nofocus:true});}
+document.addEventListener('change',e=>{
+  if(e.target.dataset.grade){const id=e.target.dataset.grade,tid=e.target.dataset.tid,v=e.target.value===''?null:+e.target.value;GR[id]=GR[id]||{};GR[id].teacher=GR[id].teacher||{};GR[id].teacher[tid]=v;W(B.saveGrade(id,{teacher:{[tid]:v}}));toast('Nota guardada');return;}if(e.target.id==='fres'){fRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='posdest'){$('#posm').style.display=e.target.value==='cash'?'':'none';}
   if(e.target.dataset.role){const u=S.users.find(x=>x.id===e.target.dataset.role);u.role=e.target.value;W(B.patch('users',u.id,{role:u.role}));toast(`${u.name} ahora es ${ROLES[u.role]}`);}});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&modalOpen()){closeModal();return;}
   if(!READY||!ME()||!S.config||modalOpen())return;const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
-  const n=NAV.find(x=>x[2]===e.key);if(n){view=n[0];render();return;}
+  const n=navItems().find(x=>x[2]===e.key);if(n){view=n[0];if(MODE!=='shared'){M().keys=(M().keys||0)+1;persistSoon();}render();return;}
   if(e.key==='n'||e.key==='N'){e.preventDefault();resForm();return;}
   if(e.key==='/'){const s=$('#content input[type=search]');if(s){e.preventDefault();s.focus();}return;}
   if(e.key==='?')ACTS.help();
 });
 
 /* ---------- Arranque ---------- */
-function onData(d){S.config=d.config||null;COLS.forEach(c=>S[c]=d[c]||[]);S.log.sort((a,b)=>b.ts-a.ts);READY=true;
+function onData(d){SH.config=d.config||null;COLS.forEach(c=>SH[c]=d[c]||[]);SH.log.sort((a,b)=>b.ts-a.ts);READY=true;
+  if(MODE==='shared')S=SH;else S.users=SH.users;
+
   if(CUR&&!ME()&&B.mode==='firebase'){/* perfil aún creándose */}
   scheduleRender();}
-function onAuth(id){const changed=CUR!==id;CUR=id;if(!id)loginTab='in';if(changed){view='hoy';rackStart=null;cart=[];closeModal();if(B.mode==='firebase')READY=false;}render();}
+function onAuth(id){const changed=CUR!==id;if(changed){flushPV();MODE='shared';pvKind=null;S=SH;GR={};lastG='';if(gradesUnsub){try{gradesUnsub();}catch(e){}gradesUnsub=null;}}CUR=id;if(!id)loginTab='in';if(changed){view='hoy';rackStart=null;cart=[];closeModal();if(B.mode==='firebase')READY=false;}render();}
 async function boot(){
   render();
   try{B=FIREBASE_CONFIG.apiKey?await firebaseBackend():demoBackend();}
@@ -986,6 +1154,7 @@ async function boot(){
 }
 boot();
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+window.addEventListener('pagehide',flushPV);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPV();});
 })();
 
 </script>
