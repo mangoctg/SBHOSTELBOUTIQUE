@@ -4,6 +4,1377 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0A2E36">
+<title>San Buenaventura Hostel Boutique</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SB Recepción">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--noche:#0A2E36;--mar:#12878F;--espuma:#8FD3D0;--cal:#FBF6EE;--mostaza:#E8A33D;--tinta:#0E2226}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 100% at 80% 0%,#134651,#0A2E36 60%);color:var(--cal);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--mostaza);outline-offset:3px}
+#menu{min-height:100%;display:grid;place-items:center;padding:28px 18px}
+.caja{width:100%;max-width:760px}
+.marca{font-family:"Bricolage Grotesque",serif;font-weight:800;font-size:clamp(28px,6vw,46px);line-height:1.05;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--espuma);font-weight:600;margin:0 0 26px;font-size:clamp(14px,2vw,18px)}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px}
+.app{text-align:left;background:rgba(251,246,238,.07);border:1px solid rgba(143,211,208,.22);border-radius:18px;padding:20px;transition:transform .2s,border-color .2s,background .2s}
+.app:hover{transform:translateY(-3px);border-color:var(--mostaza);background:rgba(251,246,238,.11)}
+.app .ico{font-size:30px;display:block;margin-bottom:8px}
+.app b{font-family:"Bricolage Grotesque",serif;font-weight:600;font-size:21px;display:block}
+.app .d{color:#A9CBCC;font-size:14px;display:block;margin-top:4px}
+.nota{color:#8FA9AC;font-size:13px;margin-top:22px}
+#visor{position:fixed;inset:0;background:#fff;display:none;flex-direction:column;z-index:20}
+#visor.on{display:flex}
+#barra{flex:none;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--noche);color:var(--cal)}
+#barra b{font-size:14px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#barra button{background:rgba(251,246,238,.14);border-radius:9px;padding:8px 12px;font-weight:700;font-size:13px}
+#marco{flex:1;width:100%;border:0}
+</style>
+</head>
+<body>
+<div id="menu"><div class="caja">
+ <h1 class="marca">San Buenaventura Hostel Boutique</h1>
+ <p class="sub">Módulo de Tecnología de la Información y la Comunicación</p>
+ <div class="apps"><button class="app" data-app="quiz" ><span class="ico">🚗</span><b>Taller diagnóstico</b><span class="d">Tu primer día: el juego del carrito y las preguntas</span></button><button class="app" data-app="carpetas" ><span class="ico">📁</span><b>La Carpeta Caótica</b><span class="d">Ordena el reguero de archivos y ponles buen nombre</span></button><button class="app" data-app="pres" ><span class="ico">🔑</span><b>Presentación del módulo</b><span class="d">Diapositivas con control desde el celular</span></button></div>
+ <p class="nota">Entra siempre con el mismo usuario y contraseña en todas las actividades.</p>
+</div></div>
+<div id="visor"><div id="barra"><button id="volver">← Menú</button><b id="titulo"></b></div><iframe id="marco" title="Actividad"></iframe></div>
+<script type="text/plain" id="app-quiz"><!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0E8C88">
+<title>Taller diagnóstico — San Buenaventura Hostel Boutique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F7F8;--panel:#FFFFFF;--ink:#1C2B30;--muted:#62757B;--line:#DCE6E8;--soft:#EDF4F5;--accent:#0E8C88;--ok:#1F9D5B;--warn:#D97706;--danger:#D93636;color-scheme:light}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{min-height:100%;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,#E4F4F2,#F3F7F8 60%)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;width:100%;max-width:420px;box-shadow:0 12px 40px rgba(14,140,136,.08)}
+.brand{color:var(--accent);font-weight:800;font-size:27px;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px}
+.brand span{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;padding:9px;border-radius:7px;cursor:pointer;font-weight:700;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+input,textarea{background:#FAFCFC;border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+textarea{white-space:pre;font-size:12px}
+.btn{background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn.big{width:100%;padding:14px;font-size:16px;margin-top:16px}
+.err{color:var(--danger);font-weight:600;font-size:13px;min-height:1em;margin:4px 0 0}
+.hint{font-size:12px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 12px;margin-top:16px}
+.page{max-width:820px;margin:0 auto;padding:0 14px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.top b{display:block;font-size:17px}
+.top small{color:var(--muted)}
+.muted{color:var(--muted)}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+.q>b{display:block;margin-bottom:4px}
+.tag{display:inline-block;font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;border-radius:999px;padding:2px 8px;margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.opt{flex-direction:row;align-items:flex-start;gap:9px;font-weight:400;color:var(--ink);font-size:15px;cursor:pointer;padding:8px 10px;border-radius:9px;border:1px solid transparent}
+.opt:hover{background:var(--soft)}
+.opt input{width:auto;margin-top:4px}
+.opt:has(input:checked){background:#E0F2F1;border-color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.kpi small{color:var(--muted);font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.bars .row{display:grid;grid-template-columns:96px 1fr 48px;gap:10px;align-items:center;font-size:13px;margin-top:8px}
+.bars .track{background:var(--soft);border-radius:4px;height:14px;overflow:hidden}
+.bars .fill{background:var(--accent);height:100%}
+.rev{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.rev:last-child{border-bottom:0}
+.rev small{display:block;color:var(--muted);font-size:13px}
+.ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;background:var(--muted)}
+.ic.ok{background:var(--ok)}.ic.bad{background:var(--danger)}.ic.info{background:var(--warn)}
+.scroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.tbl .num{text-align:right;white-space:nowrap}
+.backdrop{position:fixed;inset:0;background:rgba(28,43,48,.4);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.backdrop .card{max-width:640px}
+.row2{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.toast{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;font-weight:600;z-index:60;max-width:min(420px,calc(100% - 32px))}
+.toast.err{background:var(--danger)}
+
+.hero .big,.card-q .big{font-size:21px;line-height:1.3;display:block;margin-bottom:8px}
+.steps{margin:10px 0 16px;padding-left:20px}
+.steps li{margin-bottom:6px}
+.prog{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.pfill{height:100%;background:var(--accent);transition:width .3s}
+.racehead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px}
+.racehead b{font-size:17px}
+.question{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;margin:10px 0}
+.road{position:relative;height:380px;border-radius:14px;overflow:hidden;background:linear-gradient(#5B6B70,#46565B);border:4px solid #C9D6D8}
+.road.ok{box-shadow:inset 0 0 0 4px var(--ok)}
+.road.bad{box-shadow:inset 0 0 0 4px var(--danger)}
+.road .lines{position:absolute;left:50%;top:0;bottom:0;width:0;border-left:4px dashed rgba(255,255,255,.65)}
+.gate{position:absolute;left:0;right:0;top:6%;display:flex;gap:8px;padding:0 8px}
+.gate .door{flex:1;background:#FFF;border:3px solid var(--accent);border-radius:10px;padding:10px 8px;font-weight:700;font-size:14px;text-align:center;min-height:62px;display:grid;place-items:center;cursor:pointer;color:var(--ink);font-family:inherit}
+.car{position:absolute;bottom:14px;left:25%;transform:translateX(-50%);font-size:44px;transition:left .18s ease;line-height:1}
+.ctrls{display:flex;gap:10px;margin-top:12px}
+.ctrls .pad{flex:1;padding:16px;font-size:16px}
+.small{font-size:12px}
+.opt-btn{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:8px;font-size:15px;cursor:pointer}
+.opt-btn:hover{border-color:var(--accent);background:#F2FAF9}
+.opt-btn.file{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.slider{width:100%;margin:12px 0 4px}
+.warn{background:#FFF7E6;border-left:4px solid var(--warn);padding:8px 12px;border-radius:6px;margin:8px 0}
+.ready{font-weight:700;color:var(--accent);text-align:center;margin-top:10px}
+.slabel{font-weight:700;color:var(--accent)}
+@media (max-width:700px){.page{padding:0 10px 50px}.card{padding:20px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="modal"></div>
+<script>
+(function(){
+'use strict';
+/* =====================================================================
+   CONFIGURACIÓN DE FIREBASE — pega aquí los mismos datos del index.html
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+};
+const ADMIN_USER='admin', DOMAIN='sbhb.app';
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-3);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function sha256(ascii){function r(v,a){return(v>>>a)|(v<<(32-a))}var mp=Math.pow,mw=mp(2,32),i,j,res='',words=[],abl=ascii.length*8,hash=[],k=[],pc=0,ic={};for(var c=2;pc<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;hash[pc]=(mp(c,.5)*mw)|0;k[pc++]=(mp(c,1/3)*mw)|0}}hash=hash.slice(0,8);ascii+='\x80';while(ascii.length%64-56)ascii+='\x00';for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);if(j>>8)return '';words[i>>2]|=j<<((3-i)%4)*8}words[words.length]=((abl/mw)|0);words[words.length]=(abl);for(j=0;j<words.length;){var w=words.slice(j,j+=16),oh=hash;hash=hash.slice(0,8);for(i=0;i<64;i++){var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4],t1=hash[7]+(r(e,6)^r(e,11)^r(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(r(w15,7)^r(w15,18)^(w15>>>3))+w[i-7]+(r(w2,17)^r(w2,19)^(w2>>>10)))|0),t2=(r(a,2)^r(a,13)^r(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0}for(i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0}for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16)}}return res}
+const H=(user,pass)=>sha256(unescape(encodeURIComponent('muelle|'+user+'|'+pass)));
+
+const DIAG=[
+ {id:'c1',a:'Computador',q:'Necesitas escribir una carta de confirmación y guardarla en el computador. ¿Qué programa usas?',o:['Word','Excel','PowerPoint','Chrome'],ok:0},
+ {id:'c2',a:'Computador',q:'¿Qué hace la opción "Guardar como"?',o:['Guarda una copia con otro nombre o en otro lugar','Borra el archivo original','Imprime el documento','Cierra el programa sin guardar'],ok:0},
+ {id:'c3',a:'Computador',q:'Descargas un archivo de internet y no lo encuentras. ¿Dónde lo buscas primero?',o:['En la carpeta Descargas','En la papelera de reciclaje','En Excel','Se perdió, hay que descargarlo otra vez'],ok:0},
+ {id:'f1',a:'Formatos',q:'Le vas a mandar al huésped una confirmación que no pueda modificar. ¿En qué formato se la envías?',o:['PDF','DOCX','XLSX','JPG'],ok:0},
+ {id:'f2',a:'Formatos',q:'Un archivo que termina en .xlsx es de…',o:['Excel','Word','PowerPoint','Una imagen'],ok:0},
+ {id:'f3',a:'Formatos',q:'¿Qué formato sirve para pasar datos de un sistema a Excel?',o:['CSV','MP4','PNG','EXE'],ok:0},
+ {id:'f4',a:'Formatos',q:'Te mandan un .docx y en ese computador no hay Word. ¿Qué haces?',o:['Lo abro con Google Docs u otro editor gratuito','Le cambio la extensión a .pdf','No se puede abrir de ninguna forma','Reinicio el computador'],ok:0},
+ {id:'a1',a:'Archivos',q:'¿Cuál nombre de archivo te va a servir más para encontrarlo dentro de un mes?',o:['2026-10-03_cierre-caja_turno-noche.xlsx','documento final (2).xlsx','nuevo.xlsx','cierre.xlsx'],ok:0},
+ {id:'a2',a:'Archivos',q:'¿Para qué sirve organizar los archivos en carpetas por fecha o por área?',o:['Para encontrarlos rápido y no repetirlos','Para que el computador vaya más rápido','Para ocupar menos espacio','No sirve de mucho'],ok:0},
+ {id:'a3',a:'Archivos',q:'Trabajas un archivo en Drive o OneDrive y se apaga el computador. ¿Qué pasa?',o:['El archivo sigue guardado en la nube','Se pierde todo el trabajo','Solo se recupera si lo imprimí','Se borra a los 30 días'],ok:0},
+ {id:'e1',a:'Excel',q:'En Excel, ¿qué hace =SUMA(A1:A10)?',o:['Suma los valores de esas celdas','Cuenta cuántas celdas hay','Ordena la columna','No hace nada'],ok:0},
+ {id:'e2',a:'Excel',q:'Tienes una lista larga y quieres ver solo las reservas de Booking. ¿Qué usas?',o:['Un filtro','Negrilla','Insertar fila','El zoom'],ok:0},
+ {id:'e3',a:'Excel',q:'Una celda muestra ##### en vez del número. ¿Qué pasa?',o:['La columna está muy angosta','El archivo está dañado','Hay un virus','La fórmula está mal escrita'],ok:0},
+ {id:'s1',a:'Atajos',q:'¿Con qué teclas se copia?',o:['Ctrl + C','Ctrl + V','Ctrl + Z','Ctrl + P'],ok:0},
+ {id:'s2',a:'Atajos',q:'¿Para qué sirve Ctrl + Z?',o:['Deshacer lo último que hice','Guardar','Cerrar el programa','Buscar'],ok:0},
+ {id:'s3',a:'Atajos',q:'Quieres buscar una palabra dentro de un documento o una página. ¿Qué teclas usas?',o:['Ctrl + F','Alt + F4','Ctrl + P','Ctrl + E'],ok:0},
+ {id:'x1',a:'Experiencia',q:'¿Has trabajado en la recepción de un hotel u hostal?',o:['Nunca','Menos de 6 meses','Entre 6 meses y 2 años','Más de 2 años'],ok:null},
+ {id:'x2',a:'Experiencia',q:'¿Has usado programas de computador en un trabajo (facturación, inventario, reservas, caja)?',o:['Nunca','Los he visto trabajar a otros','Los he usado poco','Los manejo bien'],ok:null},
+ {id:'x3',a:'Experiencia',q:'¿Qué tan cómodo te sientes con el computador?',o:['Me cuesta bastante','Me defiendo en lo básico','Me siento cómodo','Lo manejo muy bien'],ok:null},
+ {id:'x4',a:'Experiencia',q:'¿Con qué equipo vas a trabajar en este módulo?',o:['Computador propio','Computador de la universidad','Solo celular','A veces computador, a veces celular'],ok:null}
+];
+const DAREAS=['Computador','Formatos','Archivos','Excel','Atajos'];
+let DA={};
+function diagOf(id){const g=GR[id]||{};return g.diag||null;}
+function diagScore(ans){const r={areas:{},score:0,total:0};DAREAS.forEach(a=>r.areas[a]={ok:0,n:0});
+  DIAG.forEach(q=>{if(q.ok==null)return;const A=r.areas[q.a];A.n++;r.total++;if(ans[q.id]!=null&&+ans[q.id]===q.ok){A.ok++;r.score++;}});
+  r.pct=r.total?Math.round(100*r.score/r.total):0;r.level=r.pct>=80?'Avanzado':r.pct>=50?'Intermedio':'Inicial';return r;}
+const DLEVEL={Inicial:'Vas empezando. En clase te vamos a acompañar paso a paso con lo básico de archivos y ofimática.',Intermedio:'Tienes buena base. Nos vamos a enfocar en formatos, plantillas, filtros y atajos.',Avanzado:'Manejas bien las herramientas. Te vamos a poner retos extra y a apoyar a tus compañeros.'};
+
+
+const ERR={'auth/invalid-credential':'Usuario o contraseña incorrectos.','auth/wrong-password':'La contraseña no es correcta.','auth/user-not-found':'Usuario o contraseña incorrectos.','auth/invalid-login-credentials':'Usuario o contraseña incorrectos.','auth/email-already-in-use':'Ese usuario ya existe. Escoge otro.','auth/weak-password':'La contraseña debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Espera un momento.','auth/network-request-failed':'Sin conexión a internet.','permission-denied':'No tienes permiso para esta acción.','auth/operation-not-allowed':'Falta activar Correo electrónico/contraseña en Firebase.','auth/configuration-not-found':'Authentication no está configurado en Firebase.','auth/unauthorized-domain':'Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).'};
+const errMsg=e=>{const c=e&&e.code||'';if(ERR[c])return ERR[c];return 'No se pudo completar la acción'+(c?' (código: '+c+')':'')+'. Mándale este código al profesor.';};
+
+/* ---------- Conexiones ---------- */
+function demoBackend(){
+  const K='sbhb-quiz-demo';let st=null;try{st=JSON.parse(localStorage.getItem(K)||'null');}catch(e){}
+  if(!st)st={accounts:[{uid:'u-admin',user:ADMIN_USER,ph:'e940634756994bd7b72edc3b511180d8220214e43b3d161ef0a8c1867d648ebc',name:'Profesor'}],session:null,grades:{}};
+  const persist=()=>{try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}};
+  let cb=null;const emit=()=>{if(cb)cb(clone(st.grades));};
+  return {mode:'demo',
+    init(onAuth){this.onAuth=onAuth;setTimeout(()=>onAuth(st.session?{uid:st.session,user:(st.accounts.find(a=>a.uid===st.session)||{}).user,name:(st.accounts.find(a=>a.uid===st.session)||{}).name}:null),0);},
+    async signIn(user,pass){const a=st.accounts.find(x=>x.user===user&&x.ph===H(user,pass));if(!a)throw{code:'auth/invalid-credential'};st.session=a.uid;persist();this.onAuth({uid:a.uid,user:a.user,name:a.name});},
+    async signUp(name,user,pass){if(st.accounts.some(x=>x.user===user))throw{code:'auth/email-already-in-use'};const id='u'+uid();st.accounts.push({uid:id,user,ph:H(user,pass),name});st.session=id;persist();this.onAuth({uid:id,user,name});},
+    async signOut(){st.session=null;persist();this.onAuth(null);},
+    watch(adm,f){cb=g=>f(adm?g:(g[st.session]?{[st.session]:g[st.session]}:{}));emit();},
+    async save(id,p){st.grades[id]=Object.assign(st.grades[id]||{},clone(p));persist();emit();}};
+}
+async function firebaseBackend(){
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,AU,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=A.initializeApp(FIREBASE_CONFIG),auth=AU.getAuth(app),db=F.getFirestore(app);
+  const mail=u=>u+'@'+DOMAIN;let unsub=null;
+  return {mode:'firebase',
+    init(onAuth){AU.onAuthStateChanged(auth,async u=>{if(unsub){unsub();unsub=null;}
+      if(!u){onAuth(null);return;}
+      const user=(u.email||'').split('@')[0];let name=user;
+      try{const s=await F.getDoc(F.doc(db,'users',u.uid));if(s.exists())name=s.data().name||user;}catch(e){}
+      onAuth({uid:u.uid,user,name});});},
+    signIn:(user,pass)=>AU.signInWithEmailAndPassword(auth,mail(user),pass),
+    async signUp(name,user,pass){const c=await AU.createUserWithEmailAndPassword(auth,mail(user),pass);
+      await F.setDoc(F.doc(db,'users',c.user.uid),{id:c.user.uid,name,user,role:user===ADMIN_USER?'admin':'recepcion',active:true,practice:[],created:Date.now()},{merge:true});},
+    signOut:()=>AU.signOut(auth),
+    watch(adm,f){const q=adm?F.collection(db,'grades'):null;
+      unsub=adm?F.onSnapshot(q,s=>{const m={};s.forEach(d=>m[d.id]=d.data());f(m);},e=>console.error(e))
+               :F.onSnapshot(F.doc(db,'grades',auth.currentUser.uid),s=>f(s.exists()?{[s.id]:s.data()}:{}),e=>console.error(e));},
+    save:(id,p)=>F.setDoc(F.doc(db,'grades',id),clone(p),{merge:true})};
+}
+
+/* ---------- Estado ---------- */
+let B=null,ME=null,G={},A={},tab='in',editing=false,preview=false,PH={step:'intro',cardSet:'cards',ci:0};
+const isAdmin=()=>!!ME&&ME.user===ADMIN_USER;
+let toastT;
+function toast(m,err){const o=$('.toast');if(o)o.remove();const t=document.createElement('div');t.className='toast'+(err?' err':'');t.textContent=m;document.body.appendChild(t);clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),err?5500:3500);}
+const shell=i=>`<div class="wrap"><div class="card"><div class="brand">San Buenaventura<span>Hostel Boutique, taller diagnóstico</span></div>${i}</div></div>`;
+
+function render(){
+  if(!B){$('#root').innerHTML=shell('<p class="muted">Conectando…</p>');return;}
+  if(!ME){renderLogin();return;}
+  if(isAdmin()&&!preview){renderAdmin();return;}
+  const g=G[ME.uid],d=g&&g.diag;
+  if(d&&!editing){renderResult(d);return;}
+  renderQuiz(d);
+}
+function renderLogin(){
+  $('#root').innerHTML=shell(`<div class="tabs"><button data-act="tab" data-t="in" aria-selected="${tab==='in'}">Ingresar</button><button data-act="tab" data-t="up" aria-selected="${tab==='up'}">Crear cuenta</button></div>
+  ${tab==='in'?`<form data-form="login" class="stack"><label>Usuario<input name="user" autocapitalize="none" required></label><label>Contraseña<input name="pass" type="password" required></label><p class="err"></p><button class="btn">Ingresar</button></form>`
+  :`<form data-form="signup" class="stack"><label>Nombre completo<input name="name" required></label><label>Usuario (sin espacios ni tildes)<input name="user" autocapitalize="none" required></label><label>Contraseña (mínimo 6 caracteres)<input name="pass" type="password" required></label><label>Repite la contraseña<input name="pass2" type="password" required></label><p class="err"></p><button class="btn">Crear cuenta</button></form>`}
+  <div class="hint">Crea tu cuenta con un usuario fácil de recordar. La vas a seguir usando durante el módulo.${B.mode==='demo'?' (Modo demostración: se guarda solo en este navegador.)':''}</div>`);
+}
+function renderQuiz(){
+  const st=PH.step;
+  if(st==='intro')return renderIntro();
+  if(st==='race')return renderRace();
+  if(st==='cards')return renderCards();
+  if(st==='exp')return renderExp();
+}
+function head(extra){return `<header class="top"><div><b>Tu primer día</b><small>${esc(ME.name)}${isAdmin()?', viendo el taller como estudiante':''}</small></div><span>${isAdmin()?'<button class="btn ghost sm" data-act="panel">Ver resultados</button> ':''}<button class="btn ghost sm" data-act="logout">Salir</button></span></header>${extra||''}`;}
+function bar(){const tot=DIAG.length,hechas=Object.keys(A).length;return `<div class="prog"><div class="pfill" style="width:${Math.round(100*hechas/tot)}%"></div></div><small class="muted">${hechas} de ${tot}</small>`;}
+function renderIntro(){
+  $('#root').innerHTML=`<div class="page">${head()}<main class="content">
+   <section class="q hero"><b class="big">Bienvenido a tu primer día</b>
+   <p>Hoy no hay examen. Vas a pasar por cuatro momentos cortos para ver con qué herramientas te sientes cómodo. Dura unos 10 minutos.</p>
+   <ol class="steps"><li><b>La carretera</b>: manejas un carrito y escoges la puerta correcta, izquierda o derecha.</li>
+   <li><b>Decisiones de oficina</b>: situaciones del día a día.</li>
+   <li><b>Orden en los archivos</b>: cómo guardas y nombras las cosas.</li>
+   <li><b>Tu experiencia</b>: cuéntanos de dónde vienes.</li></ol>
+   <p class="muted">No se trata de saberlo todo. Responde con sinceridad y ya.</p>
+   <button class="btn big" data-act="go" data-s="race">Arrancar</button></section></main></div>`;
+}
+/* ---------- Fase 1: la carretera ---------- */
+const CARQ=['f1','f2','f3','f4','s1','s2','s3'];
+let RACE=null,raf=null;
+function gateFor(id){const q=DIAG.find(x=>x.id===id);const bad=q.o.map((o,i)=>i).filter(i=>i!==q.ok);const d=bad[Math.floor(Math.random()*bad.length)];
+  const okLeft=Math.random()<0.5;return {id,q,left:okLeft?q.ok:d,right:okLeft?d:q.ok};}
+function renderRace(){
+  if(!RACE)RACE={i:0,lane:0,y:0,hits:0,crash:0,flash:'',running:false,gates:CARQ.map(gateFor)};
+  const g=RACE.gates[RACE.i];
+  $('#root').innerHTML=`<div class="page">${head()}<main class="content">
+   <div class="racehead"><b>La carretera</b> <span class="muted">Puerta ${RACE.i+1} de ${RACE.gates.length}</span></div>
+   <p class="question">${esc(g.q.q)}</p>
+   <div class="road ${RACE.flash}" id="road">
+     <div class="lines"></div>
+     <div class="gate" id="gate"><button class="door" data-act="lane" data-l="0">${esc(g.q.o[g.left])}</button><button class="door" data-act="lane" data-l="1">${esc(g.q.o[g.right])}</button></div>
+     <div class="car" id="car">🚗</div>
+   </div>
+   <div class="ctrls"><button class="btn pad" data-act="lane" data-l="0">◀ Izquierda</button><button class="btn pad" data-act="lane" data-l="1">Derecha ▶</button></div>
+   <p class="muted small">Lee con calma y ubica el carrito en la puerta correcta. Cuando estés listo, arranca. También puedes tocar la puerta o usar las flechas del teclado.</p>
+   ${RACE.running?'<p class="muted small">Vas rodando…</p>':RACE.i?'<p class="ready">Prepárate… lee y ubica el carrito</p>':'<button class="btn big" data-act="race-go">¡Arranca!</button>'}
+   </main></div>`;
+  place();
+}
+function place(){const car=$('#car'),gate=$('#gate');if(!car)return;car.style.left=(RACE.lane?75:25)+'%';if(gate)gate.style.top=(6+RACE.y*72)+'%';}
+function raceGo(){if(RACE.running)return;RACE.running=true;renderRace();let last=performance.now();
+  const DUR=7000;
+  const loop=t=>{const dt=t-last;last=t;RACE.y+=dt/DUR;
+    if(RACE.y>=0.78){resolveGate();return;}
+    place();raf=requestAnimationFrame(loop);};
+  raf=requestAnimationFrame(loop);}
+function resolveGate(){cancelAnimationFrame(raf);const g=RACE.gates[RACE.i];const pick=RACE.lane?g.right:g.left;
+  A[g.id]=pick;const ok=pick===g.q.ok;if(ok)RACE.hits++;else RACE.crash++;
+  RACE.flash=ok?'ok':'bad';RACE.running=false;renderRace();
+  setTimeout(()=>{RACE.flash='';RACE.i++;RACE.y=0;
+    if(RACE.i>=RACE.gates.length){PH.step='cards';renderQuiz();return;}
+    renderRace();setTimeout(()=>{if(PH.step==='race'&&!RACE.running)raceGo();},2200);},900);}
+/* ---------- Fase 2 y 3: tarjetas ---------- */
+const CARDQ=['c1','c2','c3','e1','e2','e3'],FILEQ=['a1','a2','a3'];
+function renderCards(){
+  const list=PH.cardSet==='files'?FILEQ:CARDQ,i=PH.ci||0,q=DIAG.find(x=>x.id===list[i]);
+  const fase=PH.cardSet==='files'?'Orden en los archivos':'Decisiones de oficina';
+  $('#root').innerHTML=`<div class="page">${head()}<main class="content">
+   <div class="racehead"><b>${fase}</b> <span class="muted">${i+1} de ${list.length}</span></div>${bar()}
+   <section class="q card-q"><b class="big">${esc(q.q)}</b>
+   <div class="opts">${q.o.map((o,j)=>`<button class="opt-btn ${PH.cardSet==='files'?'file':''}" data-act="pick" data-id="${q.id}" data-j="${j}">${esc(o)}</button>`).join('')}</div></section>
+   </main></div>`;
+}
+/* ---------- Fase 4: experiencia ---------- */
+function renderExp(){
+  const qs=['x1','x2','x3','x4'].map(id=>DIAG.find(x=>x.id===id));
+  $('#root').innerHTML=`<div class="page">${head()}<main class="content">
+   <div class="racehead"><b>Tu experiencia</b></div>${bar()}
+   <p class="muted">Aquí no hay respuesta correcta. Mueve la barra donde te sientas.</p>
+   ${qs.map(q=>`<section class="q"><b>${esc(q.q)}</b>
+     <input class="slider" type="range" min="0" max="${q.o.length-1}" step="1" value="${A[q.id]!=null?A[q.id]:0}" data-slider="${q.id}">
+     <div class="slabel" id="sl-${q.id}">${esc(q.o[A[q.id]!=null?A[q.id]:0])}</div></section>`).join('')}
+   <button class="btn big" data-act="finish">Terminar</button></main></div>`;
+  qs.forEach(q=>{if(A[q.id]==null)A[q.id]=0;});
+}
+function perfil(r){const best=DAREAS.map(a=>{const x=r.areas[a]||{ok:0,n:1};return {a,p:x.ok/(x.n||1)};}).sort((x,y)=>y.p-x.p)[0];
+  if(r.pct<50)return {n:'El Aprendiz',d:'Vas empezando y eso está bien: aquí se aprende haciendo.'};
+  const M={Archivos:{n:'El Organizado',d:'Sabes dónde queda cada cosa. En recepción eso vale oro.'},Atajos:{n:'El Veloz',d:'Te mueves rápido en el computador. Vas a volar cuando haya fila.'},Formatos:{n:'El Preciso',d:'Sabes qué archivo mandar en cada caso.'},Excel:{n:'El Calculador',d:'Te defiendes con los números y las hojas de cálculo.'},Computador:{n:'El Práctico',d:'Resuelves lo del día a día sin enredarte.'}};
+  return M[best.a]||{n:'El Práctico',d:'Te defiendes bien con las herramientas.'};}
+function renderResult(d){
+  const r=d.res||diagScore(d.a||{}),pf=perfil(r);
+  $('#root').innerHTML=`<div class="page">${head()}<main class="content">
+  <section class="q hero"><b class="big">${esc(pf.n)}</b><p>${esc(pf.d)}</p></section>
+  <div class="kpis"><div class="kpi"><b>${r.level}</b><small>Tu nivel de entrada</small></div><div class="kpi"><b>${r.pct}%</b><small>${r.score} de ${r.total} correctas</small></div></div>
+  <section class="q bars"><b>Por tema</b>${DAREAS.map(a=>{const x=r.areas[a]||{ok:0,n:1},p=Math.round(100*x.ok/(x.n||1));return `<div class="row"><span>${a}</span><div class="track"><div class="fill" style="width:${p}%"></div></div><b>${p}%</b></div>`;}).join('')}
+  <p class="muted" style="margin-top:10px">${DLEVEL[r.level]}</p></section>
+  <section class="q"><b>Tus respuestas</b>${DIAG.map(q=>{const v=(d.a||{})[q.id],ok=q.ok==null?null:+v===q.ok;
+    return `<div class="rev"><span class="ic ${ok==null?'info':ok?'ok':'bad'}">${ok==null?'•':ok?'✓':'✗'}</span><div><b>${esc(q.q)}</b><small>Respondiste: ${v!=null?esc(q.o[v]):'sin responder'}${ok===false?'. Correcta: '+esc(q.o[q.ok]):''}</small></div></div>`;}).join('')}</section>
+  <p class="muted">Ya el profesor tiene tus resultados.</p><button class="btn ghost" data-act="again">Volver a hacerlo</button></main></div>`;
+}
+function analisis(list){
+  const fall={},sinResp={};
+  DIAG.filter(q=>q.ok!=null).forEach(q=>{fall[q.id]=0;sinResp[q.id]=0;
+    list.forEach(g=>{const v=g.diag.a[q.id];if(v==null)sinResp[q.id]++;else if(+v!==q.ok)fall[q.id]++;});});
+  const pend=DIAG.filter(q=>q.ok!=null&&(fall[q.id]+sinResp[q.id])>0).sort((a,b)=>(fall[b.id]+sinResp[b.id])-(fall[a.id]+sinResp[a.id]));
+  const dominados=DIAG.filter(q=>q.ok!=null&&(fall[q.id]+sinResp[q.id])===0);
+  const porArea={};DAREAS.forEach(a=>porArea[a]={pend:0,tot:0});
+  DIAG.filter(q=>q.ok!=null).forEach(q=>{porArea[q.a].tot++;if(fall[q.id]+sinResp[q.id]>0)porArea[q.a].pend++;});
+  const orden=DAREAS.slice().sort((a,b)=>(porArea[b].pend/porArea[b].tot)-(porArea[a].pend/porArea[a].tot));
+  const nivelMin=list.reduce((m,g)=>{const o={Inicial:0,Intermedio:1,Avanzado:2};return Math.min(m,o[g.diag.res.level]);},2);
+  const soloCel=list.filter(g=>g.diag.a.x4===2);
+  const sinExp=list.filter(g=>g.diag.a.x1===0);
+  return {fall,sinResp,pend,dominados,porArea,orden,nivelMin,soloCel,sinExp};
+}
+const QTIP={c1:'Para qué sirve cada programa: Word escribe, Excel calcula, PowerPoint presenta.',c2:'Diferencia entre Guardar y Guardar como, con un ejemplo en vivo.',c3:'Dónde quedan las descargas y cómo buscar un archivo en el computador.',
+ f1:'Cuándo mandar PDF y cuándo un editable, con la carta de confirmación.',f2:'Extensiones de archivo: qué programa abre cada una.',f3:'Qué es un CSV y cómo se pasa de un sistema a Excel.',f4:'Cómo abrir archivos sin tener el programa: Google Docs, visor en línea.',
+ a1:'Cómo nombrar archivos: fecha al inicio, sin espacios raros, nombre que se entienda.',a2:'Estructura de carpetas por fecha y por área; ejercicio con la carpeta del turno.',a3:'Trabajo en la nube: guardado automático, versiones y respaldo.',
+ e1:'Fórmula SUMA y rangos de celdas, paso a paso.',e2:'Filtros y ordenar datos en una lista larga.',e3:'Errores comunes de Excel y cómo leerlos.',
+ s1:'Copiar, cortar y pegar con el teclado.',s2:'Deshacer y rehacer: la red de seguridad.',s3:'Buscar dentro de un documento o página con Ctrl+F.'};
+function renderAdmin(){
+  Object.values(G).forEach(g=>{if(g&&g.diag&&!g.diag.res)g.diag.res=diagScore(g.diag.a||{});});
+  const list=Object.values(G).filter(g=>g&&g.diag&&g.user!==ADMIN_USER).sort((a,b)=>b.diag.res.pct-a.diag.res.pct);
+  const prom=list.length?Math.round(list.reduce((s,g)=>s+g.diag.res.pct,0)/list.length):0;
+  const porArea=DAREAS.map(a=>{const p=list.length?Math.round(list.reduce((s,g)=>{const x=g.diag.res.areas[a]||{ok:0,n:1};return s+100*x.ok/(x.n||1);},0)/list.length):0;return {a,p};}).sort((x,y)=>x.p-y.p);
+  const pares=[];for(let i=0;i<Math.floor(list.length/2);i++)pares.push((list[i].name||list[i].user)+' con '+(list[list.length-1-i].name||list[list.length-1-i].user));
+  const q=id=>DIAG.find(x=>x.id===id);
+  $('#root').innerHTML=`<div class="page"><header class="top"><div><b>Resultados del diagnóstico</b><small>${esc(ME.name)}</small></div><span><button class="btn ghost sm" data-act="try">Ver el quiz</button> <button class="btn ghost sm" data-act="export">Exportar a Excel</button> <button class="btn ghost sm" data-act="logout">Salir</button></span></header>
+  <main class="content">${!list.length?'<p class="muted">Todavía nadie ha enviado el taller.</p>':`
+  <div class="kpis"><div class="kpi"><b>${list.length}</b><small>Lo han hecho</small></div><div class="kpi"><b>${prom}%</b><small>Promedio del grupo</small></div>${['Inicial','Intermedio','Avanzado'].map(l=>`<div class="kpi"><b>${list.filter(g=>g.diag.res.level===l).length}</b><small>Nivel ${l}</small></div>`).join('')}</div>
+  <div class="cols"><section class="q bars"><b>Temas más flojos del grupo</b>${porArea.map(x=>`<div class="row"><span>${x.a}</span><div class="track"><div class="fill" style="width:${x.p}%"></div></div><b>${x.p}%</b></div>`).join('')}</section>
+  <section class="q"><b>Parejas sugeridas</b><p class="muted" style="font-size:12px;margin:4px 0">El que más sabe con el que va empezando.</p>${pares.map(p=>`<div class="rev"><div>${esc(p)}</div></div>`).join('')||'<p class="muted">Hacen falta más estudiantes.</p>'}</section></div>
+  ${(()=>{const an=analisis(list);const NIV=['Inicial','Intermedio','Avanzado'];
+    return `<section class="q"><b class="big">Cómo arrancar la clase</b>
+    <p><b>Punto de partida:</b> hay estudiantes en nivel ${NIV[an.nivelMin]}, así que la clase arranca desde ahí. Nadie debe quedarse atrás.</p>
+    <p><b>Orden sugerido de los temas:</b> ${an.orden.map((a,i)=>`${i+1}. ${a} (${an.porArea[a].pend} de ${an.porArea[a].tot} puntos por reforzar)`).join(' · ')}</p>
+    ${an.soloCel.length?`<p class="warn">⚠ ${an.soloCel.length} estudiante(s) solo tienen celular. Planea parejas o préstamo de equipo en la sala de sistemas.</p>`:''}
+    ${an.sinExp.length?`<p class="warn">⚠ ${an.sinExp.length} nunca han trabajado en recepción. Los ejemplos hay que explicarlos desde cero.</p>`:''}
+    </section>
+    <section class="q"><b class="big">Temas que hay que dictar sí o sí</b>
+    <p class="muted">Basta con que a uno le haya quedado mal para que el tema entre a clase. Ordenados por cuántos lo necesitan.</p>
+    ${an.pend.length?an.pend.map(q=>{const n=an.fall[q.id]+an.sinResp[q.id];return `<div class="rev"><span class="ic bad">${n}</span><div><b>${esc(q.a)}: ${esc(q.q)}</b><small>Qué reforzar: ${esc(QTIP[q.id]||'')} Respuesta correcta: ${esc(q.o[q.ok])}.</small></div></div>`;}).join(''):'<p class="muted">Nadie falló nada. Puedes acelerar y meter retos extra.</p>'}
+    ${an.dominados.length?`<p class="muted" style="margin-top:10px"><b>Ya lo dominan todos (${an.dominados.length}):</b> ${an.dominados.map(q=>esc(q.a+' — '+q.o[q.ok])).join(' · ')}. Repásalo rápido y sigue.</p>`:''}
+    </section>
+    <section class="q"><b class="big">Estudiante por estudiante</b>
+    ${list.map(g=>{const r=g.diag.res,flojas=DAREAS.filter(a=>{const x=r.areas[a]||{ok:0,n:1};return x.ok/(x.n||1)<0.6;}),fuertes=DAREAS.filter(a=>{const x=r.areas[a]||{ok:0,n:1};return x.ok/(x.n||1)===1;});
+      const val=id=>{const q=DIAG.find(x=>x.id===id),v=g.diag.a[id];return v!=null?q.o[v]:'—';};
+      const sug=r.level==='Inicial'?'Acompañamiento cercano: siéntalo adelante y verifica cada paso.':r.level==='Intermedio'?'Puede avanzar solo, pero revísale los puntos flojos.':'Puede ser monitor de un compañero y hacer los retos extra.';
+      return `<div class="rev"><span class="ic ${r.level==='Inicial'?'bad':r.level==='Intermedio'?'info':'ok'}">${r.pct}</span><div><b>${esc(g.name||g.user)} — ${r.level}</b>
+      <small>Fuerte en: ${fuertes.length?esc(fuertes.join(', ')):'nada todavía'}. Reforzar: ${flojas.length?esc(flojas.join(', ')):'ninguna área crítica'}.</small>
+      <small>Recepción: ${esc(val('x1'))}. Programas: ${esc(val('x2'))}. Computador: ${esc(val('x3'))}. Equipo: ${esc(val('x4'))}.</small>
+      <small><b>Sugerencia:</b> ${esc(sug)}</small></div></div>`;}).join('')}
+    </section>`;})()}
+  <section class="q scroll"><table class="tbl"><thead><tr><th>Estudiante</th><th>Nivel</th><th class="num">Puntaje</th>${DAREAS.map(a=>`<th class="num">${a}</th>`).join('')}<th>Recepción</th><th>Programas</th><th>Computador</th><th>Equipo</th></tr></thead><tbody>
+  ${list.map(g=>{const d=g.diag,val=id=>{const v=d.a[id];return v!=null?esc(q(id).o[v]):'—';};
+   return `<tr><td><b>${esc(g.name||g.user)}</b><br><small>${esc(g.user||'')}</small></td><td>${d.res.level}</td><td class="num">${d.res.pct}%</td>${DAREAS.map(a=>{const x=d.res.areas[a]||{ok:0,n:0};return `<td class="num">${x.ok}/${x.n}</td>`;}).join('')}<td>${val('x1')}</td><td>${val('x2')}</td><td>${val('x3')}</td><td>${val('x4')}</td></tr>`;}).join('')}
+  </tbody></table></section>`}</main></div>`;
+}
+
+const ACTS={
+ tab(el){tab=el.dataset.t;render();},
+ logout(){B.signOut();},
+ go(el){PH.step=el.dataset.s;RACE=null;renderQuiz();},
+ 'race-go'(){raceGo();},
+ lane(el){if(RACE){RACE.lane=+el.dataset.l;place();}},
+ pick(el){A[el.dataset.id]=+el.dataset.j;const list=PH.cardSet==='files'?FILEQ:CARDQ;PH.ci=(PH.ci||0)+1;
+  if(PH.ci>=list.length){if(PH.cardSet==='cards'){PH.cardSet='files';PH.ci=0;}else{PH.step='exp';}}
+  renderQuiz();},
+ finish(){FORMS.diag(Object.assign({},A),null);},
+ try(){preview=true;PH={step:'intro',cardSet:'cards',ci:0};RACE=null;A={};editing=true;render();},
+ panel(){preview=false;editing=false;render();},
+ again(){A={};PH={step:'intro',cardSet:'cards',ci:0};RACE=null;editing=true;render();},
+ export(){const list=Object.values(G).filter(g=>g&&g.diag&&g.user!==ADMIN_USER);
+  const selfq=DIAG.filter(q=>q.ok==null);
+  const rows=[['Estudiante','Usuario','Nivel','Puntaje %'].concat(DAREAS,selfq.map(q=>q.q))].concat(list.map(g=>[g.name||'',g.user||'',g.diag.res.level,g.diag.res.pct].concat(DAREAS.map(a=>{const x=g.diag.res.areas[a]||{ok:0,n:0};return x.ok+'/'+x.n;}),selfq.map(q=>{const v=g.diag.a[q.id];return v!=null?q.o[v]:'';}))));
+  const tsv=rows.map(r=>r.map(c=>String(c).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  $('#modal').innerHTML=`<div class="backdrop" data-act="close"><div class="card"><b>Exportar a Excel</b><p class="muted">Copia y pega en la celda A1 de Excel.</p><textarea id="tsv" rows="9" readonly>${esc(tsv)}</textarea><div class="row2"><button class="btn ghost" data-act="close">Cerrar</button><button class="btn" data-act="copy">Copiar</button></div></div></div>`;},
+ close(el,e){if(el.classList.contains('backdrop')&&e.target!==el)return;$('#modal').innerHTML='';},
+ copy(){const t=$('#tsv');t.focus();t.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(()=>toast('Datos copiados'),()=>toast(ok?'Datos copiados':'Selecciona el texto y copia con Ctrl+C',!ok));else toast(ok?'Datos copiados':'Selecciona el texto y copia con Ctrl+C',!ok);}
+};
+const err=(f,m)=>{const e=f.querySelector('.err');if(e)e.textContent=m;};
+const FORMS={
+ async login(d,f){try{await B.signIn(d.user.trim().toLowerCase(),d.pass);}catch(e){err(f,errMsg(e));}},
+ async signup(d,f){const name=d.name.trim(),user=d.user.trim().toLowerCase();
+  if(!name)return err(f,'Escribe tu nombre.');
+  if(!/^[a-z0-9._-]{3,30}$/.test(user))return err(f,'El usuario debe tener al menos 3 caracteres, sin espacios ni tildes.');
+  if(d.pass.length<6)return err(f,'La contraseña debe tener al menos 6 caracteres.');
+  if(d.pass!==d.pass2)return err(f,'Las contraseñas no coinciden.');
+  try{await B.signUp(name,user,d.pass);}catch(e){err(f,errMsg(e));}},
+ async diag(d,f){const faltan=DIAG.filter(q=>d[q.id]==null);
+  if(faltan.length){toast(`Te faltan ${faltan.length} respuestas.`,true);return;}
+  const a={};DIAG.forEach(q=>a[q.id]=+d[q.id]);const res=diagScore(a);
+  const p={id:ME.uid,name:ME.name,user:ME.user,diag:{a,res,ts:Date.now()}};
+  G[ME.uid]=Object.assign(G[ME.uid]||{},p);editing=false;A={};render();
+  try{await B.save(ME.uid,p);toast('Listo, gracias. Ya el profesor tiene tus resultados.');}catch(e){toast(errMsg(e),true);}}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el,e);});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.dataset.form;if(FORMS[id])FORMS[id](d,f);});
+document.addEventListener('input',e=>{const id=e.target.dataset.slider;if(id){A[id]=+e.target.value;const q=DIAG.find(x=>x.id===id),l=$('#sl-'+id);if(l)l.textContent=q.o[+e.target.value];}});
+document.addEventListener('keydown',e=>{if(!RACE||PH.step!=='race')return;if(e.key==='ArrowLeft'){RACE.lane=0;place();}if(e.key==='ArrowRight'){RACE.lane=1;place();}if((e.key===' '||e.key==='Enter')&&!RACE.running){e.preventDefault();raceGo();}});
+
+async function boot(){
+  render();
+  try{B=FIREBASE_CONFIG.apiKey?await firebaseBackend():demoBackend();}
+  catch(e){console.error(e);$('#root').innerHTML=shell('<p>No se pudo conectar. Revisa tu conexión y la configuración de Firebase.</p>');return;}
+  B.init(u=>{ME=u;G={};A={};editing=false;tab='in';render();if(u)B.watch(u.user===ADMIN_USER,g=>{G=Object.assign(G,g);render();});});
+}
+boot();
+})();
+
+<\/script>
+</body>
+</html>
+</script><script type="text/plain" id="app-carpetas"><!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0E8C88">
+<title>La Carpeta Caótica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F7F8;--panel:#FFFFFF;--ink:#1C2B30;--muted:#62757B;--line:#DCE6E8;--soft:#EDF4F5;--accent:#0E8C88;--ok:#1F9D5B;--warn:#D97706;--danger:#D93636;color-scheme:light}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{min-height:100%;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,#E4F4F2,#F3F7F8 60%)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;width:100%;max-width:420px;box-shadow:0 12px 40px rgba(14,140,136,.08)}
+.brand{color:var(--accent);font-weight:800;font-size:27px;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px}
+.brand span{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;padding:9px;border-radius:7px;cursor:pointer;font-weight:700;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+input,textarea{background:#FAFCFC;border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+textarea{white-space:pre;font-size:12px}
+.btn{background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn.big{width:100%;padding:14px;font-size:16px;margin-top:16px}
+.err{color:var(--danger);font-weight:600;font-size:13px;min-height:1em;margin:4px 0 0}
+.hint{font-size:12px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 12px;margin-top:16px}
+.page{max-width:820px;margin:0 auto;padding:0 14px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.top b{display:block;font-size:17px}
+.top small{color:var(--muted)}
+.muted{color:var(--muted)}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+.q>b{display:block;margin-bottom:4px}
+.tag{display:inline-block;font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;border-radius:999px;padding:2px 8px;margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.opt{flex-direction:row;align-items:flex-start;gap:9px;font-weight:400;color:var(--ink);font-size:15px;cursor:pointer;padding:8px 10px;border-radius:9px;border:1px solid transparent}
+.opt:hover{background:var(--soft)}
+.opt input{width:auto;margin-top:4px}
+.opt:has(input:checked){background:#E0F2F1;border-color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.kpi small{color:var(--muted);font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.bars .row{display:grid;grid-template-columns:96px 1fr 48px;gap:10px;align-items:center;font-size:13px;margin-top:8px}
+.bars .track{background:var(--soft);border-radius:4px;height:14px;overflow:hidden}
+.bars .fill{background:var(--accent);height:100%}
+.rev{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.rev:last-child{border-bottom:0}
+.rev small{display:block;color:var(--muted);font-size:13px}
+.ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;background:var(--muted)}
+.ic.ok{background:var(--ok)}.ic.bad{background:var(--danger)}.ic.info{background:var(--warn)}
+.scroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.tbl .num{text-align:right;white-space:nowrap}
+.backdrop{position:fixed;inset:0;background:rgba(28,43,48,.4);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.backdrop .card{max-width:640px}
+.row2{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.toast{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;font-weight:600;z-index:60;max-width:min(420px,calc(100% - 32px))}
+.toast.err{background:var(--danger)}
+
+.hero .big,.card-q .big{font-size:21px;line-height:1.3;display:block;margin-bottom:8px}
+.steps{margin:10px 0 16px;padding-left:20px}
+.steps li{margin-bottom:6px}
+.prog{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.pfill{height:100%;background:var(--accent);transition:width .3s}
+.racehead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px}
+.racehead b{font-size:17px}
+.question{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;margin:10px 0}
+.road{position:relative;height:380px;border-radius:14px;overflow:hidden;background:linear-gradient(#5B6B70,#46565B);border:4px solid #C9D6D8}
+.road.ok{box-shadow:inset 0 0 0 4px var(--ok)}
+.road.bad{box-shadow:inset 0 0 0 4px var(--danger)}
+.road .lines{position:absolute;left:50%;top:0;bottom:0;width:0;border-left:4px dashed rgba(255,255,255,.65)}
+.gate{position:absolute;left:0;right:0;top:6%;display:flex;gap:8px;padding:0 8px}
+.gate .door{flex:1;background:#FFF;border:3px solid var(--accent);border-radius:10px;padding:10px 8px;font-weight:700;font-size:14px;text-align:center;min-height:62px;display:grid;place-items:center;cursor:pointer;color:var(--ink);font-family:inherit}
+.car{position:absolute;bottom:14px;left:25%;transform:translateX(-50%);font-size:44px;transition:left .18s ease;line-height:1}
+.ctrls{display:flex;gap:10px;margin-top:12px}
+.ctrls .pad{flex:1;padding:16px;font-size:16px}
+.small{font-size:12px}
+.opt-btn{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:8px;font-size:15px;cursor:pointer}
+.opt-btn:hover{border-color:var(--accent);background:#F2FAF9}
+.opt-btn.file{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.slider{width:100%;margin:12px 0 4px}
+.warn{background:#FFF7E6;border-left:4px solid var(--warn);padding:8px 12px;border-radius:6px;margin:8px 0}
+.ready{font-weight:700;color:var(--accent);text-align:center;margin-top:10px}
+.slabel{font-weight:700;color:var(--accent)}
+@media (max-width:700px){.page{padding:0 10px 50px}.card{padding:20px}}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:#fff;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;cursor:pointer;text-align:left}
+.chip:hover{border-color:var(--accent)}
+.chip.sel{border-color:var(--accent);background:#E0F2F1;box-shadow:0 0 0 3px rgba(14,140,136,.18)}
+.carpetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr));gap:12px;margin-top:14px}
+.carpeta{background:var(--panel);border:2px dashed var(--line);border-radius:14px;padding:14px;text-align:left;cursor:pointer;min-height:120px}
+.carpeta.lista{border-color:var(--accent);background:#F2FAF9}
+.carpeta .ico{font-size:26px;display:block}
+.carpeta b{display:block;margin:4px 0}
+.carpeta .cont{font-size:12px;color:var(--muted)}
+.carpeta .dentro{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.mini{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:var(--soft);border-radius:6px;padding:4px 6px;color:var(--ink)}
+.nombre{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;padding:11px 12px;border:2px solid var(--line);border-radius:10px;background:#fff}
+.nombre:focus{border-color:var(--accent);outline:none}
+.mal{font-family:ui-monospace,Menlo,Consolas,monospace;background:#FBE9EC;border:1px solid #EFC3CC;color:#93304A;border-radius:10px;padding:10px 12px;font-size:13px;margin-top:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--soft);padding:2px 6px;border-radius:5px;font-size:.92em}
+.hero .big{font-size:22px;display:block;margin-bottom:8px}
+.steps{margin:10px 0 14px;padding-left:20px}.steps li{margin-bottom:6px}
+.prog{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin:8px 0}
+.pfill{height:100%;background:var(--accent);transition:width .3s}
+.racehead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px}
+.racehead b{font-size:17px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="modal"></div>
+<script>
+
+(function(){
+'use strict';
+/* =====================================================================
+   CONFIGURACIÓN DE FIREBASE — pega aquí los mismos datos del index.html
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+};
+const ADMIN_USER='admin', DOMAIN='sbhb.app';
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-3);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function sha256(ascii){function r(v,a){return(v>>>a)|(v<<(32-a))}var mp=Math.pow,mw=mp(2,32),i,j,res='',words=[],abl=ascii.length*8,hash=[],k=[],pc=0,ic={};for(var c=2;pc<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;hash[pc]=(mp(c,.5)*mw)|0;k[pc++]=(mp(c,1/3)*mw)|0}}hash=hash.slice(0,8);ascii+='\x80';while(ascii.length%64-56)ascii+='\x00';for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);if(j>>8)return '';words[i>>2]|=j<<((3-i)%4)*8}words[words.length]=((abl/mw)|0);words[words.length]=(abl);for(j=0;j<words.length;){var w=words.slice(j,j+=16),oh=hash;hash=hash.slice(0,8);for(i=0;i<64;i++){var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4],t1=hash[7]+(r(e,6)^r(e,11)^r(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(r(w15,7)^r(w15,18)^(w15>>>3))+w[i-7]+(r(w2,17)^r(w2,19)^(w2>>>10)))|0),t2=(r(a,2)^r(a,13)^r(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0}for(i=0;i<8;i++)hash[i]=(hash[i]+oh[i])|0}for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16)}}return res}
+const H=(user,pass)=>sha256(unescape(encodeURIComponent('muelle|'+user+'|'+pass)));
+
+const DIAG=[
+ {id:'c1',a:'Computador',q:'Necesitas escribir una carta de confirmación y guardarla en el computador. ¿Qué programa usas?',o:['Word','Excel','PowerPoint','Chrome'],ok:0},
+ {id:'c2',a:'Computador',q:'¿Qué hace la opción "Guardar como"?',o:['Guarda una copia con otro nombre o en otro lugar','Borra el archivo original','Imprime el documento','Cierra el programa sin guardar'],ok:0},
+ {id:'c3',a:'Computador',q:'Descargas un archivo de internet y no lo encuentras. ¿Dónde lo buscas primero?',o:['En la carpeta Descargas','En la papelera de reciclaje','En Excel','Se perdió, hay que descargarlo otra vez'],ok:0},
+ {id:'f1',a:'Formatos',q:'Le vas a mandar al huésped una confirmación que no pueda modificar. ¿En qué formato se la envías?',o:['PDF','DOCX','XLSX','JPG'],ok:0},
+ {id:'f2',a:'Formatos',q:'Un archivo que termina en .xlsx es de…',o:['Excel','Word','PowerPoint','Una imagen'],ok:0},
+ {id:'f3',a:'Formatos',q:'¿Qué formato sirve para pasar datos de un sistema a Excel?',o:['CSV','MP4','PNG','EXE'],ok:0},
+ {id:'f4',a:'Formatos',q:'Te mandan un .docx y en ese computador no hay Word. ¿Qué haces?',o:['Lo abro con Google Docs u otro editor gratuito','Le cambio la extensión a .pdf','No se puede abrir de ninguna forma','Reinicio el computador'],ok:0},
+ {id:'a1',a:'Archivos',q:'¿Cuál nombre de archivo te va a servir más para encontrarlo dentro de un mes?',o:['2026-10-03_cierre-caja_turno-noche.xlsx','documento final (2).xlsx','nuevo.xlsx','cierre.xlsx'],ok:0},
+ {id:'a2',a:'Archivos',q:'¿Para qué sirve organizar los archivos en carpetas por fecha o por área?',o:['Para encontrarlos rápido y no repetirlos','Para que el computador vaya más rápido','Para ocupar menos espacio','No sirve de mucho'],ok:0},
+ {id:'a3',a:'Archivos',q:'Trabajas un archivo en Drive o OneDrive y se apaga el computador. ¿Qué pasa?',o:['El archivo sigue guardado en la nube','Se pierde todo el trabajo','Solo se recupera si lo imprimí','Se borra a los 30 días'],ok:0},
+ {id:'e1',a:'Excel',q:'En Excel, ¿qué hace =SUMA(A1:A10)?',o:['Suma los valores de esas celdas','Cuenta cuántas celdas hay','Ordena la columna','No hace nada'],ok:0},
+ {id:'e2',a:'Excel',q:'Tienes una lista larga y quieres ver solo las reservas de Booking. ¿Qué usas?',o:['Un filtro','Negrilla','Insertar fila','El zoom'],ok:0},
+ {id:'e3',a:'Excel',q:'Una celda muestra ##### en vez del número. ¿Qué pasa?',o:['La columna está muy angosta','El archivo está dañado','Hay un virus','La fórmula está mal escrita'],ok:0},
+ {id:'s1',a:'Atajos',q:'¿Con qué teclas se copia?',o:['Ctrl + C','Ctrl + V','Ctrl + Z','Ctrl + P'],ok:0},
+ {id:'s2',a:'Atajos',q:'¿Para qué sirve Ctrl + Z?',o:['Deshacer lo último que hice','Guardar','Cerrar el programa','Buscar'],ok:0},
+ {id:'s3',a:'Atajos',q:'Quieres buscar una palabra dentro de un documento o una página. ¿Qué teclas usas?',o:['Ctrl + F','Alt + F4','Ctrl + P','Ctrl + E'],ok:0},
+ {id:'x1',a:'Experiencia',q:'¿Has trabajado en la recepción de un hotel u hostal?',o:['Nunca','Menos de 6 meses','Entre 6 meses y 2 años','Más de 2 años'],ok:null},
+ {id:'x2',a:'Experiencia',q:'¿Has usado programas de computador en un trabajo (facturación, inventario, reservas, caja)?',o:['Nunca','Los he visto trabajar a otros','Los he usado poco','Los manejo bien'],ok:null},
+ {id:'x3',a:'Experiencia',q:'¿Qué tan cómodo te sientes con el computador?',o:['Me cuesta bastante','Me defiendo en lo básico','Me siento cómodo','Lo manejo muy bien'],ok:null},
+ {id:'x4',a:'Experiencia',q:'¿Con qué equipo vas a trabajar en este módulo?',o:['Computador propio','Computador de la universidad','Solo celular','A veces computador, a veces celular'],ok:null}
+];
+const DAREAS=['Computador','Formatos','Archivos','Excel','Atajos'];
+let DA={};
+function diagOf(id){const g=GR[id]||{};return g.diag||null;}
+function diagScore(ans){const r={areas:{},score:0,total:0};DAREAS.forEach(a=>r.areas[a]={ok:0,n:0});
+  DIAG.forEach(q=>{if(q.ok==null)return;const A=r.areas[q.a];A.n++;r.total++;if(ans[q.id]!=null&&+ans[q.id]===q.ok){A.ok++;r.score++;}});
+  r.pct=r.total?Math.round(100*r.score/r.total):0;r.level=r.pct>=80?'Avanzado':r.pct>=50?'Intermedio':'Inicial';return r;}
+const DLEVEL={Inicial:'Vas empezando. En clase te vamos a acompañar paso a paso con lo básico de archivos y ofimática.',Intermedio:'Tienes buena base. Nos vamos a enfocar en formatos, plantillas, filtros y atajos.',Avanzado:'Manejas bien las herramientas. Te vamos a poner retos extra y a apoyar a tus compañeros.'};
+
+
+const ERR={'auth/invalid-credential':'Usuario o contraseña incorrectos.','auth/wrong-password':'La contraseña no es correcta.','auth/user-not-found':'Usuario o contraseña incorrectos.','auth/invalid-login-credentials':'Usuario o contraseña incorrectos.','auth/email-already-in-use':'Ese usuario ya existe. Escoge otro.','auth/weak-password':'La contraseña debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Espera un momento.','auth/network-request-failed':'Sin conexión a internet.','permission-denied':'No tienes permiso para esta acción.','auth/operation-not-allowed':'Falta activar Correo electrónico/contraseña en Firebase.','auth/configuration-not-found':'Authentication no está configurado en Firebase.','auth/unauthorized-domain':'Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).'};
+const errMsg=e=>{const c=e&&e.code||'';if(ERR[c])return ERR[c];return 'No se pudo completar la acción'+(c?' (código: '+c+')':'')+'. Mándale este código al profesor.';};
+
+/* ---------- Conexiones ---------- */
+function demoBackend(){
+  const K='sbhb-quiz-demo';let st=null;try{st=JSON.parse(localStorage.getItem(K)||'null');}catch(e){}
+  if(!st)st={accounts:[{uid:'u-admin',user:ADMIN_USER,ph:'e940634756994bd7b72edc3b511180d8220214e43b3d161ef0a8c1867d648ebc',name:'Profesor'}],session:null,grades:{}};
+  const persist=()=>{try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}};
+  let cb=null;const emit=()=>{if(cb)cb(clone(st.grades));};
+  return {mode:'demo',
+    init(onAuth){this.onAuth=onAuth;setTimeout(()=>onAuth(st.session?{uid:st.session,user:(st.accounts.find(a=>a.uid===st.session)||{}).user,name:(st.accounts.find(a=>a.uid===st.session)||{}).name}:null),0);},
+    async signIn(user,pass){const a=st.accounts.find(x=>x.user===user&&x.ph===H(user,pass));if(!a)throw{code:'auth/invalid-credential'};st.session=a.uid;persist();this.onAuth({uid:a.uid,user:a.user,name:a.name});},
+    async signUp(name,user,pass){if(st.accounts.some(x=>x.user===user))throw{code:'auth/email-already-in-use'};const id='u'+uid();st.accounts.push({uid:id,user,ph:H(user,pass),name});st.session=id;persist();this.onAuth({uid:id,user,name});},
+    async signOut(){st.session=null;persist();this.onAuth(null);},
+    watch(adm,f){cb=g=>f(adm?g:(g[st.session]?{[st.session]:g[st.session]}:{}));emit();},
+    async save(id,p){st.grades[id]=Object.assign(st.grades[id]||{},clone(p));persist();emit();}};
+}
+async function firebaseBackend(){
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,AU,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=A.initializeApp(FIREBASE_CONFIG),auth=AU.getAuth(app),db=F.getFirestore(app);
+  const mail=u=>u+'@'+DOMAIN;let unsub=null;
+  return {mode:'firebase',
+    init(onAuth){AU.onAuthStateChanged(auth,async u=>{if(unsub){unsub();unsub=null;}
+      if(!u){onAuth(null);return;}
+      const user=(u.email||'').split('@')[0];let name=user;
+      try{const s=await F.getDoc(F.doc(db,'users',u.uid));if(s.exists())name=s.data().name||user;}catch(e){}
+      onAuth({uid:u.uid,user,name});});},
+    signIn:(user,pass)=>AU.signInWithEmailAndPassword(auth,mail(user),pass),
+    async signUp(name,user,pass){const c=await AU.createUserWithEmailAndPassword(auth,mail(user),pass);
+      await F.setDoc(F.doc(db,'users',c.user.uid),{id:c.user.uid,name,user,role:user===ADMIN_USER?'admin':'recepcion',active:true,practice:[],created:Date.now()},{merge:true});},
+    signOut:()=>AU.signOut(auth),
+    watch(adm,f){const q=adm?F.collection(db,'grades'):null;
+      unsub=adm?F.onSnapshot(q,s=>{const m={};s.forEach(d=>m[d.id]=d.data());f(m);},e=>console.error(e))
+               :F.onSnapshot(F.doc(db,'grades',auth.currentUser.uid),s=>f(s.exists()?{[s.id]:s.data()}:{}),e=>console.error(e));},
+    save:(id,p)=>F.setDoc(F.doc(db,'grades',id),clone(p),{merge:true})};
+}
+
+
+/* ---------- Estado ---------- */
+let B=null,ME=null,G={},tab='in',preview=false;
+const isAdmin=()=>!!ME&&ME.user===ADMIN_USER;
+let toastT;
+function toast(m,err){const o=document.querySelector('.toast');if(o)o.remove();const t=document.createElement('div');t.className='toast'+(err?' err':'');t.textContent=m;document.body.appendChild(t);clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),err?5000:3000);}
+const shell=i=>`<div class="wrap"><div class="card"><div class="brand">La Carpeta Caótica<span>San Buenaventura Hostel Boutique</span></div>${i}</div></div>`;
+
+/* ---------- Contenido del juego ---------- */
+const CARPETAS=[
+ {id:'res',n:'Reservas',ico:'🛎️'},
+ {id:'caja',n:'Caja',ico:'💵'},
+ {id:'hue',n:'Huéspedes',ico:'🪪'},
+ {id:'mant',n:'Mantenimiento',ico:'🔧'}];
+const ARCHIVOS=[
+ {id:1,n:'confirmacion sra perez FINAL (2).docx',c:'res'},
+ {id:2,n:'cotizacion grupo colegio.xlsx',c:'res'},
+ {id:3,n:'booking reservas octubre.csv',c:'res'},
+ {id:4,n:'cuadre de caja turno noche.xlsx',c:'caja'},
+ {id:5,n:'voucher datafono 004512.jpg',c:'caja'},
+ {id:6,n:'planilla anticipos transferencias.xlsx',c:'caja'},
+ {id:7,n:'tarjeta registro walker james.pdf',c:'hue'},
+ {id:8,n:'IMG_0987.jpg (foto del pasaporte)',c:'hue'},
+ {id:9,n:'listado extranjeros para reporte.xlsx',c:'hue'},
+ {id:10,n:'cotizacion aire acondicionado 204.pdf',c:'mant'},
+ {id:11,n:'reporte danos habitacion 301.docx',c:'mant'},
+ {id:12,n:'factura plomero octubre.pdf',c:'mant'}];
+const RENOMBRAR=[
+ {id:'r1',orig:'cuadre de caja turno noche.xlsx',pista:'Cierre de caja del turno de la noche del 3 de octubre de 2026.',fecha:'2026-10-03',claves:['cierre','caja'],ext:'xlsx',ej:'2026-10-03_cierre-caja_noche.xlsx'},
+ {id:'r2',orig:'confirmacion sra perez FINAL (2).docx',pista:'Confirmación de reserva de la señora Pérez, del 5 de octubre de 2026.',fecha:'2026-10-05',claves:['confirmacion','perez'],ext:'pdf|docx',ej:'2026-10-05_confirmacion_perez.pdf'},
+ {id:'r3',orig:'IMG_0987.jpg (foto del pasaporte)',pista:'Documento del huésped James Walker, registrado el 4 de octubre de 2026.',fecha:'2026-10-04',claves:['documento','walker'],ext:'jpg|pdf|png',ej:'2026-10-04_documento_walker.jpg'}];
+const norm=s=>String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+/* ---------- Juego ---------- */
+let J=null;
+function nuevoJuego(){J={fase:'intro',ubic:{},sel:null,errores:0,t0:0,nombres:{},res:null};}
+nuevoJuego();
+
+function render(){
+  if(!B){document.getElementById('root').innerHTML=shell('<p class="muted">Conectando…</p>');return;}
+  if(!ME){renderLogin();return;}
+  if(isAdmin()&&!preview){renderAdmin();return;}
+  const g=G[ME.uid]&&G[ME.uid].carpeta;
+  if(g&&J.fase==='intro'&&!J.res){J.res=g;J.fase='fin';}
+  if(J.fase==='intro')return renderIntro();
+  if(J.fase==='ordenar')return renderOrdenar();
+  if(J.fase==='nombrar')return renderNombrar();
+  return renderFin();
+}
+function renderLogin(){
+  document.getElementById('root').innerHTML=shell(`<div class="tabs"><button data-act="tab" data-t="in" aria-selected="${tab==='in'}">Ingresar</button><button data-act="tab" data-t="up" aria-selected="${tab==='up'}">Crear cuenta</button></div>
+  ${tab==='in'?`<form data-form="login" class="stack"><label>Usuario<input name="user" autocapitalize="none" required></label><label>Contraseña<input name="pass" type="password" required></label><p class="err"></p><button class="btn">Ingresar</button></form>`
+  :`<form data-form="signup" class="stack"><label>Nombre completo<input name="name" required></label><label>Usuario<input name="user" autocapitalize="none" required></label><label>Contraseña<input name="pass" type="password" required></label><label>Repite la contraseña<input name="pass2" type="password" required></label><p class="err"></p><button class="btn">Crear cuenta</button></form>`}
+  <div class="hint">Entra con el mismo usuario del taller diagnóstico.</div>`);
+}
+const head=()=>`<header class="top"><div><b>La Carpeta Caótica</b><small>${esc(ME.name)}${isAdmin()?', probando el juego':''}</small></div><span>${isAdmin()?'<button class="btn ghost sm" data-act="panel">Ver resultados</button> ':''}<button class="btn ghost sm" data-act="logout">Salir</button></span></header>`;
+function renderIntro(){
+  document.getElementById('root').innerHTML=`<div class="page">${head()}<main class="content">
+  <section class="q hero"><b class="big">El turno anterior dejó un reguero</b>
+  <p>Doce archivos tirados en el escritorio, con nombres imposibles. Tu trabajo: meter cada uno en su carpeta y después ponerle un nombre que sirva.</p>
+  <ol class="steps"><li><b>Ordenar:</b> toca un archivo y luego la carpeta donde va.</li><li><b>Renombrar:</b> arregla tres nombres con el estándar del curso.</li></ol>
+  <p class="muted">Estándar del curso: <code>AAAA-MM-DD_tema_detalle.extensión</code>, sin tildes, sin espacios, sin paréntesis.</p>
+  <button class="btn big" data-act="empezar">Empezar</button></section></main></div>`;
+}
+function renderOrdenar(){
+  const pend=ARCHIVOS.filter(a=>!J.ubic[a.id]);
+  document.getElementById('root').innerHTML=`<div class="page">${head()}<main class="content">
+  <div class="racehead"><b>1. Ordena el reguero</b><span class="muted">${ARCHIVOS.length-pend.length} de ${ARCHIVOS.length}</span></div>
+  <div class="prog"><div class="pfill" style="width:${Math.round(100*(ARCHIVOS.length-pend.length)/ARCHIVOS.length)}%"></div></div>
+  <p class="muted">Toca un archivo y después la carpeta donde debe ir.</p>
+  <section class="q"><b>Archivos sueltos</b><div class="chips">${pend.length?pend.map(a=>`<button class="chip ${J.sel===a.id?'sel':''}" data-act="sel" data-id="${a.id}">📄 ${esc(a.n)}</button>`).join(''):'<p class="muted">¡Escritorio limpio!</p>'}</div></section>
+  <div class="carpetas">${CARPETAS.map(c=>{const dentro=ARCHIVOS.filter(a=>J.ubic[a.id]===c.id);
+    return `<button class="carpeta ${J.sel?'lista':''}" data-act="soltar" data-c="${c.id}"><span class="ico">${c.ico}</span><b>${c.n}</b><span class="cont">${dentro.length} archivo${dentro.length===1?'':'s'}</span>
+    <span class="dentro">${dentro.map(a=>`<span class="mini" data-act="sacar" data-id="${a.id}">${esc(a.n.slice(0,26))}${a.n.length>26?'…':''}</span>`).join('')}</span></button>`;}).join('')}</div>
+  ${pend.length?'':'<button class="btn big" data-act="revisar">Revisar y seguir</button>'}
+  </main></div>`;
+}
+function renderNombrar(){
+  document.getElementById('root').innerHTML=`<div class="page">${head()}<main class="content">
+  <div class="racehead"><b>2. Ponles un nombre decente</b><span class="muted">${RENOMBRAR.length} archivos</span></div>
+  <p class="muted">Usa el estándar: <code>AAAA-MM-DD_tema_detalle.extensión</code>. Sin tildes, sin espacios y sin paréntesis.</p>
+  ${RENOMBRAR.map(r=>`<section class="q"><small class="muted">Se llama hoy</small><div class="mal">${esc(r.orig)}</div>
+   <p style="margin:10px 0 4px"><b>${esc(r.pista)}</b></p>
+   <input class="nombre" data-n="${r.id}" value="${esc(J.nombres[r.id]||'')}" placeholder="2026-10-03_tema_detalle.xlsx" autocapitalize="none" spellcheck="false"></section>`).join('')}
+  <button class="btn big" data-act="terminar">Terminar</button></main></div>`;
+}
+function evaluar(){
+  let bien=0;ARCHIVOS.forEach(a=>{if(J.ubic[a.id]===a.c)bien++;});
+  const detalles=RENOMBRAR.map(r=>{const v=norm(J.nombres[r.id]);
+    const fecha=v.startsWith(r.fecha);
+    const claves=r.claves.every(k=>v.includes(k));
+    const ext=new RegExp('\\.('+r.ext+')$').test(v);
+    const limpio=!/[\s()áéíóúñ]/.test(J.nombres[r.id]||'x')&&/^[a-z0-9._-]+$/.test(v);
+    const ok=fecha&&claves&&ext&&limpio;
+    return {id:r.id,ok,fecha,claves,ext,limpio,valor:J.nombres[r.id]||''};});
+  const okN=detalles.filter(d=>d.ok).length;
+  const total=ARCHIVOS.length+RENOMBRAR.length,logro=bien+okN;
+  const pct=Math.round(100*logro/total);
+  const seg=Math.round((Date.now()-J.t0)/1000);
+  return {bien,total:ARCHIVOS.length,okN,totalN:RENOMBRAR.length,pct,seg,detalles,errores:J.errores,ts:Date.now(),
+    medalla:pct>=90?'Oro':pct>=70?'Plata':pct>=50?'Bronce':'Sigue practicando'};
+}
+function renderFin(){
+  const r=J.res;
+  document.getElementById('root').innerHTML=`<div class="page">${head()}<main class="content">
+  <section class="q hero"><b class="big">${r.medalla}</b><p>Ordenaste bien ${r.bien} de ${r.total} archivos y renombraste bien ${r.okN} de ${r.totalN}. Te demoraste ${Math.floor(r.seg/60)} min ${r.seg%60} s.</p></section>
+  <div class="kpis"><div class="kpi"><b>${r.pct}%</b><small>Puntaje</small></div><div class="kpi"><b>${r.errores}</b><small>Archivos movidos de carpeta</small></div></div>
+  <section class="q"><b>Revisión del ordenado</b>${ARCHIVOS.map(a=>{const ok=J.ubic[a.id]===a.c,c=CARPETAS.find(x=>x.id===a.c);
+    return `<div class="rev"><span class="ic ${ok?'ok':'bad'}">${ok?'✓':'✗'}</span><div><b>${esc(a.n)}</b><small>${ok?'Bien ubicado en '+c.n:'Va en '+c.n}</small></div></div>`;}).join('')}</section>
+  <section class="q"><b>Revisión de los nombres</b>${r.detalles.map(d=>{const R=RENOMBRAR.find(x=>x.id===d.id);
+    const fallas=[!d.fecha?'falta la fecha al inicio (AAAA-MM-DD)':'',!d.claves?'falta el tema en el nombre':'',!d.ext?'la extensión no corresponde':'',!d.limpio?'tiene espacios, tildes o caracteres raros':''].filter(Boolean);
+    return `<div class="rev"><span class="ic ${d.ok?'ok':'bad'}">${d.ok?'✓':'✗'}</span><div><b>${esc(d.valor||'(vacío)')}</b><small>${d.ok?'Perfecto':'Corregir: '+fallas.join(', ')+'. Ejemplo: '+R.ej}</small></div></div>`;}).join('')}</section>
+  <p class="muted">Tu resultado ya le llegó al profesor.</p><button class="btn ghost" data-act="otra">Volver a intentar</button></main></div>`;
+}
+function renderAdmin(){
+  const list=Object.values(G).filter(g=>g&&g.carpeta&&g.user!==ADMIN_USER).sort((a,b)=>b.carpeta.pct-a.carpeta.pct);
+  const prom=list.length?Math.round(list.reduce((s,g)=>s+g.carpeta.pct,0)/list.length):0;
+  const fallos={};ARCHIVOS.forEach(a=>fallos[a.id]=0);
+  document.getElementById('root').innerHTML=`<div class="page"><header class="top"><div><b>La Carpeta Caótica</b><small>Resultados</small></div><span><button class="btn ghost sm" data-act="try">Jugar</button> <button class="btn ghost sm" data-act="export">Exportar a Excel</button> <button class="btn ghost sm" data-act="logout">Salir</button></span></header>
+  <main class="content">${!list.length?'<p class="muted">Todavía nadie ha jugado.</p>':`
+  <div class="kpis"><div class="kpi"><b>${list.length}</b><small>Han jugado</small></div><div class="kpi"><b>${prom}%</b><small>Promedio</small></div>
+  ${['Oro','Plata','Bronce'].map(m=>`<div class="kpi"><b>${list.filter(g=>g.carpeta.medalla===m).length}</b><small>${m}</small></div>`).join('')}</div>
+  <section class="q scroll"><table class="tbl"><thead><tr><th>Estudiante</th><th>Medalla</th><th class="num">Puntaje</th><th class="num">Ordenado</th><th class="num">Nombres</th><th class="num">Tiempo</th></tr></thead><tbody>
+  ${list.map(g=>{const c=g.carpeta;return `<tr><td><b>${esc(g.name||g.user)}</b><br><small>${esc(g.user||'')}</small></td><td>${c.medalla}</td><td class="num">${c.pct}%</td><td class="num">${c.bien}/${c.total}</td><td class="num">${c.okN}/${c.totalN}</td><td class="num">${Math.floor(c.seg/60)}:${String(c.seg%60).padStart(2,'0')}</td></tr>`;}).join('')}
+  </tbody></table></section>`}</main></div>`;
+}
+const ACTS={
+ tab(el){tab=el.dataset.t;render();},
+ logout(){B.signOut();},
+ panel(){preview=false;render();},
+ try(){preview=true;nuevoJuego();render();},
+ empezar(){J.fase='ordenar';J.t0=Date.now();render();},
+ sel(el){J.sel=J.sel===+el.dataset.id?null:+el.dataset.id;render();},
+ soltar(el){if(!J.sel)return;J.ubic[J.sel]=el.dataset.c;J.sel=null;render();},
+ sacar(el){const id=+el.dataset.id;delete J.ubic[id];J.errores++;J.sel=id;render();},
+ revisar(){J.fase='nombrar';render();},
+ async terminar(){document.querySelectorAll('.nombre').forEach(i=>{J.nombres[i.dataset.n]=i.value.trim();});
+  const faltan=RENOMBRAR.filter(r=>!J.nombres[r.id]);
+  if(faltan.length){toast('Te faltan '+faltan.length+' nombres por escribir.',true);return;}
+  J.res=evaluar();J.fase='fin';render();
+  const p={id:ME.uid,name:ME.name,user:ME.user,carpeta:J.res};
+  G[ME.uid]=Object.assign(G[ME.uid]||{},p);
+  try{await B.save(ME.uid,p);}catch(e){toast(errMsg(e),true);}},
+ otra(){nuevoJuego();render();},
+ export(){const list=Object.values(G).filter(g=>g&&g.carpeta&&g.user!==ADMIN_USER);
+  const rows=[['Estudiante','Usuario','Medalla','Puntaje %','Ordenado','Nombres','Tiempo (s)','Movimientos']].concat(list.map(g=>{const c=g.carpeta;return [g.name||'',g.user||'',c.medalla,c.pct,c.bien+'/'+c.total,c.okN+'/'+c.totalN,c.seg,c.errores];}));
+  const tsv=rows.map(r=>r.join('\t')).join('\n');
+  document.getElementById('modal').innerHTML=`<div class="backdrop" data-act="close"><div class="card"><b>Exportar a Excel</b><p class="muted">Copia y pega en la celda A1.</p><textarea id="tsv" rows="9" readonly>${esc(tsv)}</textarea><div class="row2"><button class="btn ghost" data-act="close">Cerrar</button><button class="btn" data-act="copy">Copiar</button></div></div></div>`;},
+ close(el,e){if(el.classList.contains('backdrop')&&e.target!==el)return;document.getElementById('modal').innerHTML='';},
+ copy(){const t=document.getElementById('tsv');t.focus();t.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(()=>toast('Datos copiados'),()=>toast(ok?'Datos copiados':'Cópialo con Ctrl+C',!ok));else toast(ok?'Datos copiados':'Cópialo con Ctrl+C',!ok);}
+};
+const err=(f,m)=>{const e=f.querySelector('.err');if(e)e.textContent=m;};
+const FORMS={
+ async login(d,f){try{await B.signIn(d.user.trim().toLowerCase(),d.pass);}catch(e){err(f,errMsg(e));}},
+ async signup(d,f){const name=d.name.trim(),user=d.user.trim().toLowerCase();
+  if(!name)return err(f,'Escribe tu nombre.');
+  if(!/^[a-z0-9._-]{3,30}$/.test(user))return err(f,'Usuario de al menos 3 caracteres, sin espacios ni tildes.');
+  if(d.pass.length<6)return err(f,'La contraseña debe tener al menos 6 caracteres.');
+  if(d.pass!==d.pass2)return err(f,'Las contraseñas no coinciden.');
+  try{await B.signUp(name,user,d.pass);}catch(e){err(f,errMsg(e));}}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f){e.stopPropagation();f(el,e);}});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.dataset.form;if(FORMS[id])FORMS[id](d,f);});
+document.addEventListener('input',e=>{if(e.target.classList.contains('nombre'))J.nombres[e.target.dataset.n]=e.target.value;});
+async function boot(){
+  render();
+  try{B=FIREBASE_CONFIG.apiKey?await firebaseBackend():demoBackend();}
+  catch(e){console.error(e);document.getElementById('root').innerHTML=shell('<p>No se pudo conectar. Revisa la configuración de Firebase.</p>');return;}
+  B.init(u=>{ME=u;G={};preview=false;tab='in';nuevoJuego();render();if(u)B.watch(u.user===ADMIN_USER,g=>{G=Object.assign(G,g);render();});});
+}
+boot();
+})();
+
+<\/script>
+</body>
+</html>
+</script><script type="text/plain" id="app-pres"><!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0A2E36">
+<title>Tecnología de la Información y la Comunicación · Recepción Hotelera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noche:#0A2E36;--mar:#12878F;--espuma:#8FD3D0;--cal:#FBF6EE;--arena:#F0E6D6;
+  --buganvilia:#C63A5E;--mostaza:#E8A33D;--tinta:#0E2226;--humo:#6B8085;
+  --ff-d:"Bricolage Grotesque",Georgia,serif;--ff-b:Manrope,system-ui,sans-serif;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--noche)}
+body{font-family:var(--ff-b);color:var(--tinta);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--mostaza);outline-offset:3px}
+
+#deck{height:100%;position:relative;overflow:hidden}
+.rail{position:absolute;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,.18);z-index:9}
+.rail i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mostaza),var(--espuma));transition:width .5s cubic-bezier(.22,1,.36,1)}
+.slide{position:absolute;inset:0;overflow:auto;display:none;padding:clamp(26px,5vh,64px) clamp(20px,6vw,88px) 104px}
+.slide.on{display:block}
+.slide.light{background:var(--cal);color:var(--tinta)}
+.slide.dark{background:radial-gradient(120% 100% at 80% 0%,#134651 0%,var(--noche) 60%);color:var(--cal)}
+.slide.sand{background:linear-gradient(180deg,var(--arena),#F7EFE2);color:var(--tinta)}
+.inner{max-width:1180px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
+
+/* tipografía */
+.eyebrow{font-family:var(--ff-b);font-weight:700;font-size:clamp(12px,1.4vw,15px);color:var(--buganvilia);margin:0 0 10px;letter-spacing:.01em}
+.dark .eyebrow{color:var(--mostaza)}
+h1{font-family:var(--ff-d);font-weight:800;font-size:clamp(34px,7vw,86px);line-height:.96;letter-spacing:-.03em;margin:0 0 18px}
+h2{font-family:var(--ff-d);font-weight:800;font-size:clamp(26px,4.6vw,54px);line-height:1.02;letter-spacing:-.025em;margin:0 0 18px;max-width:20ch}
+h3{font-family:var(--ff-d);font-weight:600;font-size:clamp(17px,2.1vw,24px);margin:0 0 4px;letter-spacing:-.01em}
+p{font-size:clamp(15px,1.75vw,21px);line-height:1.55;margin:0 0 14px;max-width:58ch}
+.lead{font-size:clamp(17px,2.2vw,27px);line-height:1.4;color:var(--humo);max-width:34ch}
+.dark .lead{color:var(--espuma)}
+.small{font-size:clamp(13px,1.4vw,16px);color:var(--humo)}
+.dark .small{color:#9FC4C6}
+
+/* entrada orquestada */
+.slide.on .anim{animation:rise .62s cubic-bezier(.22,1,.36,1) both}
+.slide.on .anim:nth-child(1){animation-delay:.02s}.slide.on .anim:nth-child(2){animation-delay:.1s}
+.slide.on .anim:nth-child(3){animation-delay:.18s}.slide.on .anim:nth-child(4){animation-delay:.26s}
+.slide.on .anim:nth-child(5){animation-delay:.34s}.slide.on .anim:nth-child(6){animation-delay:.42s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.stagger>*{opacity:0}
+.slide.on .stagger>*{animation:rise .55s cubic-bezier(.22,1,.36,1) both}
+.slide.on .stagger>*:nth-child(1){animation-delay:.18s}.slide.on .stagger>*:nth-child(2){animation-delay:.26s}
+.slide.on .stagger>*:nth-child(3){animation-delay:.34s}.slide.on .stagger>*:nth-child(4){animation-delay:.42s}
+.slide.on .stagger>*:nth-child(5){animation-delay:.5s}.slide.on .stagger>*:nth-child(6){animation-delay:.58s}
+.slide.on .stagger>*:nth-child(7){animation-delay:.66s}.slide.on .stagger>*:nth-child(8){animation-delay:.74s}
+
+/* portada */
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.65fr);gap:clamp(20px,4vw,56px);align-items:center}
+.hero h1{max-width:14ch}
+.datos{display:flex;flex-wrap:wrap;gap:8px 28px;font-weight:600;color:var(--espuma);font-size:clamp(13px,1.5vw,18px);margin-top:6px}
+.llavero{position:relative;height:clamp(180px,32vh,340px);display:grid;place-items:start center}
+.llavero svg{width:clamp(120px,16vw,190px);transform-origin:50% 6%;animation:swing 5.5s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+
+/* tablero de llaves */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.hook{position:relative;text-align:left;background:var(--cal);border:1px solid rgba(14,34,38,.12);border-radius:4px 4px 16px 16px;padding:18px 20px 20px;box-shadow:0 10px 24px rgba(10,46,54,.07);transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s}
+.dark .hook{background:rgba(251,246,238,.06);border-color:rgba(143,211,208,.22);color:var(--cal);box-shadow:none}
+.hook::before{content:"";position:absolute;top:-9px;left:24px;width:14px;height:14px;border-radius:50%;background:var(--mostaza);box-shadow:0 0 0 3px var(--cal)}
+.dark .hook::before{box-shadow:0 0 0 3px var(--noche)}
+.hook:hover,.hook:focus-visible{transform:translateY(-4px) rotate(-.6deg);box-shadow:0 16px 30px rgba(10,46,54,.12)}
+.hook p{font-size:clamp(13px,1.5vw,17px);color:var(--humo);margin:0;max-width:34ch}
+.dark .hook p{color:#A9CBCC}
+.hook .reveal{display:none;margin-top:10px;font-weight:700;color:var(--buganvilia)}
+.dark .hook .reveal{color:var(--mostaza)}
+.hook.open .reveal{display:block;animation:rise .35s ease both}
+.hook.open .pista{display:none}
+.pista{margin-top:12px;font-size:13px;font-weight:700;color:var(--mar)}
+.dark .pista{color:var(--espuma)}
+
+/* cronograma */
+.agenda{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))}
+.fila{display:grid;grid-template-columns:118px 1fr;gap:4px 16px;align-items:center;padding:12px 16px;background:var(--cal);border-left:6px solid var(--mar);border-radius:0 12px 12px 0;text-align:left;width:100%}
+.fila.v{border-left-color:var(--buganvilia);background:#FDF7F4}
+.fila .cuando{font-family:var(--ff-d);font-weight:600;font-size:clamp(15px,1.7vw,20px)}
+.fila .que{font-weight:700;font-size:clamp(14px,1.6vw,19px)}
+.fila .det{display:block;font-weight:500;color:var(--humo);font-size:clamp(12px,1.4vw,15px);max-height:0;overflow:hidden;transition:max-height .3s ease}
+.fila.abierta .det{max-height:60px}
+.modo{font-size:12px;font-weight:700;color:var(--mar)}
+.fila.v .modo{color:var(--buganvilia)}
+
+/* árbol y comparación */
+.arbol{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0E3A43;color:var(--espuma);border-radius:14px;padding:clamp(16px,2.5vw,26px);font-size:clamp(12px,1.5vw,17px);line-height:1.85;box-shadow:inset 0 0 0 1px rgba(143,211,208,.18)}
+.arbol b{color:var(--mostaza);font-weight:700}
+.slide.on .arbol span{animation:linea .4s ease both}
+.arbol span{display:block;opacity:0}
+.slide.on .arbol span:nth-child(1){animation-delay:.3s}.slide.on .arbol span:nth-child(2){animation-delay:.45s}
+.slide.on .arbol span:nth-child(3){animation-delay:.6s}.slide.on .arbol span:nth-child(4){animation-delay:.75s}
+.slide.on .arbol span:nth-child(5){animation-delay:.9s}.slide.on .arbol span:nth-child(6){animation-delay:1.05s}
+@keyframes linea{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;margin-top:6px}
+.mal,.bien{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(12px,1.5vw,16px);padding:14px 16px;border-radius:12px}
+.mal{background:#FBE9EC;border:1px solid #EFC3CC;text-decoration:line-through;color:#93304A}
+.bien{background:#E7F5F1;border:1px solid #B8DFD5;color:#14655A}
+
+/* lista con chulos */
+.checks{display:grid;gap:10px;max-width:60ch}
+.check{display:flex;gap:14px;align-items:flex-start;text-align:left;padding:12px 16px;border-radius:12px;background:rgba(18,135,143,.07);font-size:clamp(14px,1.7vw,19px);width:100%}
+.dark .check{background:rgba(251,246,238,.07)}
+.caja{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--mar);display:grid;place-items:center;color:transparent;font-weight:800;transition:background .2s,color .2s,transform .2s}
+.check.hecho .caja{background:var(--mar);color:#fff;transform:rotate(-6deg) scale(1.05)}
+.dark .caja{border-color:var(--espuma)}
+.dark .check.hecho .caja{background:var(--espuma);color:var(--noche)}
+
+/* pregunta inicial */
+.opciones{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+.opciones button{background:var(--cal);border:2px solid rgba(14,34,38,.15);border-radius:14px;padding:14px 20px;font-weight:700;font-size:clamp(14px,1.6vw,19px);transition:transform .2s,border-color .2s}
+.dark .opciones button{background:rgba(251,246,238,.08);border-color:rgba(143,211,208,.3);color:var(--cal)}
+.opciones button:hover{transform:translateY(-3px)}
+.opciones.resuelta button{opacity:.45}
+.opciones.resuelta button.buena{opacity:1;border-color:var(--mostaza);box-shadow:0 0 0 4px rgba(232,163,61,.25)}
+.sello{display:none;margin-top:18px;border:3px solid var(--buganvilia);color:var(--buganvilia);border-radius:14px;padding:14px 20px;font-family:var(--ff-d);font-weight:800;font-size:clamp(17px,2.4vw,28px);max-width:26ch;transform:rotate(-2deg)}
+.sello.puesto{display:block;animation:sellar .45s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes sellar{from{opacity:0;transform:rotate(-2deg) scale(1.5)}}
+
+/* cifras */
+.cifras{display:flex;gap:clamp(20px,5vw,64px);flex-wrap:wrap;margin-top:10px}
+.cifra b{display:block;font-family:var(--ff-d);font-weight:800;font-size:clamp(34px,6vw,72px);line-height:1;color:var(--mostaza)}
+.cifra span{font-size:clamp(13px,1.4vw,16px);color:var(--espuma)}
+
+/* navegación */
+.nav{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:14px clamp(18px,5vw,48px) calc(14px + env(safe-area-inset-bottom,0px));z-index:8}
+.nav button{padding:10px 16px;border-radius:12px;font-weight:700;background:rgba(251,246,238,.92);color:var(--tinta);box-shadow:0 6px 18px rgba(10,46,54,.14)}
+.slide.dark~.nav button{background:rgba(251,246,238,.92)}
+.nav button:hover{background:#fff}
+.tag{margin-left:auto;font-family:var(--ff-d);font-weight:600;background:var(--mostaza);color:var(--noche);padding:8px 14px;border-radius:99px;font-size:14px}
+
+/* control remoto */
+.fab{position:absolute;top:14px;right:14px;z-index:20;background:rgba(251,246,238,.92);border-radius:12px;padding:8px 13px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(10,46,54,.18)}
+.panel{position:fixed;inset:0;background:rgba(10,46,54,.72);display:grid;place-items:center;padding:18px;z-index:40}
+.panel .caja{background:var(--cal);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:92vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.panel h3{font-size:21px;margin-bottom:6px}
+.panel p{font-size:14px;margin-bottom:4px}
+.panel label{display:block;font-size:12px;font-weight:700;color:var(--humo);margin:12px 0 4px}
+.panel input{width:100%;padding:11px 13px;border:1px solid rgba(14,34,38,.18);border-radius:10px;font:inherit;background:#fff}
+.panel .btn{display:block;width:100%;margin-top:12px;background:var(--mar);color:#fff;border-radius:12px;padding:13px;font-weight:800}
+.panel .btn.sec{background:var(--cal);color:var(--tinta);border:1px solid rgba(14,34,38,.18)}
+.panel .cerrar{margin-top:10px;font-size:13px;color:var(--humo);text-decoration:underline}
+.panel .err{color:var(--buganvilia);font-weight:700;font-size:13px;min-height:1em;margin-top:8px}
+.dotp{position:fixed;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF6B6B,#C1121F);box-shadow:0 0 18px 6px rgba(214,51,108,.45);pointer-events:none;z-index:30;transform:translate(-50%,-50%);display:none}
+.dotp.on{display:block}
+#mando{position:fixed;inset:0;background:var(--noche);color:var(--cal);z-index:50;display:none;flex-direction:column;padding:16px calc(16px + env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px))}
+#mando.on{display:flex}
+#mando .ahora{background:rgba(251,246,238,.08);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+#mando .ahora small{color:var(--espuma);font-weight:700;font-size:12px}
+#mando .ahora b{display:block;font-family:var(--ff-d);font-size:20px;line-height:1.2;margin-top:4px}
+#mando .pad{flex:1;border-radius:18px;border:2px dashed rgba(143,211,208,.4);display:grid;place-items:center;color:#9FC4C6;font-weight:700;text-align:center;padding:16px;touch-action:none;margin-bottom:12px}
+#mando .pad.activo{border-style:solid;border-color:var(--mostaza);color:var(--mostaza)}
+#mando .fila2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#mando button{background:var(--mar);color:#fff;border-radius:14px;padding:18px;font-weight:800;font-size:17px}
+#mando button.sec{background:rgba(251,246,238,.12);color:var(--cal)}
+#mando .cont{text-align:center;color:#9FC4C6;font-size:13px;margin-top:10px}
+@media (max-width:680px){
+ .hero{grid-template-columns:1fr}.llavero{display:none}
+ .fila{grid-template-columns:1fr;gap:4px}
+ .fila .modo{grid-column:1!important}
+ .slide{padding-bottom:120px}
+ .nav{flex-wrap:wrap;gap:8px;background:linear-gradient(transparent,rgba(10,46,54,.25));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+ .nav button{padding:9px 13px;font-size:14px}
+ #fs{display:none}
+ .tag{margin-left:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stagger>*,.arbol span{opacity:1}}
+</style>
+</head>
+<body>
+<div id="deck">
+<div class="rail"><i id="prog"></i></div>
+
+<section class="slide dark">
+ <div class="inner hero">
+  <div>
+   <p class="eyebrow anim">Universidad de San Buenaventura · Cartagena de Indias</p>
+   <h1 class="anim">Tecnología de la Información y la Comunicación</h1>
+   <p class="lead anim">Técnico Laboral en Recepción Hotelera</p>
+   <div class="datos anim"><span>26 de septiembre al 8 de octubre</span><span>48 horas</span><span>Andrés Jiménez Tuñón</span></div>
+   <p class="small anim" style="margin-top:22px">Avanza con la flecha derecha o desliza.</p>
+  </div>
+  <div class="llavero anim">
+   <svg viewBox="0 0 120 220" aria-hidden="true">
+    <line x1="60" y1="0" x2="60" y2="52" stroke="#8FD3D0" stroke-width="3"/>
+    <circle cx="60" cy="58" r="10" fill="none" stroke="#E8A33D" stroke-width="4"/>
+    <rect x="22" y="70" width="76" height="104" rx="12" fill="#E8A33D"/>
+    <text x="60" y="122" text-anchor="middle" font-family="Bricolage Grotesque,serif" font-size="34" font-weight="800" fill="#0A2E36">101</text>
+    <text x="60" y="150" text-anchor="middle" font-family="Manrope,sans-serif" font-size="13" font-weight="700" fill="#0A2E36">recepción</text>
+   </svg>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Lunes, tu primer turno</p>
+  <h2 class="anim">Llega un huésped, el jefe pide la lista de llegadas y el contador quiere los pagos del día.</h2>
+  <p class="anim">¿Con qué resuelves las tres cosas antes del mediodía?</p>
+  <div class="opciones anim" id="op">
+   <button data-ok="0">Con buena memoria</button>
+   <button data-ok="0">Preguntándole a un compañero</button>
+   <button data-ok="1">Con las herramientas del hotel</button>
+  </div>
+  <div class="sello" id="sello">De eso se trata este módulo</div>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">La competencia del módulo</p>
+  <h2 class="anim">Operar herramientas informáticas y digitales según protocolos y manuales técnicos</h2>
+  <div class="board stagger">
+   <button class="hook"><h3>Qué significa</h3><p>Usar bien los programas del trabajo: siguiendo el procedimiento, no inventando cada vez.</p><div class="pista">Tócalo</div><div class="reveal">Lo mismo, hecho igual, por cualquiera del equipo.</div></button>
+   <button class="hook"><h3>Cómo se ve en recepción</h3><p>Que un compañero continúe tu turno sin tener que llamarte.</p><div class="pista">Tócalo</div><div class="reveal">Tu archivo se encuentra, tu registro se entiende, tu caja cuadra.</div></button>
+   <button class="hook"><h3>Por qué pesa en la hoja de vida</h3><p>En Cartagena ya casi nadie contrata recepción sin manejo digital.</p><div class="pista">Tócalo</div><div class="reveal">Es la diferencia entre entrar de una o quedar en la lista de espera.</div></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Unidad de aprendizaje</p>
+  <h2 class="anim">Diseñar la estructura de archivos digitales</h2>
+  <div class="arbol anim" style="margin-bottom:18px">
+   <span>📁 <b>Hotel 2026</b></span>
+   <span>&nbsp;&nbsp;📁 <b>10 Octubre</b></span>
+   <span>&nbsp;&nbsp;&nbsp;&nbsp;📁 Caja · 2026-10-03_cierre-caja_noche.xlsx</span>
+   <span>&nbsp;&nbsp;&nbsp;&nbsp;📁 Registro · 2026-10-03_registro-huespedes.xlsx</span>
+   <span>&nbsp;&nbsp;&nbsp;&nbsp;📁 Reservas · 2026-10-03_confirmacion_perez.pdf</span>
+  </div>
+  <div class="duo anim">
+   <div class="mal">cierre FINAL ok (2).xlsx</div>
+   <div class="bien">2026-10-03_cierre-caja_noche.xlsx</div>
+  </div>
+  <p class="small anim" style="margin-top:14px">Regla del curso: si otro no lo encuentra en diez segundos, está mal guardado.</p>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Los saberes</p>
+  <h2 class="anim">Cinco llaves que vas a recibir</h2>
+  <div class="board stagger">
+   <div class="hook"><h3>Herramientas</h3><p>Cuál sirve para qué y cuál no</p></div>
+   <div class="hook"><h3>Funciones avanzadas</h3><p>Lo que de verdad ahorra tiempo en un turno</p></div>
+   <div class="hook"><h3>Instalación y configuración</h3><p>Dejar el equipo listo para trabajar</p></div>
+   <div class="hook"><h3>Formatos</h3><p>DOCX, PDF, XLSX, CSV, JPG</p></div>
+   <div class="hook"><h3>Programación básica</h3><p>Fórmulas y una primera macro</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Los procedimientos</p>
+  <h2 class="anim">Lo que vas a saber hacer. Marca lo que ya manejas hoy.</h2>
+  <div class="checks stagger" id="checks">
+   <button class="check"><span class="caja">✓</span><span>Configurar y personalizar Word y Excel</span></button>
+   <button class="check"><span class="caja">✓</span><span>Organizar carpetas y nombrar archivos con un estándar</span></button>
+   <button class="check"><span class="caja">✓</span><span>Respaldar y trabajar en la nube sin perder nada</span></button>
+   <button class="check"><span class="caja">✓</span><span>Diseñar plantillas para no repetir trabajo</span></button>
+   <button class="check"><span class="caja">✓</span><span>Pasar datos de un sistema a Excel y de Excel a Word</span></button>
+   <button class="check"><span class="caja">✓</span><span>Trabajar con atajos de teclado</span></button>
+  </div>
+  <p class="small anim" style="margin-top:14px">Lo que quede sin marcar hoy es exactamente lo que vamos a trabajar.</p>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Las actitudes</p>
+  <h2 class="anim">Lo que se nota en un turno, aunque no esté en el examen</h2>
+  <div class="board stagger">
+   <div class="hook"><h3>Orden</h3><p>Cada cosa en su carpeta, todos los días</p></div>
+   <div class="hook"><h3>Curiosidad</h3><p>Probar antes de rendirse</p></div>
+   <div class="hook"><h3>Método</h3><p>Mismo proceso, mismo resultado</p></div>
+   <div class="hook"><h3>Compañerismo</h3><p>Enseñar lo que ya aprendiste</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Ruta del módulo</p>
+  <h2 class="anim">Ocho encuentros en dos semanas</h2>
+  <div class="agenda stagger" id="agenda">
+   <button class="fila"><span class="cuando">Sáb 26 sep</span><span><span class="que">Herramientas, formatos y organización</span><span class="det">Taller diagnóstico y práctica en sala de sistemas</span></span><span class="modo" style="grid-column:2">Presencial, 8:00 a 2:00</span></button>
+   <button class="fila v"><span class="cuando">Mar 29 sep</span><span><span class="que">Estructura de carpetas y nombres</span><span class="det">Cada uno arma su estructura en la nube</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+   <button class="fila v"><span class="cuando">Mié 30 sep</span><span><span class="que">Respaldo y datos del huésped</span><span class="det">Buenas prácticas y protección de datos</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+   <button class="fila v"><span class="cuando">Jue 1 oct</span><span><span class="que">Plantillas</span><span class="det">Tarjeta de registro y carta de confirmación</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+   <button class="fila"><span class="cuando">Sáb 3 oct</span><span><span class="que">Excel y atajos</span><span class="det">Filtros, fórmulas y simulación de un turno completo</span></span><span class="modo" style="grid-column:2">Presencial, 8:00 a 2:00</span></button>
+   <button class="fila v"><span class="cuando">Mar 6 oct</span><span><span class="que">Integrar herramientas</span><span class="det">De Excel a Word y formularios en línea</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+   <button class="fila v"><span class="cuando">Mié 7 oct</span><span><span class="que">Automatizar</span><span class="det">Primera macro y reporte que se arma solo</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+   <button class="fila v"><span class="cuando">Jue 8 oct</span><span><span class="que">Evaluación y cierre</span><span class="det">Entrega de evidencias y sustentación corta</span></span><span class="modo" style="grid-column:2">Virtual, 7:00 a 9:00 p. m.</span></button>
+  </div>
+  <p class="small anim" style="margin-top:12px">Toca una fecha para ver qué haremos ese día.</p>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Cómo trabajamos</p>
+  <h2 class="anim">Poco discurso. Mucho turno simulado.</h2>
+  <div class="board stagger">
+   <div class="hook"><h3>Problemas primero</h3><p>Cada tema entra por una situación del hotel, no por la definición</p></div>
+   <div class="hook"><h3>Juego de roles</h3><p>Te toca atender, resolver y responder por lo que hiciste</p></div>
+   <div class="hook"><h3>Simulación</h3><p>Practicamos en un entorno parecido al del trabajo real</p></div>
+   <div class="hook"><h3>Parejas</h3><p>Quien va adelante acompaña a quien va empezando</p></div>
+  </div>
+  <div class="cifras anim" style="margin-top:26px">
+   <div class="cifra"><b>24</b><span>horas de teoría</span></div>
+   <div class="cifra"><b>24</b><span>horas de práctica</span></div>
+   <div class="cifra"><b>0</b><span>exámenes sorpresa</span></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Evaluación</p>
+  <h2 class="anim">Se evalúa lo que haces, no lo que memorizas</h2>
+  <div class="board stagger">
+   <div class="hook"><h3>Tus productos</h3><p>Los archivos y carpetas que entregas</p></div>
+   <div class="hook"><h3>Observación en clase</h3><p>Cómo trabajas en la sala y en el juego de roles</p></div>
+   <div class="hook"><h3>Sustentación corta</h3><p>Explicar con tus palabras lo que hiciste</p></div>
+   <div class="hook"><h3>Cuestionarios</h3><p>Preguntas con situaciones de recepción</p></div>
+   <div class="hook"><h3>Auto y coevaluación</h3><p>Rúbricas contigo y con tus compañeros</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Tus evidencias</p>
+  <h2 class="anim">Lo que debes tener el 8 de octubre</h2>
+  <div class="checks stagger">
+   <div class="check"><span class="caja">✓</span><span>Tu carpeta digital organizada con el estándar del curso</span></div>
+   <div class="check"><span class="caja">✓</span><span>Tus plantillas: tarjeta de registro y carta de confirmación</span></div>
+   <div class="check"><span class="caja">✓</span><span>Los archivos de cada ejercicio, exportados y bien nombrados</span></div>
+   <div class="check"><span class="caja">✓</span><span>El resumen del texto del plan lector</span></div>
+  </div>
+  <p class="small anim" style="margin-top:16px">Se va armando clase a clase. Al final solo se entrega.</p>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Nuestros acuerdos</p>
+  <h2 class="anim">Cuatro reglas para estas dos semanas</h2>
+  <div class="board stagger">
+   <button class="hook"><h3>Nadie se queda atrás</h3><p>Tócalo para ver cómo se aplica</p><div class="pista">Tócalo</div><div class="reveal">Si a uno le cuesta un tema, lo vemos todos.</div></button>
+   <button class="hook"><h3>Preguntar no da pena</h3><p>Tócalo para ver cómo se aplica</p><div class="pista">Tócalo</div><div class="reveal">La pregunta “boba” la tienen otros tres callados.</div></button>
+   <button class="hook"><h3>Se entrega a tiempo</h3><p>Tócalo para ver cómo se aplica</p><div class="pista">Tócalo</div><div class="reveal">Lo tarde se recibe, pero primero hablamos del porqué.</div></button>
+   <button class="hook"><h3>El celular es herramienta</h3><p>Tócalo para ver cómo se aplica</p><div class="pista">Tócalo</div><div class="reveal">Se usa cuando el ejercicio lo pide; el resto, boca abajo.</div></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">El 8 de octubre</p>
+  <h2 class="anim" style="max-width:24ch">Vas a poder sentarte en cualquier recepción y entender el sistema que te pongan al frente</h2>
+  <div class="checks stagger" style="max-width:52ch">
+   <div class="check"><span class="caja">✓</span><span>Dejar tu turno documentado, sin que nadie te llame después</span></div>
+   <div class="check"><span class="caja">✓</span><span>Mandar el archivo correcto, en el formato correcto</span></div>
+   <div class="check"><span class="caja">✓</span><span>Resolver en Excel lo que hoy resuelves a mano</span></div>
+  </div>
+  <p class="lead anim" style="margin-top:26px;color:var(--mostaza)">Arrancamos ahora.</p>
+ </div>
+</section>
+
+<button class="fab" id="abrir">Control remoto</button>
+<div class="dotp" id="puntero"></div>
+<div class="nav">
+ <button data-go="-1" aria-label="Diapositiva anterior">Atrás</button>
+ <button data-go="1" aria-label="Siguiente diapositiva">Siguiente</button>
+ <button id="fs" aria-label="Pantalla completa">Pantalla completa</button>
+ <span class="tag" id="tag">1 / 13</span>
+</div>
+</div>
+<div id="mando">
+ <div class="ahora"><small>En pantalla</small><b id="m-ahora">—</b></div>
+ <div class="ahora" style="background:rgba(251,246,238,.05)"><small>Sigue</small><b id="m-sigue" style="font-size:16px">—</b></div>
+ <div class="pad" id="pad">Desliza aquí para mover el puntero<br><span style="font-weight:500;font-size:13px">Levanta el dedo y el puntero se apaga</span></div>
+ <div class="fila2"><button class="sec" id="m-atras">Atrás</button><button id="m-sig">Siguiente</button></div>
+ <div class="cont"><span id="m-cont">—</span> · <button style="background:none;padding:6px;color:#9FC4C6;font-size:13px;text-decoration:underline" id="m-salir">Salir del control</button></div>
+</div>
+<script>
+(function(){
+ const slides=[...document.querySelectorAll('.slide')];let i=0;
+ function go(n){i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,k)=>{s.classList.toggle('on',k===i);if(k===i)s.scrollTop=0;});
+  document.getElementById('prog').style.width=((i+1)/slides.length*100)+'%';
+  document.getElementById('tag').textContent=(i+1)+' / '+slides.length;
+  window.dispatchEvent(new CustomEvent('deck:go',{detail:i}));}
+ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(i+ +b.dataset.go));
+ document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(i+1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(i-1);}
+  if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);});
+ let x0=null,y0=null;
+ document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+ document.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy))go(i+(dx<0?1:-1));x0=null;},{passive:true});
+ document.addEventListener('click',e=>{
+  const h=e.target.closest('.hook');if(h&&h.querySelector('.reveal'))h.classList.toggle('open');
+  const c=e.target.closest('.check');if(c&&c.tagName==='BUTTON')c.classList.toggle('hecho');
+  const f=e.target.closest('.fila');if(f)f.classList.toggle('abierta');
+  const o=e.target.closest('#op button');if(o){const box=document.getElementById('op');box.classList.add('resuelta');
+   [...box.children].forEach(b=>b.classList.toggle('buena',b.dataset.ok==='1'));
+   document.getElementById('sello').classList.add('puesto');}});
+ document.getElementById('fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});};
+ go(0);
+ window.deckGo=go;
+})();
+
+/* ---------- Control remoto por Firebase ---------- */
+(function(){
+ const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+};
+ const DOM='sbhb.app', DOC='deck';
+ const $=s=>document.querySelector(s);
+ const slides=[...document.querySelectorAll('.slide')];
+ const titulo=s=>{const h=s.querySelector('h1,h2');return h?h.textContent.trim():'Diapositiva';};
+ let fb=null,rol=null,ultima=0,idx=0;
+ const puntero=$('#puntero');
+ window.addEventListener('deck:go',e=>{idx=e.detail;if(rol==='control')pinta();if(rol==='pantalla')return;});
+ function pinta(){$('#m-ahora').textContent=titulo(slides[idx]);$('#m-sigue').textContent=slides[idx+1]?titulo(slides[idx+1]):'Fin de la presentación';$('#m-cont').textContent=(idx+1)+' de '+slides.length;}
+ async function conectar(user,pass){
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,AU,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=A.initializeApp(FIREBASE_CONFIG),auth=AU.getAuth(app),db=F.getFirestore(app);
+  await AU.signInWithEmailAndPassword(auth,user+'@'+DOM,pass);
+  fb={F,db,ref:F.doc(db,'control',DOC)};
+ }
+ function escuchar(){fb.F.onSnapshot(fb.ref,s=>{if(!s.exists())return;const d=s.data();
+   if(typeof d.slide==='number'&&d.slide!==idx)window.deckGo(d.slide);
+   if(d.pointer){puntero.classList.add('on');puntero.style.left=(d.px*100)+'%';puntero.style.top=(d.py*100)+'%';}
+   else puntero.classList.remove('on');});}
+ function enviar(o){if(!fb)return;const ahora=Date.now();if(o.px!=null&&ahora-ultima<110)return;ultima=ahora;
+   fb.F.setDoc(fb.ref,Object.assign({ts:ahora},o),{merge:true}).catch(()=>{});}
+ function abrirPanel(){
+  const d=document.createElement('div');d.className='panel';
+  d.innerHTML=`<div class="caja"><h3>Control remoto</h3><p style="font-size:14px;color:var(--humo);max-width:none">Entra con tu usuario del sistema en el computador y en el celular. El celular manda y el computador obedece.</p>
+   <label>Usuario</label><input id="c-user" autocapitalize="none" value="admin">
+   <label>Contraseña</label><input id="c-pass" type="password">
+   <p class="err" id="c-err"></p>
+   <button class="btn" id="c-pantalla">Este equipo es la pantalla</button>
+   <button class="btn sec" id="c-mando">Este equipo es mi control</button>
+   <button class="cerrar" id="c-cerrar">Cancelar</button></div>`;
+  document.body.appendChild(d);
+  const cerrar=()=>d.remove();
+  d.querySelector('#c-cerrar').onclick=cerrar;
+  const entrar=async modo=>{
+   const u=d.querySelector('#c-user').value.trim().toLowerCase(),p=d.querySelector('#c-pass').value;
+   const err=d.querySelector('#c-err');err.textContent='Conectando…';
+   if(!FIREBASE_CONFIG.apiKey){err.textContent='Falta pegar los datos de Firebase en este archivo.';return;}
+   try{await conectar(u,p);}catch(e){err.textContent=(e&&e.code==='auth/invalid-credential')?'Usuario o contraseña incorrectos.':'No se pudo conectar ('+((e&&e.code)||'error')+').';return;}
+   rol=modo;cerrar();$('#abrir').style.display='none';
+   if(modo==='pantalla'){escuchar();}
+   else{$('#mando').classList.add('on');pinta();enviar({slide:idx,pointer:false});}
+  };
+  d.querySelector('#c-pantalla').onclick=()=>entrar('pantalla');
+  d.querySelector('#c-mando').onclick=()=>entrar('control');
+ }
+ $('#abrir').onclick=abrirPanel;
+ $('#m-sig').onclick=()=>{idx=Math.min(slides.length-1,idx+1);pinta();enviar({slide:idx});};
+ $('#m-atras').onclick=()=>{idx=Math.max(0,idx-1);pinta();enviar({slide:idx});};
+ $('#m-salir').onclick=()=>{$('#mando').classList.remove('on');$('#abrir').style.display='';rol=null;enviar({pointer:false});};
+ const pad=$('#pad');
+ const mover=e=>{const t=e.touches?e.touches[0]:e,r=pad.getBoundingClientRect();
+  const px=Math.min(1,Math.max(0,(t.clientX-r.left)/r.width)),py=Math.min(1,Math.max(0,(t.clientY-r.top)/r.height));
+  enviar({px,py,pointer:true});};
+ pad.addEventListener('touchstart',e=>{e.preventDefault();pad.classList.add('activo');mover(e);},{passive:false});
+ pad.addEventListener('touchmove',e=>{e.preventDefault();mover(e);},{passive:false});
+ pad.addEventListener('touchend',()=>{pad.classList.remove('activo');enviar({pointer:false});});
+ pad.addEventListener('mousedown',e=>{pad.classList.add('activo');mover(e);
+  const mv=ev=>mover(ev),up=()=>{pad.classList.remove('activo');enviar({pointer:false});document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});
+})();
+
+<\/script>
+</body>
+</html>
+</script><script type="text/plain" id="app-pms"><!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
 <meta name="theme-color" content="#0E8C88">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -215,6 +1586,10 @@ label.case>span>span{display:block}
 .chk .ic.pend{background:var(--line);color:var(--muted)}
 .inline-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .inline-form input,.inline-form select{max-width:280px}
+.opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.opt{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400;color:var(--ink);font-size:14px;cursor:pointer;padding:6px 8px;border-radius:8px}
+.opt:hover{background:var(--soft)}
+.opt input{width:auto;margin-top:3px}
 .answer{background:var(--soft);border-radius:8px;padding:8px 10px;margin-top:6px;white-space:pre-wrap;font-size:13px}
 </style>
 </head>
@@ -231,12 +1606,12 @@ label.case>span>span{display:block}
    vacío, el sistema funciona en MODO DEMOSTRACIÓN (solo en este navegador).
    ===================================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
 };
 const ADMIN_USER='admin', DOMAIN='sbhb.app';
 const HOTEL_NAME='San Buenaventura Hostel Boutique';
@@ -480,7 +1855,7 @@ const badge=s=>`<span class="badge s-${s}">${ST[s]}</span>`;
 const rbadge=s=>`<span class="badge r-${s}">${RST[s]}</span>`;
 const flags=r=>(est(r)>0&&occupying(r)?'<span class="reddot" title="Saldo pendiente"></span>':'')+(noReg(r)?'<span class="warnflag">Sin registro</span>':'')+(rateOff(r)?'<span class="warnflag">Revisar tarifa</span>':'');
 
-const NAV=[['hoy','Hoy','1'],['rack','Rack','2'],['reservas','Reservas','3'],['huespedes','Huéspedes','4'],['habitaciones','Housekeeping','5'],['pos','Punto de venta','6'],['caja','Caja','7'],['auditoria','Auditoría nocturna','8'],['reportes','Reportes','9'],['practica','Casos de práctica','0']];
+const NAV=[['hoy','Hoy','1'],['rack','Rack','2'],['reservas','Reservas','3'],['huespedes','Huéspedes','4'],['habitaciones','Housekeeping','5'],['pos','Punto de venta','6'],['caja','Caja','7'],['auditoria','Auditoría nocturna','8'],['reportes','Reportes','9'],['practica','Casos de práctica','0'],['diagnostico','Taller diagnóstico','']];
 let view='hoy',rackStart=null,qRes='',fRes='activas',qG='',cart=[],pending=false;
 
 function scheduleRender(){
@@ -496,6 +1871,7 @@ const VISIT=['hoy','rack','reservas','huespedes','habitaciones','pos','caja','au
 const MODES=[['shared','Hotel del grupo'],['retos','Mis retos'],['libre','Zona libre']];
 const MODE_HELP={shared:'Todos trabajan en el mismo hotel y ven los cambios de los demás.',retos:'Tu hotel privado. Lo que haces aquí se califica solo.',libre:'Tu hotel para practicar y equivocarte sin nota. Lo puedes reiniciar cuando quieras.'};
 function navItems(){return NAV.map(x=>x[0]==='practica'&&MODE==='retos'?['retos','Mis retos','0']:x);}
+const navKey=k=>{const n=navItems().find(x=>x[2]&&x[2]===k);return n;};
 function ensureGrades(){if(!gradesUnsub&&CUR&&READY&&ME()){gradesUnsub=B.watchGrades(isAdmin(),m=>{GR=m;if(view==='calificaciones'||view==='retos')scheduleRender();});}}
 function render(){
   if(!B){$('#root').innerHTML=shell('<p class="muted">Conectando…</p>');return;}
@@ -516,7 +1892,7 @@ function render(){
   const cfgNav=canConfig()?`${isAdmin()?'':'<div class="sep"></div>'}<button data-act="nav" data-view="ajustes" ${view==='ajustes'?'aria-current="page"':''}>Ajustes${MODE!=='shared'?' de mi hotel':''}</button>`:'';
   $('#root').innerHTML=`<div class="app">
     <aside class="side"><div class="brand">San Buenaventura<span>Hostel Boutique</span></div>
-      <nav class="nav" aria-label="Secciones">${items.map(([k,l,n])=>`<button data-act="nav" data-view="${k}" ${view===k?'aria-current="page"':''}>${l}<kbd>${n}</kbd></button>`).join('')}${adminNav}${cfgNav}</nav>
+      <nav class="nav" aria-label="Secciones">${items.map(([k,l,n])=>`<button data-act="nav" data-view="${k}" ${view===k?'aria-current="page"':''}>${l}${n?`<kbd>${n}</kbd>`:''}</button>`).join('')}${adminNav}${cfgNav}</nav>
       <div class="hotel">${B.mode==='demo'?'Modo demostración<br>':''}${esc(C().hotel.city)}</div></aside>
     <div class="main"><header class="top"><div class="bizdate"><small>${MODE==='shared'?'Hotel del grupo':MODE==='retos'?'Mis retos':'Zona libre'}, fecha del hotel${biz()!==real?' (simulada)':''}</small><b>${esc(longD(biz()))}</b></div><span class="grow"></span>
       <span class="who">${esc(u.name)}, ${ROLES[u.role]||u.role}</span>
@@ -654,6 +2030,24 @@ practica(){
   <p class="muted">Resuelve los casos en el sistema y responde la pregunta para pensar en tu cuaderno o en un documento. El hotel puede ser compartido: si un compañero ya resolvió un caso, revisa el historial de la reserva y explícalo con tus palabras.</p>${h}`;
 },
 
+
+diagnostico(){
+  const d=diagOf(CUR);
+  if(d&&!DA.__edit){const r=d.res||diagScore(d.a||{});
+    return `<div class="toolbar"><h1>Taller diagnóstico</h1></div>
+    <div class="kpis"><div class="kpi"><b>${r.level}</b><small>Tu nivel de entrada</small></div><div class="kpi"><b>${r.pct}%</b><small>${r.score} de ${r.total} correctas</small></div></div>
+    <div class="panel bars" style="margin-top:16px"><h2>Por tema</h2>${DAREAS.map(a=>{const x=r.areas[a]||{ok:0,n:1},p=Math.round(100*x.ok/(x.n||1));return `<div class="row"><span>${a}</span><div class="track"><div class="fill" style="width:${p}%"></div></div><b>${p}%</b></div>`;}).join('')}
+    <p class="muted" style="margin-top:12px">${DLEVEL[r.level]}</p></div>
+    <div class="panel" style="margin-top:16px"><h2>Tus respuestas</h2>${DIAG.map(q=>{const v=(d.a||{})[q.id];const ok=q.ok==null?null:+v===q.ok;
+      return `<div class="chk"><span class="ic ${ok==null?'info':ok?'ok':'bad'}">${ok==null?'•':ok?'✓':'✗'}</span><div class="body"><b>${esc(q.q)}</b><small>Respondiste: ${v!=null?esc(q.o[v]):'sin responder'}${ok===false?'. Respuesta correcta: '+esc(q.o[q.ok]):''}</small></div></div>`;}).join('')}</div>
+    <div class="panel" style="margin-top:16px"><p class="muted">Si te equivocaste al responder, lo puedes repetir.</p><button class="btn ghost" data-act="diag-again">Volver a hacerlo</button></div>`;}
+  const ans=DA.a||(DA.a=Object.assign({},(d&&d.a)||{}));
+  return `<div class="toolbar"><h1>Taller diagnóstico</h1></div>
+  <p class="muted">Son ${DIAG.length} preguntas, unos 10 minutos. No es para nota: es para saber desde dónde arranca cada uno. Responde con sinceridad.</p>
+  <form data-form="diag">${DIAG.map((q,i)=>`<section class="panel" style="margin-top:12px"><b>${i+1}. ${esc(q.q)}</b>${q.ok==null?' <span class="badge b-warn">Sin respuesta correcta</span>':''}
+   <div class="opts">${q.o.map((o,j)=>`<label class="opt"><input type="radio" name="${q.id}" value="${j}" ${+ans[q.id]===j?'checked':''}> ${esc(o)}</label>`).join('')}</div></section>`).join('')}
+   <p class="form-err"></p><div class="actions"><button class="btn">Enviar respuestas</button></div></form>`;
+},
 retos(){
   const au=evalRetos(),m=M(),g=Object.assign({},GR[CUR]||{},{auto:au}),c=calc(g),ts=g.teacher||{};
   const task=t=>{const ok=au[t.id];
@@ -673,11 +2067,23 @@ retos(){
 calificaciones(){
   const us=SH.users.filter(u=>u.role!=='admin').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   const w=(SH.config&&SH.config.gradeW!=null)?SH.config.gradeW:70;
-  return `<div class="toolbar"><h1>Calificaciones</h1><span class="grow"></span><button class="btn ghost sm" data-act="export-grades">Exportar a Excel</button></div>
+  return `<div class="toolbar"><h1>Calificaciones</h1><span class="grow"></span><button class="btn ghost sm" data-act="export-grades">Resumen a Excel</button><button class="btn sm" data-act="export-full">Expediente completo a Excel</button></div>
   <form data-form="weights" class="panel inline-form" style="margin-bottom:16px"><label style="flex-direction:row;align-items:center;gap:8px">Peso de lo automático<input name="w" type="number" min="0" max="100" value="${w}" style="width:80px">%</label><span class="muted">Respuestas escritas: ${100-w}%. Escala de 1.0 a 5.0.</span><button class="btn sm">Guardar</button></form>
   <div class="panel scroll"><table class="tbl"><thead><tr><th>Estudiante</th>${RETOS.map(R=>`<th class="num">R${R.n}</th>`).join('')}<th class="num">Automática</th><th class="num">Escrita</th><th class="num">Final</th></tr></thead><tbody>
   ${us.map(u=>{const g=GR[u.id]||{},c=calc(g),au=g.auto||{};return `<tr class="click" data-act="grade-detail" data-id="${u.id}"><td><b>${esc(u.name)}</b><br><small>${esc(u.user)}</small></td>${RETOS.map(R=>`<td class="num">${retoProgress(R,au)}</td>`).join('')}<td class="num">${g1(c.auto)}</td><td class="num">${g1(c.written)}<br><small>${c.graded}/${c.totalW}</small></td><td class="num"><b>${g1(c.final)}</b></td></tr>`;}).join('')||'<tr><td colspan="11" class="empty">Todavía no hay estudiantes registrados.</td></tr>'}
-  </tbody></table></div><p class="muted" style="margin-top:10px;font-size:12px">Toca un estudiante para ver el detalle y calificar sus respuestas escritas. Las respuestas sin calificar cuentan como 1.0.</p>`;
+  </tbody></table></div><p class="muted" style="margin-top:10px;font-size:12px">Toca un estudiante para ver el detalle y calificar sus respuestas escritas. Las respuestas sin calificar cuentan como 1.0.</p>
+  <h2 style="margin-top:22px">Taller diagnóstico</h2>
+  ${(()=>{const hechos=us.filter(u=>diagOf(u.id));if(!hechos.length)return '<p class="empty panel">Todavía nadie ha hecho el taller diagnóstico.</p>';
+    const prom=Math.round(hechos.reduce((s,u)=>s+diagOf(u.id).res.pct,0)/hechos.length);
+    const orden=hechos.slice().sort((a,b)=>diagOf(b.id).res.pct-diagOf(a.id).res.pct);const pares=[];for(let i=0;i<Math.floor(orden.length/2);i++)pares.push(orden[i].name+' con '+orden[orden.length-1-i].name);
+    const porArea=DAREAS.map(a=>{const p=Math.round(hechos.reduce((s,u)=>{const x=diagOf(u.id).res.areas[a]||{ok:0,n:1};return s+100*x.ok/(x.n||1);},0)/hechos.length);return {a,p};});
+    return `<div class="kpis" style="margin-bottom:12px"><div class="kpi"><b>${hechos.length} de ${us.length}</b><small>Lo han hecho</small></div><div class="kpi"><b>${prom}%</b><small>Promedio del grupo</small></div>${['Inicial','Intermedio','Avanzado'].map(l=>`<div class="kpi"><b>${hechos.filter(u=>diagOf(u.id).res.level===l).length}</b><small>Nivel ${l}</small></div>`).join('')}</div>
+    <div class="cols" style="margin-top:0"><section class="panel bars"><h2>Temas más flojos del grupo</h2>${porArea.sort((x,y)=>x.p-y.p).map(x=>`<div class="row"><span>${x.a}</span><div class="track"><div class="fill" style="width:${x.p}%"></div></div><b>${x.p}%</b></div>`).join('')}</section>
+    <section class="panel"><h2>Parejas sugeridas</h2><p class="muted" style="font-size:12px">El que más sabe con el que va empezando.</p>${pares.map(p=>`<div class="list-row"><div class="who">${esc(p)}</div></div>`).join('')||'<p class="empty">Hacen falta más estudiantes.</p>'}</section></div>
+    <div class="panel scroll" style="margin-top:16px"><table class="tbl"><thead><tr><th>Estudiante</th><th>Nivel</th><th class="num">Puntaje</th>${DAREAS.map(a=>`<th class="num">${a}</th>`).join('')}<th>Recepción</th><th>PMS</th><th>Equipo</th></tr></thead><tbody>
+    ${orden.map(u=>{const d=diagOf(u.id),r=d.res,q=id=>{const v=d.a[id];const Q=DIAG.find(x=>x.id===id);return v!=null?esc(Q.o[v]):'—';};
+      return `<tr><td><b>${esc(u.name)}</b></td><td>${r.level}</td><td class="num">${r.pct}%</td>${DAREAS.map(a=>{const x=r.areas[a]||{ok:0,n:1};return `<td class="num">${x.ok}/${x.n}</td>`;}).join('')}<td>${q('x1')}</td><td>${q('x2')}</td><td>${q('x3')}</td></tr>`;}).join('')}
+    </tbody></table></div><div class="actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="export-diag">Exportar diagnóstico a Excel</button></div>`;})()}`;
 },
 usuarios(){
   const us=S.users.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
@@ -693,6 +2099,37 @@ ajustes(){
   <section class="panel"><h2>Reiniciar el hotel</h2><p class="muted">${MODE==='shared'?'Borra reservas, huéspedes, pagos, cierres y auditorías, y carga un escenario nuevo con fecha de hoy. Las cuentas de los estudiantes se conservan.':'Genera un hotel nuevo para ti.'}</p><button class="btn danger" data-act="reset">${MODE==='shared'?'Reiniciar hotel para todos':'Reiniciar mi hotel'}</button></section></div>`;
 }};
 
+
+/* ---------- Taller diagnóstico ---------- */
+const DIAG=[
+ {id:'c1',a:'Computador',q:'Necesitas escribir una carta de confirmación y guardarla en el computador. ¿Qué programa usas?',o:['Word','Excel','PowerPoint','Chrome'],ok:0},
+ {id:'c2',a:'Computador',q:'¿Qué hace la opción "Guardar como"?',o:['Guarda una copia con otro nombre o en otro lugar','Borra el archivo original','Imprime el documento','Cierra el programa sin guardar'],ok:0},
+ {id:'c3',a:'Computador',q:'Descargas un archivo de internet y no lo encuentras. ¿Dónde lo buscas primero?',o:['En la carpeta Descargas','En la papelera de reciclaje','En Excel','Se perdió, hay que descargarlo otra vez'],ok:0},
+ {id:'f1',a:'Formatos',q:'Le vas a mandar al huésped una confirmación que no pueda modificar. ¿En qué formato se la envías?',o:['PDF','DOCX','XLSX','JPG'],ok:0},
+ {id:'f2',a:'Formatos',q:'Un archivo que termina en .xlsx es de…',o:['Excel','Word','PowerPoint','Una imagen'],ok:0},
+ {id:'f3',a:'Formatos',q:'¿Qué formato sirve para pasar datos de un sistema a Excel?',o:['CSV','MP4','PNG','EXE'],ok:0},
+ {id:'f4',a:'Formatos',q:'Te mandan un .docx y en ese computador no hay Word. ¿Qué haces?',o:['Lo abro con Google Docs u otro editor gratuito','Le cambio la extensión a .pdf','No se puede abrir de ninguna forma','Reinicio el computador'],ok:0},
+ {id:'a1',a:'Archivos',q:'¿Cuál nombre de archivo te va a servir más para encontrarlo dentro de un mes?',o:['2026-10-03_cierre-caja_turno-noche.xlsx','documento final (2).xlsx','nuevo.xlsx','cierre.xlsx'],ok:0},
+ {id:'a2',a:'Archivos',q:'¿Para qué sirve organizar los archivos en carpetas por fecha o por área?',o:['Para encontrarlos rápido y no repetirlos','Para que el computador vaya más rápido','Para ocupar menos espacio','No sirve de mucho'],ok:0},
+ {id:'a3',a:'Archivos',q:'Trabajas un archivo en Drive o OneDrive y se apaga el computador. ¿Qué pasa?',o:['El archivo sigue guardado en la nube','Se pierde todo el trabajo','Solo se recupera si lo imprimí','Se borra a los 30 días'],ok:0},
+ {id:'e1',a:'Excel',q:'En Excel, ¿qué hace =SUMA(A1:A10)?',o:['Suma los valores de esas celdas','Cuenta cuántas celdas hay','Ordena la columna','No hace nada'],ok:0},
+ {id:'e2',a:'Excel',q:'Tienes una lista larga y quieres ver solo las reservas de Booking. ¿Qué usas?',o:['Un filtro','Negrilla','Insertar fila','El zoom'],ok:0},
+ {id:'e3',a:'Excel',q:'Una celda muestra ##### en vez del número. ¿Qué pasa?',o:['La columna está muy angosta','El archivo está dañado','Hay un virus','La fórmula está mal escrita'],ok:0},
+ {id:'s1',a:'Atajos',q:'¿Con qué teclas se copia?',o:['Ctrl + C','Ctrl + V','Ctrl + Z','Ctrl + P'],ok:0},
+ {id:'s2',a:'Atajos',q:'¿Para qué sirve Ctrl + Z?',o:['Deshacer lo último que hice','Guardar','Cerrar el programa','Buscar'],ok:0},
+ {id:'s3',a:'Atajos',q:'Quieres buscar una palabra dentro de un documento o una página. ¿Qué teclas usas?',o:['Ctrl + F','Alt + F4','Ctrl + P','Ctrl + E'],ok:0},
+ {id:'x1',a:'Experiencia',q:'¿Has trabajado en la recepción de un hotel u hostal?',o:['Nunca','Menos de 6 meses','Entre 6 meses y 2 años','Más de 2 años'],ok:null},
+ {id:'x2',a:'Experiencia',q:'¿Has usado programas de computador en un trabajo (facturación, inventario, reservas, caja)?',o:['Nunca','Los he visto trabajar a otros','Los he usado poco','Los manejo bien'],ok:null},
+ {id:'x3',a:'Experiencia',q:'¿Qué tan cómodo te sientes con el computador?',o:['Me cuesta bastante','Me defiendo en lo básico','Me siento cómodo','Lo manejo muy bien'],ok:null},
+ {id:'x4',a:'Experiencia',q:'¿Con qué equipo vas a trabajar en este módulo?',o:['Computador propio','Computador de la universidad','Solo celular','A veces computador, a veces celular'],ok:null}
+];
+const DAREAS=['Computador','Formatos','Archivos','Excel','Atajos'];
+let DA={};
+function diagOf(id){const g=GR[id]||{};return g.diag||null;}
+function diagScore(ans){const r={areas:{},score:0,total:0};DAREAS.forEach(a=>r.areas[a]={ok:0,n:0});
+  DIAG.forEach(q=>{if(q.ok==null)return;const A=r.areas[q.a];A.n++;r.total++;if(ans[q.id]!=null&&+ans[q.id]===q.ok){A.ok++;r.score++;}});
+  r.pct=r.total?Math.round(100*r.score/r.total):0;r.level=r.pct>=80?'Avanzado':r.pct>=50?'Intermedio':'Inicial';return r;}
+const DLEVEL={Inicial:'Vas empezando. En clase te vamos a acompañar paso a paso con lo básico de archivos y ofimática.',Intermedio:'Tienes buena base. Nos vamos a enfocar en formatos, plantillas, filtros y atajos.',Avanzado:'Manejas bien las herramientas. Te vamos a poner retos extra y a apoyar a tus compañeros.'};
 
 /* ---------- Retos evaluados ---------- */
 const norm=v=>String(v==null?'':v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
@@ -962,6 +2399,10 @@ function exportData(what){
 const reopen=id=>{render();openRes(id);};
 const busy=f=>{const b=f.querySelector('button:not([type=button])');if(b){b.disabled=true;setTimeout(()=>{b.disabled=false;},2500);}};
 const FORMS={
+ diag(d,f){const faltan=DIAG.filter(q=>d[q.id]==null);if(faltan.length){formErr(f,`Te faltan ${faltan.length} preguntas por responder.`);return;}
+  const a={};DIAG.forEach(q=>a[q.id]=+d[q.id]);const res=diagScore(a);const u=ME();
+  GR[u.id]=deepMerge(GR[u.id]||{},{id:u.id,name:u.name,user:u.user,diag:{a,res,ts:Date.now()}});
+  W(B.saveGrade(u.id,{id:u.id,name:u.name,user:u.user,diag:{a,res,ts:Date.now()}}));DA={};render();toast('Listo, gracias. Ya el profesor tiene tus resultados.');},
  quiz(d,f){const tid=f.dataset.tid,t=ALLT.find(x=>x.id===tid);M().quiz[tid]=String(d.v||'').trim();persistSoon();const ok=quizOk(t);render();toast(ok?'¡Correcto!':'Todavía no. Revisa en el sistema y vuelve a intentar.',!ok);},
  answer(d,f){const tid=f.dataset.tid;M().answers[tid]=String(d.v||'').trim();persistSoon();render();toast('Respuesta guardada');},
  weights(d,f){const w=Math.max(0,Math.min(100,Math.round(+d.w)));if(isNaN(w))return;SH.config.gradeW=w;W(B.patch('config','main',{gradeW:w}));render();toast('Pesos guardados');},
@@ -1114,7 +2555,24 @@ const ACTS={
  reset(){if(MODE!=='shared'){confirmBox(MODE==='retos'?'Se generará un hotel nuevo y <b>se borrará todo tu avance en los retos</b>. ¿Seguro?':'Se generará un hotel nuevo para tu zona libre.',()=>{rackStart=null;cart=[];D.reset(seed());lastG='';render();toast('Hotel nuevo generado');},'Generar hotel nuevo',true);return;}
   confirmBox('Se borrarán reservas, huéspedes, pagos, cierres y auditorías de todo el equipo, y se cargará un escenario nuevo con fecha de hoy. Las cuentas se conservan.',()=>{const sd=seed();rackStart=null;cart=[];W(B.reset(sd)).then(()=>{log('Reinició el hotel con un escenario nuevo');toast('Hotel reiniciado para todos');});},'Reiniciar para todos',true);},
  mode(el){setMode(el.dataset.m);},
+ 'diag-again'(){const d=diagOf(CUR);DA={__edit:1,a:Object.assign({},(d&&d.a)||{})};render();},
  'grade-detail'(el){gradeDetail(el.dataset.id);},
+ 'export-diag'(){const us=SH.users.filter(u=>u.role!=='admin'&&diagOf(u.id));
+  const rows=[['Estudiante','Usuario','Nivel','Puntaje %'].concat(DAREAS,DIAG.filter(q=>q.ok==null).map(q=>q.q))].concat(us.map(u=>{const d=diagOf(u.id);return [u.name,u.user,d.res.level,d.res.pct].concat(DAREAS.map(a=>{const x=d.res.areas[a]||{ok:0,n:0};return x.ok+'/'+x.n;}),DIAG.filter(q=>q.ok==null).map(q=>{const v=d.a[q.id];return v!=null?q.o[v]:'';}));}));
+  const tsv=rows.map(r=>r.join('\t')).join('\n');openModal('Exportar diagnóstico',`<p>Copia y pega en Excel.</p><textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea><div class="actions"><button class="btn ghost" data-act="close-modal">Cerrar</button><button class="btn" data-act="copy">Copiar datos</button></div>`,{nofocus:true});},
+ 'export-full'(){const us=SH.users.filter(u=>u.role!=='admin').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const wt=ALLT.filter(t=>t.k==='write'),at=ALLT.filter(t=>t.k!=='write');
+  const head=['Estudiante','Usuario','Diagnóstico: fecha','Nivel de entrada','Diagnóstico %'].concat(DAREAS.map(a=>'Diag '+a),['Experiencia recepción','Programas','Comodidad','Equipo'],at.map(t=>'R'+t.reto+' '+t.t),[].concat.apply([],wt.map(t=>['R'+t.reto+' '+t.t+' (respuesta)','R'+t.reto+' '+t.t+' (nota)'])),['Nota automática','Nota escrita','Nota final','Última actualización']);
+  const val=(d,id)=>{const q=DIAG.find(x=>x.id===id),v=d&&d.a?d.a[id]:null;return q&&v!=null?q.o[v]:'';};
+  const rows=[head].concat(us.map(u=>{const g=GR[u.id]||{},c=calc(g),au=g.auto||{},ts=g.teacher||{},an=g.answers||{},d=g.diag,r=(d&&d.res)||{areas:{},pct:'',level:''};
+    return [u.name,u.user,d?new Date(d.ts).toLocaleDateString('es-CO'):'',r.level||'',r.pct||''].concat(
+      DAREAS.map(a=>{const x=(r.areas||{})[a];return x?x.ok+'/'+x.n:'';}),
+      [val(d,'x1'),val(d,'x2'),val(d,'x3'),val(d,'x4')],
+      at.map(t=>au[t.id]?'Sí':'No'),
+      [].concat.apply([],wt.map(t=>[an[t.id]||'',ts[t.id]!=null?ts[t.id]:''])),
+      [g1(c.auto),g1(c.written),g1(c.final),g.updated?new Date(g.updated).toLocaleString('es-CO'):'']);}));
+  const tsv=rows.map(r=>r.map(c=>String(c==null?'':c).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  openModal('Expediente completo',`<p>Una fila por estudiante con todo: diagnóstico, cada reto, las respuestas escritas con su nota y las notas finales. Copia y pega en la celda A1 de Excel.</p><textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea><div class="actions"><button class="btn ghost" data-act="close-modal">Cerrar</button><button class="btn" data-act="copy">Copiar datos</button></div>`,{nofocus:true,wide:true});},
  'export-grades'(){const us=SH.users.filter(u=>u.role!=='admin').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   const rows=[['Estudiante','Usuario'].concat(RETOS.map(R=>'Reto '+R.n),['Nota automática','Nota escrita','Nota final'])].concat(us.map(u=>{const g=GR[u.id]||{},c=calc(g);return [u.name,u.user].concat(RETOS.map(R=>retoProgress(R,g.auto||{})),[g1(c.auto),g1(c.written),g1(c.final)]);}));
   const tsv=rows.map(r=>r.join('\t')).join('\n');openModal('Exportar calificaciones',`<p>Copia y pega en Excel.</p><textarea id="tsv" rows="9" readonly style="font-size:12px;white-space:pre">${esc(tsv)}</textarea><div class="actions"><button class="btn ghost" data-act="close-modal">Cerrar</button><button class="btn" data-act="copy">Copiar datos</button></div>`,{nofocus:true});},
@@ -1124,8 +2582,14 @@ const ACTS={
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el,e);});
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d={};new FormData(f).forEach((v,k)=>{d[k]=v;});const id=f.getAttribute('id')||f.dataset.form;if(FORMS[id])FORMS[id](d,f);});
 document.addEventListener('input',e=>{if(e.target.id==='qres'){qRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='qg'){qG=e.target.value;$('#tbody').innerHTML=guestRows();}});
+function diagBlock(g){const d=g&&g.diag;if(!d)return '<p class="muted">No ha hecho el taller diagnóstico.</p>';const r=d.res||{areas:{},pct:0,level:'—'};
+  const val=id=>{const q=DIAG.find(x=>x.id===id),v=(d.a||{})[id];return q&&v!=null?esc(q.o[v]):'—';};
+  return `<p><b>Nivel de entrada: ${esc(r.level)}</b> (${r.pct}%), presentado el ${new Date(d.ts||Date.now()).toLocaleDateString('es-CO')}.</p>
+  <table class="tbl"><tbody>${DAREAS.map(a=>{const x=(r.areas||{})[a]||{ok:0,n:0};return `<tr><td>${a}</td><td class="num">${x.ok}/${x.n}</td></tr>`;}).join('')}
+  <tr><td>Experiencia en recepción</td><td class="num">${val('x1')}</td></tr><tr><td>Programas de computador</td><td class="num">${val('x2')}</td></tr><tr><td>Comodidad con el computador</td><td class="num">${val('x3')}</td></tr><tr><td>Equipo con el que trabaja</td><td class="num">${val('x4')}</td></tr></tbody></table>`;}
 function gradeDetail(id){const u=SH.users.find(x=>x.id===id);if(!u)return;const g=GR[id]||{},c=calc(g),au=g.auto||{},ts=g.teacher||{},an=g.answers||{},qz=g.quiz||{};
-  openModal(esc(u.name),`<div class="kpis" style="margin-bottom:12px"><div class="kpi"><b>${g1(c.auto)}</b><small>Automática</small></div><div class="kpi"><b>${g1(c.written)}</b><small>Escrita (${c.graded}/${c.totalW})</small></div><div class="kpi"><b>${g1(c.final)}</b><small>Final</small></div></div>
+  openModal(esc(u.name)+' <button class="btn ghost sm" data-act="doprint">Imprimir ficha</button>',`<p class="muted">${esc(u.user)}, ${ROLES[u.role]||u.role}. Ficha generada el ${new Date().toLocaleDateString('es-CO')}.</p>
+  <h2>Taller diagnóstico</h2>${diagBlock(g)}<h2 style="margin-top:14px">Retos</h2><div class="kpis" style="margin-bottom:12px"><div class="kpi"><b>${g1(c.auto)}</b><small>Automática</small></div><div class="kpi"><b>${g1(c.written)}</b><small>Escrita (${c.graded}/${c.totalW})</small></div><div class="kpi"><b>${g1(c.final)}</b><small>Final</small></div></div>
   ${RETOS.map(R=>`<h2 style="margin-top:14px">Reto ${R.n}: ${esc(R.t)}</h2>${R.tasks.map(t=>t.k==='write'?`<div class="chk"><span class="ic ${an[t.id]?'info':'pend'}">✎</span><div class="body"><b>${esc(t.t)}</b><div class="answer">${an[t.id]?esc(an[t.id]):'<span class="muted">Sin responder</span>'}</div><label style="flex-direction:row;align-items:center;gap:8px;margin-top:6px">Nota<select data-grade="${id}" data-tid="${t.id}" style="width:90px"><option value="">—</option>${[1,1.5,2,2.5,3,3.5,4,4.5,5].map(n=>`<option ${+ts[t.id]===n?'selected':''}>${n.toFixed(1)}</option>`).join('')}</select></label></div></div>`:`<div class="chk"><span class="ic ${au[t.id]?'ok':'bad'}">${au[t.id]?'✓':'✗'}</span><div class="body"><b>${esc(t.t)}</b>${t.k==='quiz'&&qz[t.id]?`<small>Respondió: ${esc(qz[t.id])}</small>`:''}</div></div>`).join('')}`).join('')}`,{wide:true,nofocus:true});}
 document.addEventListener('change',e=>{
   if(e.target.dataset.grade){const id=e.target.dataset.grade,tid=e.target.dataset.tid,v=e.target.value===''?null:+e.target.value;GR[id]=GR[id]||{};GR[id].teacher=GR[id].teacher||{};GR[id].teacher[tid]=v;W(B.saveGrade(id,{teacher:{[tid]:v}}));toast('Nota guardada');return;}if(e.target.id==='fres'){fRes=e.target.value;$('#tbody').innerHTML=resRows();}if(e.target.id==='posdest'){$('#posm').style.display=e.target.value==='cash'?'':'none';}
@@ -1133,7 +2597,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&modalOpen()){closeModal();return;}
   if(!READY||!ME()||!S.config||modalOpen())return;const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
-  const n=navItems().find(x=>x[2]===e.key);if(n){view=n[0];if(MODE!=='shared'){M().keys=(M().keys||0)+1;persistSoon();}render();return;}
+  const n=navKey(e.key);if(n){view=n[0];if(MODE!=='shared'){M().keys=(M().keys||0)+1;persistSoon();}render();return;}
   if(e.key==='n'||e.key==='N'){e.preventDefault();resForm();return;}
   if(e.key==='/'){const s=$('#content input[type=search]');if(s){e.preventDefault();s.focus();}return;}
   if(e.key==='?')ACTS.help();
@@ -1157,6 +2621,26 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.service
 window.addEventListener('pagehide',flushPV);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPV();});
 })();
 
+<\/script>
+</body>
+</html>
+</script>
+<script>
+(function(){
+ var nombres={quiz:'Taller diagnóstico',carpetas:'La Carpeta Caótica',pres:'Presentación del módulo',pms:'Sistema de recepción'};
+ var visor=document.getElementById('visor'),marco=document.getElementById('marco'),titulo=document.getElementById('titulo');
+ function abrir(k){
+  var t=document.getElementById('app-'+k);if(!t)return;
+  marco.srcdoc=t.textContent.replace(/<\\\/script>/g,'<\/script>');
+  titulo.textContent=nombres[k]||'';visor.classList.add('on');
+  try{location.hash=k;}catch(e){}
+ }
+ document.addEventListener('click',function(e){
+  var a=e.target.closest('.app');if(a)abrir(a.dataset.app);
+ });
+ document.getElementById('volver').onclick=function(){visor.classList.remove('on');marco.srcdoc='';location.hash='';};
+ var h=(location.hash||'').replace('#','');if(nombres[h])abrir(h);
+})();
 </script>
 </body>
 </html>
