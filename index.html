@@ -45,7 +45,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 <div id="menu"><div class="caja">
  <h1 class="marca">San Buenaventura Hostel Boutique</h1>
  <p class="sub">Módulo de Tecnología de la Información y la Comunicación</p>
- <div class="apps"><button class="app" data-app="pms"><span class="ico">🛎️</span><b>Sistema de recepción</b><span class="d">El hotel: rack, reservas, caja, retos y zona libre</span></button><button class="app" data-app="tablero"><span class="ico">🏆</span><b>Tablero de notas</b><span class="d">Tu avance y el ranking del grupo</span></button><button class="app" data-app="plantillas"><span class="ico">✉️</span><b>Mis plantillas</b><span class="d">Arma tu carta de confirmación y la tarjeta de registro</span></button><button class="app" data-app="clase-plantillas"><span class="ico">📘</span><b>Clase: plantillas</b><span class="d">Diapositivas de plantillas</span></button><button class="app" data-app="quiz"><span class="ico">🚗</span><b>Taller diagnóstico</b><span class="d">Tu primer día: el juego del carrito</span></button><button class="app" data-app="carpetas"><span class="ico">📁</span><b>La Carpeta Caótica</b><span class="d">Ordena el reguero de archivos</span></button><button class="app" data-app="formatos"><span class="ico">📄</span><b>Clase: formatos y nombres</b><span class="d">Diapositivas de formatos y nomenclatura</span></button><button class="app" data-app="pres"><span class="ico">🔑</span><b>Presentación del módulo</b><span class="d">De qué se trata todo el módulo</span></button></div>
+ <div class="apps"><button class="app" data-app="pms"><span class="ico">🛎️</span><b>Sistema de recepción</b><span class="d">El hotel: rack, reservas, caja, retos y zona libre</span></button><button class="app" data-app="clase-pms"><span class="ico">🧭</span><b>Cómo funciona tu recepción</b><span class="d">Recorrido por el simulador, sección por sección</span></button><button class="app" data-app="tablero"><span class="ico">🏆</span><b>Tablero de notas</b><span class="d">Tu avance y el ranking del grupo</span></button><button class="app" data-app="plantillas"><span class="ico">✉️</span><b>Mis plantillas</b><span class="d">Arma tu carta de confirmación y la tarjeta de registro</span></button><button class="app" data-app="clase-plantillas"><span class="ico">📘</span><b>Clase: plantillas</b><span class="d">Diapositivas de plantillas</span></button><button class="app" data-app="quiz"><span class="ico">🚗</span><b>Taller diagnóstico</b><span class="d">Tu primer día: el juego del carrito</span></button><button class="app" data-app="carpetas"><span class="ico">📁</span><b>La Carpeta Caótica</b><span class="d">Ordena el reguero de archivos</span></button><button class="app" data-app="formatos"><span class="ico">📄</span><b>Clase: formatos y nombres</b><span class="d">Diapositivas de formatos y nomenclatura</span></button><button class="app" data-app="pres"><span class="ico">🔑</span><b>Presentación del módulo</b><span class="d">De qué se trata todo el módulo</span></button></div>
  <p class="nota">Entra siempre con el mismo usuario y contraseña en todas las actividades.</p>
 </div></div>
 <div id="visor"><div id="barra"><button id="volver">← Menú</button><b id="titulo"></b></div><iframe id="marco" title="Actividad"></iframe></div>
@@ -423,6 +423,16 @@ function demoBackend(){
     async savePrivate(kind,json){try{localStorage.setItem('sbhb-demo-'+kind+'-'+st.session,json);}catch(e){}},
     watchGrades(adm,cb){gcb={adm,cb};emitG();return ()=>{gcb=null;};},
     async saveGrade(id,p){ok();st.data.grades=st.data.grades||{};const g=st.data.grades[id]||(st.data.grades[id]={});deepMerge(g,clone(p));persist();setTimeout(emitG,0);},
+    async transferir(a,b,nombre,usuario){ok();st.data.grades=st.data.grades||{};
+      const res={grades:false,practice:false,sandbox:false};
+      if(st.data.grades[a]){const d=clone(st.data.grades[a]);delete d.id;delete d.name;delete d.user;
+        st.data.grades[b]=Object.assign({},st.data.grades[b]||{},d,{id:b,name:nombre,user:usuario,updated:Date.now()});res.grades=true;}
+      [['practice','retos'],['sandbox','libre']].forEach(function(p){const key='sbhb-demo-'+p[1]+'-';
+        try{const v=localStorage.getItem(key+a);if(v){localStorage.setItem(key+b,v);res[p[0]]=true;}}catch(e){}});
+      const ua=st.data.users[a],ub=st.data.users[b];
+      if(ua&&ub&&ua.practice)ub.practice=clone(ua.practice);
+      if(ua)ua.active=false;
+      persist();setTimeout(emitG,0);setTimeout(emit,0);return res;},
     async reset(sd){ok();['rooms','guests','res','sales','closures','audits','log'].forEach(c=>st.data[c]={});['rooms','guests','res'].forEach(c=>sd[c].forEach(o=>st.data[c][o.id]=clone(o)));st.data.config=clone(sd.config);commit();}
   };
 }
@@ -455,6 +465,18 @@ async function firebaseBackend(){
     savePrivate:(kind,json)=>F.setDoc(F.doc(db,PRIV[kind]||kind,auth.currentUser.uid),{json,updated:Date.now()}),
     watchGrades(adm,cb){const u=adm?F.onSnapshot(F.collection(db,'grades'),s=>{const m={};s.forEach(d=>m[d.id]=d.data());cb(m);},fail):F.onSnapshot(F.doc(db,'grades',auth.currentUser.uid),s=>cb(s.exists()?{[s.id]:s.data()}:{}),fail);unsubs.push(u);return u;},
     saveGrade:(id,p)=>F.setDoc(F.doc(db,'grades',id),clone(p),{merge:true}),
+    async transferir(a,b,nombre,usuario){
+      const res={grades:false,practice:false,sandbox:false};
+      const g=await F.getDoc(F.doc(db,'grades',a));
+      if(g.exists()){const d=g.data();delete d.id;delete d.name;delete d.user;
+        await F.setDoc(F.doc(db,'grades',b),Object.assign({},d,{id:b,name:nombre,user:usuario,updated:Date.now()}),{merge:true});res.grades=true;}
+      for(const c of ['practice','sandbox']){const sn=await F.getDoc(F.doc(db,c,a));
+        if(sn.exists()){await F.setDoc(F.doc(db,c,b),sn.data());res[c]=true;}}
+      const u=await F.getDoc(F.doc(db,'users',a));
+      if(u.exists()&&u.data().practice)await F.updateDoc(F.doc(db,'users',b),{practice:u.data().practice});
+      await F.updateDoc(F.doc(db,'users',a),{active:false});
+      return res;},
+
     async reset(sd){const ops=[];
       ['rooms','guests','res','sales','closures','audits'].forEach(c=>(S[c]||[]).forEach(o=>ops.push(['d',c,o.id])));
       const ls=await F.getDocs(F.collection(db,'log'));ls.forEach(d=>ops.push(['d','log',d.id]));
@@ -768,7 +790,15 @@ calificaciones(){
 },
 usuarios(){
   const us=S.users.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const est=us.filter(u=>u.role!=='admin');
   return `<div class="toolbar"><h1>Usuarios</h1></div><p class="muted">Los estudiantes crean su propia cuenta desde la pantalla de ingreso. Aquí les asignas la función.</p>
+  <section class="panel" style="margin-bottom:16px"><h2>Pasar el avance de una cuenta a otra</h2>
+   <p class="muted" style="font-size:13px">Cuando a un estudiante se le olvida la contraseña y le toca crear otra cuenta, aquí le pasas todo lo que había hecho: diagnóstico, actividades, retos y sus hoteles privados. La cuenta vieja queda desactivada.</p>
+   ${est.length<2?'<p class="empty">Se necesitan al menos dos cuentas de estudiante.</p>':`<form id="transfer" class="grid2" style="align-items:end">
+    <label>Cuenta vieja (de donde se saca)<select name="de">${est.map(u=>`<option value="${u.id}">${esc(u.name)} (${esc(u.user)})</option>`).join('')}</select></label>
+    <label>Cuenta nueva (a donde se pasa)<select name="a">${est.map(u=>`<option value="${u.id}">${esc(u.name)} (${esc(u.user)})</option>`).join('')}</select></label>
+    <p class="form-err span2" style="margin:0"></p>
+    <button class="btn span2">Transferir avance</button></form>`}</section>
   <div class="panel scroll"><table class="tbl"><thead><tr><th>Nombre</th><th>Usuario</th><th>Función</th><th>Casos</th><th>Estado</th><th></th></tr></thead><tbody>${us.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.user)}</td><td>${u.role==='admin'?'Administrador':`<select data-role="${u.id}" style="min-width:150px"><option value="recepcion" ${u.role==='recepcion'?'selected':''}>Recepción</option><option value="auditor" ${u.role==='auditor'?'selected':''}>Auditor nocturno</option></select>`}</td><td>${(u.practice||[]).filter(x=>typeof x==='string').length}</td><td>${u.active===false?'<span class="badge s-cancelada">Desactivado</span>':'<span class="badge s-hospedado">Activo</span>'}</td><td class="num">${u.role==='admin'?'':`<button class="btn ghost sm" data-act="user-toggle" data-id="${u.id}">${u.active===false?'Activar':'Desactivar'}</button>`}</td></tr>`).join('')}</tbody></table></div>`;
 },
 ajustes(){
@@ -1145,6 +1175,12 @@ const FORMS={
   if(d.dest==='cash'){const u=ME(),total=cart.reduce((a,c)=>a+c.price*c.qty,0);const s={id:uid(),d:biz(),ts:Date.now(),concept:cart.map(c=>c.name+' x'+c.qty).join(', '),amount:total,method:d.method,user:u.name,userId:u.id};S.sales.push(s);putDoc('sales',s);log(`Venta de contado por ${money(total)}`);toast('Venta registrada en caja');}
   else{const r=resById(d.dest);addFolio(r,cart.map(c=>entry('cargo',`${c.name} x${c.qty}`,c.price*c.qty)));log(`Cargó consumos a la hab. ${room(r.roomId).num}`);toast('Consumo cargado a la habitación '+room(r.roomId).num);}
   cart=[];render();},
+ transfer(d,f){const de=SH.users.find(u=>u.id===d.de),a=SH.users.find(u=>u.id===d.a);
+  if(!de||!a){formErr(f,'Escoge las dos cuentas.');return;}
+  if(de.id===a.id){formErr(f,'Son la misma cuenta. Escoge una vieja y una nueva.');return;}
+  confirmBox(`Vas a pasar todo el avance de <b>${esc(de.name)}</b> (${esc(de.user)}) a <b>${esc(a.name)}</b> (${esc(a.user)}). La cuenta vieja quedará desactivada y lo que tuviera la cuenta nueva se reemplaza.`,
+   ()=>{W(B.transferir(de.id,a.id,a.name,a.user)).then(r=>{de.active=false;
+     toast(r&&r.grades?'Avance transferido a '+a.name:'Listo, aunque esa cuenta no tenía actividades registradas');render();});},'Transferir',true);},
  async setpass(d,f){if(d.pass.length<6){formErr(f,'La contraseña nueva debe tener al menos 6 caracteres.');return;}busy(f);try{await B.changePass(d.old,d.pass);closeModal();toast('Contraseña actualizada');}catch(e){formErr(f,errMsg(e));}},
  hotel(d,f){if(!d.name.trim()){formErr(f,'El nombre es obligatorio.');return;}patchCfg({hotel:{name:d.name.trim(),nit:d.nit.trim(),city:d.city.trim(),ci:d.ci,co:d.co}});log('Actualizó los datos del hotel');render();toast('Datos guardados para todo el equipo');},
  rates(d,f){for(const t of C().types){if(!(+d['rate_'+t.code]>0)||!(+d['cap_'+t.code]>=1)){formErr(f,'Tarifas y capacidades deben ser mayores a cero.');return;}}
@@ -1301,6 +1337,621 @@ boot();
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 window.addEventListener('pagehide',flushPV);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPV();});
 })();
+
+<\/script>
+</body>
+</html>
+</script><script type="text/plain" id="app-clase-pms"><!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0A2E36">
+<title>Cómo funciona tu recepción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noche:#0A2E36;--mar:#12878F;--espuma:#8FD3D0;--cal:#FBF6EE;--arena:#F0E6D6;
+  --buganvilia:#C63A5E;--mostaza:#E8A33D;--tinta:#0E2226;--humo:#6B8085;
+  --ff-d:"Bricolage Grotesque",Georgia,serif;--ff-b:Manrope,system-ui,sans-serif;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--noche)}
+body{font-family:var(--ff-b);color:var(--tinta);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--mostaza);outline-offset:3px}
+
+#deck{height:100%;position:relative;overflow:hidden}
+.rail{position:absolute;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,.18);z-index:9}
+.rail i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mostaza),var(--espuma));transition:width .5s cubic-bezier(.22,1,.36,1)}
+.slide{position:absolute;inset:0;overflow:auto;display:none;padding:clamp(26px,5vh,64px) clamp(20px,6vw,88px) 104px}
+.slide.on{display:block}
+.slide.light{background:var(--cal);color:var(--tinta)}
+.slide.dark{background:radial-gradient(120% 100% at 80% 0%,#134651 0%,var(--noche) 60%);color:var(--cal)}
+.slide.sand{background:linear-gradient(180deg,var(--arena),#F7EFE2);color:var(--tinta)}
+.inner{max-width:1180px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
+
+/* tipografía */
+.eyebrow{font-family:var(--ff-b);font-weight:700;font-size:clamp(12px,1.4vw,15px);color:var(--buganvilia);margin:0 0 10px;letter-spacing:.01em}
+.dark .eyebrow{color:var(--mostaza)}
+h1{font-family:var(--ff-d);font-weight:800;font-size:clamp(34px,7vw,86px);line-height:.96;letter-spacing:-.03em;margin:0 0 18px}
+h2{font-family:var(--ff-d);font-weight:800;font-size:clamp(26px,4.6vw,54px);line-height:1.02;letter-spacing:-.025em;margin:0 0 18px;max-width:20ch}
+h3{font-family:var(--ff-d);font-weight:600;font-size:clamp(17px,2.1vw,24px);margin:0 0 4px;letter-spacing:-.01em}
+p{font-size:clamp(15px,1.75vw,21px);line-height:1.55;margin:0 0 14px;max-width:58ch}
+.lead{font-size:clamp(17px,2.2vw,27px);line-height:1.4;color:var(--humo);max-width:34ch}
+.dark .lead{color:var(--espuma)}
+.small{font-size:clamp(13px,1.4vw,16px);color:var(--humo)}
+.dark .small{color:#9FC4C6}
+
+/* entrada orquestada */
+.slide.on .anim{animation:rise .62s cubic-bezier(.22,1,.36,1) both}
+.slide.on .anim:nth-child(1){animation-delay:.02s}.slide.on .anim:nth-child(2){animation-delay:.1s}
+.slide.on .anim:nth-child(3){animation-delay:.18s}.slide.on .anim:nth-child(4){animation-delay:.26s}
+.slide.on .anim:nth-child(5){animation-delay:.34s}.slide.on .anim:nth-child(6){animation-delay:.42s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.stagger>*{opacity:0}
+.slide.on .stagger>*{animation:rise .55s cubic-bezier(.22,1,.36,1) both}
+.slide.on .stagger>*:nth-child(1){animation-delay:.18s}.slide.on .stagger>*:nth-child(2){animation-delay:.26s}
+.slide.on .stagger>*:nth-child(3){animation-delay:.34s}.slide.on .stagger>*:nth-child(4){animation-delay:.42s}
+.slide.on .stagger>*:nth-child(5){animation-delay:.5s}.slide.on .stagger>*:nth-child(6){animation-delay:.58s}
+.slide.on .stagger>*:nth-child(7){animation-delay:.66s}.slide.on .stagger>*:nth-child(8){animation-delay:.74s}
+
+/* portada */
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.65fr);gap:clamp(20px,4vw,56px);align-items:center}
+.hero h1{max-width:14ch}
+.datos{display:flex;flex-wrap:wrap;gap:8px 28px;font-weight:600;color:var(--espuma);font-size:clamp(13px,1.5vw,18px);margin-top:6px}
+.llavero{position:relative;height:clamp(180px,32vh,340px);display:grid;place-items:start center}
+.llavero svg{width:clamp(120px,16vw,190px);transform-origin:50% 6%;animation:swing 5.5s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+
+/* tablero de llaves */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.hook{position:relative;text-align:left;background:var(--cal);border:1px solid rgba(14,34,38,.12);border-radius:4px 4px 16px 16px;padding:18px 20px 20px;box-shadow:0 10px 24px rgba(10,46,54,.07);transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s}
+.dark .hook{background:rgba(251,246,238,.06);border-color:rgba(143,211,208,.22);color:var(--cal);box-shadow:none}
+.hook::before{content:"";position:absolute;top:-9px;left:24px;width:14px;height:14px;border-radius:50%;background:var(--mostaza);box-shadow:0 0 0 3px var(--cal)}
+.dark .hook::before{box-shadow:0 0 0 3px var(--noche)}
+.hook:hover,.hook:focus-visible{transform:translateY(-4px) rotate(-.6deg);box-shadow:0 16px 30px rgba(10,46,54,.12)}
+.hook p{font-size:clamp(13px,1.5vw,17px);color:var(--humo);margin:0;max-width:34ch}
+.dark .hook p{color:#A9CBCC}
+.hook .reveal{display:none;margin-top:10px;font-weight:700;color:var(--buganvilia)}
+.dark .hook .reveal{color:var(--mostaza)}
+.hook.open .reveal{display:block;animation:rise .35s ease both}
+.hook.open .pista{display:none}
+.pista{margin-top:12px;font-size:13px;font-weight:700;color:var(--mar)}
+.dark .pista{color:var(--espuma)}
+
+/* cronograma */
+.agenda{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))}
+.fila{display:grid;grid-template-columns:118px 1fr;gap:4px 16px;align-items:center;padding:12px 16px;background:var(--cal);border-left:6px solid var(--mar);border-radius:0 12px 12px 0;text-align:left;width:100%}
+.fila.v{border-left-color:var(--buganvilia);background:#FDF7F4}
+.fila .cuando{font-family:var(--ff-d);font-weight:600;font-size:clamp(15px,1.7vw,20px)}
+.fila .que{font-weight:700;font-size:clamp(14px,1.6vw,19px)}
+.fila .det{display:block;font-weight:500;color:var(--humo);font-size:clamp(12px,1.4vw,15px);max-height:0;overflow:hidden;transition:max-height .3s ease}
+.fila.abierta .det{max-height:60px}
+.modo{font-size:12px;font-weight:700;color:var(--mar)}
+.fila.v .modo{color:var(--buganvilia)}
+
+/* árbol y comparación */
+.arbol{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0E3A43;color:var(--espuma);border-radius:14px;padding:clamp(16px,2.5vw,26px);font-size:clamp(12px,1.5vw,17px);line-height:1.85;box-shadow:inset 0 0 0 1px rgba(143,211,208,.18)}
+.arbol b{color:var(--mostaza);font-weight:700}
+.slide.on .arbol span{animation:linea .4s ease both}
+.arbol span{display:block;opacity:0}
+.slide.on .arbol span:nth-child(1){animation-delay:.3s}.slide.on .arbol span:nth-child(2){animation-delay:.45s}
+.slide.on .arbol span:nth-child(3){animation-delay:.6s}.slide.on .arbol span:nth-child(4){animation-delay:.75s}
+.slide.on .arbol span:nth-child(5){animation-delay:.9s}.slide.on .arbol span:nth-child(6){animation-delay:1.05s}
+@keyframes linea{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;margin-top:6px}
+.mal,.bien{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(12px,1.5vw,16px);padding:14px 16px;border-radius:12px}
+.mal{background:#FBE9EC;border:1px solid #EFC3CC;text-decoration:line-through;color:#93304A}
+.bien{background:#E7F5F1;border:1px solid #B8DFD5;color:#14655A}
+
+/* lista con chulos */
+.checks{display:grid;gap:10px;max-width:60ch}
+.check{display:flex;gap:14px;align-items:flex-start;text-align:left;padding:12px 16px;border-radius:12px;background:rgba(18,135,143,.07);font-size:clamp(14px,1.7vw,19px);width:100%}
+.dark .check{background:rgba(251,246,238,.07)}
+.caja{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--mar);display:grid;place-items:center;color:transparent;font-weight:800;transition:background .2s,color .2s,transform .2s}
+.check.hecho .caja{background:var(--mar);color:#fff;transform:rotate(-6deg) scale(1.05)}
+.dark .caja{border-color:var(--espuma)}
+.dark .check.hecho .caja{background:var(--espuma);color:var(--noche)}
+
+/* pregunta inicial */
+.opciones{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+.opciones button{background:var(--cal);border:2px solid rgba(14,34,38,.15);border-radius:14px;padding:14px 20px;font-weight:700;font-size:clamp(14px,1.6vw,19px);transition:transform .2s,border-color .2s}
+.dark .opciones button{background:rgba(251,246,238,.08);border-color:rgba(143,211,208,.3);color:var(--cal)}
+.opciones button:hover{transform:translateY(-3px)}
+.opciones.resuelta button{opacity:.45}
+.opciones.resuelta button.buena{opacity:1;border-color:var(--mostaza);box-shadow:0 0 0 4px rgba(232,163,61,.25)}
+.sello{display:none;margin-top:18px;border:3px solid var(--buganvilia);color:var(--buganvilia);border-radius:14px;padding:14px 20px;font-family:var(--ff-d);font-weight:800;font-size:clamp(17px,2.4vw,28px);max-width:26ch;transform:rotate(-2deg)}
+.sello.puesto{display:block;animation:sellar .45s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes sellar{from{opacity:0;transform:rotate(-2deg) scale(1.5)}}
+
+/* cifras */
+.cifras{display:flex;gap:clamp(20px,5vw,64px);flex-wrap:wrap;margin-top:10px}
+.cifra b{display:block;font-family:var(--ff-d);font-weight:800;font-size:clamp(34px,6vw,72px);line-height:1;color:var(--mostaza)}
+.cifra span{font-size:clamp(13px,1.4vw,16px);color:var(--espuma)}
+
+/* navegación */
+.nav{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:14px clamp(18px,5vw,48px) calc(14px + env(safe-area-inset-bottom,0px));z-index:8}
+.nav button{padding:10px 16px;border-radius:12px;font-weight:700;background:rgba(251,246,238,.92);color:var(--tinta);box-shadow:0 6px 18px rgba(10,46,54,.14)}
+.slide.dark~.nav button{background:rgba(251,246,238,.92)}
+.nav button:hover{background:#fff}
+.tag{margin-left:auto;font-family:var(--ff-d);font-weight:600;background:var(--mostaza);color:var(--noche);padding:8px 14px;border-radius:99px;font-size:14px}
+
+/* control remoto */
+.fab{position:absolute;top:14px;right:14px;z-index:20;background:rgba(251,246,238,.92);border-radius:12px;padding:8px 13px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(10,46,54,.18)}
+.panel{position:fixed;inset:0;background:rgba(10,46,54,.72);display:grid;place-items:center;padding:18px;z-index:40}
+.panel .pcaja{background:var(--cal);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:92vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.panel h3{font-size:21px;margin-bottom:6px}
+.panel p{font-size:14px;margin-bottom:4px}
+.panel label{display:block;font-size:12px;font-weight:700;color:var(--humo);margin:12px 0 4px}
+.panel input{width:100%;padding:11px 13px;border:1px solid rgba(14,34,38,.18);border-radius:10px;font:inherit;background:#fff}
+.panel .btn{display:block;width:100%;margin-top:12px;background:var(--mar);color:#fff;border-radius:12px;padding:13px;font-weight:800}
+.panel .btn.sec{background:var(--cal);color:var(--tinta);border:1px solid rgba(14,34,38,.18)}
+.panel .cerrar{margin-top:10px;font-size:13px;color:var(--humo);text-decoration:underline}
+.panel .err{color:var(--buganvilia);font-weight:700;font-size:13px;min-height:1em;margin-top:8px}
+.dotp{position:fixed;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF6B6B,#C1121F);box-shadow:0 0 18px 6px rgba(214,51,108,.45);pointer-events:none;z-index:30;transform:translate(-50%,-50%);display:none}
+.dotp.on{display:block}
+#mando{position:fixed;inset:0;background:var(--noche);color:var(--cal);z-index:50;display:none;flex-direction:column;padding:16px calc(16px + env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px))}
+#mando.on{display:flex}
+#mando .ahora{background:rgba(251,246,238,.08);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+#mando .ahora small{color:var(--espuma);font-weight:700;font-size:12px}
+#mando .ahora b{display:block;font-family:var(--ff-d);font-size:20px;line-height:1.2;margin-top:4px}
+#mando .pad{flex:1;border-radius:18px;border:2px dashed rgba(143,211,208,.4);display:grid;place-items:center;color:#9FC4C6;font-weight:700;text-align:center;padding:16px;touch-action:none;margin-bottom:12px}
+#mando .pad.activo{border-style:solid;border-color:var(--mostaza);color:var(--mostaza)}
+#mando .fila2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#mando button{background:var(--mar);color:#fff;border-radius:14px;padding:18px;font-weight:800;font-size:17px}
+#mando button.sec{background:rgba(251,246,238,.12);color:var(--cal)}
+#mando .cont{text-align:center;color:#9FC4C6;font-size:13px;margin-top:10px}
+@media (max-width:680px){
+ .hero{grid-template-columns:1fr}.llavero{display:none}
+ .fila{grid-template-columns:1fr;gap:4px}
+ .fila .modo{grid-column:1!important}
+ .slide{padding-bottom:120px}
+ .nav{flex-wrap:wrap;gap:8px;background:linear-gradient(transparent,rgba(10,46,54,.25));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+ .nav button{padding:9px 13px;font-size:14px}
+ #fs{display:none}
+ .tag{margin-left:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stagger>*,.arbol span{opacity:1}}
+/* componentes de la clase de formatos */
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.exts{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.ext{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(14px,1.8vw,19px);font-weight:700;background:var(--cal);border:2px solid rgba(14,34,38,.15);border-radius:12px;padding:12px 16px;transition:transform .18s,border-color .18s,background .18s}
+.dark .ext{background:rgba(251,246,238,.08);border-color:rgba(143,211,208,.3);color:var(--cal)}
+.ext:hover{transform:translateY(-3px)}
+.ext.sel{border-color:var(--mostaza);background:#FFF6E6;box-shadow:0 0 0 4px rgba(232,163,61,.25)}
+.respuesta{font-weight:700;color:var(--mar);min-height:1.6em;font-size:clamp(14px,1.7vw,20px)}
+.dark .respuesta{color:var(--mostaza)}
+.demo{background:var(--cal);border:1px solid rgba(14,34,38,.12);border-radius:16px;padding:18px;box-shadow:0 10px 24px rgba(10,46,54,.06)}
+.dark .demo{background:rgba(251,246,238,.06);border-color:rgba(143,211,208,.22)}
+.hoja{background:#fff;border:1px solid rgba(14,34,38,.15);border-radius:10px;padding:16px;font-size:clamp(14px,1.6vw,18px);line-height:1.7;transition:background .4s,color .4s,box-shadow .4s}
+.hoja.pdf{background:#233B41;color:var(--cal);box-shadow:inset 0 0 0 3px var(--mostaza)}
+.editable{border-bottom:2px dashed var(--buganvilia);padding:0 4px;font-weight:700;cursor:text}
+.hoja.pdf .editable{border-bottom:0;cursor:not-allowed;opacity:.9}
+.bt{margin-top:12px;background:var(--mar);color:#fff;border-radius:12px;padding:12px 20px;font-weight:800;font-size:clamp(14px,1.6vw,17px)}
+.bt:hover{filter:brightness(1.08)}
+.crudo{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(11px,1.4vw,15px);background:#0E3A43;color:var(--espuma);border-radius:12px;padding:14px;overflow:auto;margin:0}
+.tablaDemo{display:none;margin-top:12px;overflow:auto}
+.tablaDemo.on{display:block;animation:rise .5s ease both}
+.tablaDemo table{border-collapse:collapse;width:100%;font-size:clamp(12px,1.5vw,16px);background:#fff}
+.tablaDemo th{background:#134651;color:var(--cal);text-align:left;padding:8px 10px;font-weight:700}
+.tablaDemo td{border-bottom:1px solid rgba(14,34,38,.12);padding:8px 10px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 14px}
+.chip{background:var(--cal);border:2px solid rgba(14,34,38,.15);border-radius:12px;padding:12px 15px;font-weight:600;font-size:clamp(13px,1.6vw,17px);cursor:grab;text-align:left}
+.dark .chip{background:rgba(251,246,238,.08);border-color:rgba(143,211,208,.3);color:var(--cal)}
+.chip.sel{border-color:var(--mostaza);box-shadow:0 0 0 4px rgba(232,163,61,.25)}
+.chip.bien{border-color:#1F9D5B;background:#E9F7F0;opacity:.75}
+.chip.mal{border-color:#C63A5E;background:#FBE9EC;animation:tembla .3s}
+@keyframes tembla{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.cajas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,45%),1fr));gap:12px}
+.cajas.grid5{grid-template-columns:repeat(auto-fit,minmax(min(140px,45%),1fr))}
+.caja2{border:2px dashed rgba(14,34,38,.25);border-radius:14px;padding:16px;text-align:center;font-family:ui-monospace,Menlo,Consolas,monospace;min-height:84px;transition:background .2s,border-color .2s}
+.dark .caja2{border-color:rgba(143,211,208,.35)}
+.caja2.lista{border-color:var(--mostaza);background:rgba(232,163,61,.12)}
+.caja2 b{display:block;font-size:clamp(14px,1.7vw,19px)}
+.caja2 .cnt{font-family:var(--ff-b);font-size:12px;color:var(--humo)}
+.tabla{display:grid;gap:4px;margin-top:6px}
+.tr{display:grid;grid-template-columns:1.4fr .5fr 1fr;gap:12px;padding:11px 14px;background:var(--cal);border-radius:10px;font-size:clamp(13px,1.6vw,18px)}
+.tr.th{background:var(--noche);color:var(--cal);font-weight:700}
+.tr b{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--buganvilia)}
+.anatomia{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0;font-family:ui-monospace,Menlo,Consolas,monospace}
+.parte{background:var(--cal);border:2px solid rgba(14,34,38,.15);border-radius:12px;padding:12px 14px;text-align:center}
+.parte span{display:block;font-size:clamp(15px,2vw,22px);font-weight:700}
+.parte small{font-family:var(--ff-b);color:var(--humo);font-size:12px;font-weight:700}
+.parte.sel{border-color:var(--mostaza);background:#FFF6E6}
+.sep{font-size:clamp(18px,2.4vw,26px);font-weight:800;color:var(--humo)}
+.lista{list-style:none;padding:0;margin:8px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(11px,1.4vw,15px)}
+.lista li{background:rgba(251,246,238,.08);border-radius:8px;padding:7px 10px;margin-bottom:6px;transition:transform .4s}
+.entrada{width:100%;max-width:640px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(14px,1.7vw,18px);padding:14px;border-radius:12px;border:2px solid rgba(14,34,38,.2);background:#fff;margin:12px 0}
+.entrada:focus{outline:none;border-color:var(--mar)}
+.checklist{display:grid;gap:8px;max-width:640px}
+.checklist div{padding:10px 14px;border-radius:10px;background:rgba(14,34,38,.06);font-size:clamp(13px,1.6vw,17px);position:relative;padding-left:40px}
+.checklist div::before{content:"○";position:absolute;left:14px;font-weight:800;color:var(--humo)}
+.checklist div.ok{background:#E9F7F0;color:#14655A}
+.checklist div.ok::before{content:"✓";color:#1F9D5B}
+
+.casos{display:grid;gap:8px;margin:8px 0 12px}
+.caso{position:relative;display:block;text-align:left;background:var(--cal);border:1px solid rgba(14,34,38,.12);border-left:6px solid var(--mar);border-radius:0 12px 12px 0;padding:10px 54px 10px 16px}
+.dark .caso{background:rgba(251,246,238,.07);color:var(--cal);border-color:rgba(143,211,208,.22);border-left-color:var(--espuma)}
+.caso .q{display:block;font-weight:700;font-size:clamp(14px,1.7vw,19px)}
+.caso .a{display:none;font-size:clamp(13px,1.5vw,17px);color:var(--humo);margin-top:2px}
+.dark .caso .a{color:#A9CBCC}
+.caso .a b{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--buganvilia)}
+.caso::after{content:"Tocar";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:var(--mar)}
+.caso.open{border-left-color:var(--mostaza)}
+.caso.open .a{display:block;animation:rise .3s ease both}
+.caso.open::after{content:"✓";color:var(--mostaza);font-size:18px}
+.msg{border-radius:14px;padding:14px 16px;font-size:clamp(13px,1.6vw,18px);line-height:1.55}
+.mal2{background:#FBE9EC;border:1px solid #EFC3CC;color:#93304A}
+.bien2{background:#E7F5F1;border:1px solid #B8DFD5;color:#14655A}
+.fab{top:auto;bottom:16px;right:16px;padding:14px 20px;font-size:16px;border-radius:14px;background:var(--mostaza);color:var(--noche);box-shadow:0 10px 26px rgba(10,46,54,.3)}
+#mando .ahora b{font-size:24px}#mando .ahora small{font-size:13px}#mando button{padding:22px;font-size:19px}#mando .pad{font-size:16px}
+
+.panel{position:fixed;inset:0;background:rgba(10,46,54,.82);display:grid;place-items:center;padding:16px;z-index:40;overflow:auto}
+.panel .pcaja{background:var(--cal);color:var(--tinta);border-radius:20px;padding:22px 20px;width:min(440px,100%);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.panel h3{font-family:var(--ff-d);font-size:24px;margin:0 0 8px}
+.panel p{font-size:15px;color:var(--humo);margin:0 0 6px;max-width:none}
+.panel label{display:block;font-size:14px;font-weight:700;color:var(--humo);margin:14px 0 6px}
+.panel input{width:100%;padding:15px 14px;border:2px solid rgba(14,34,38,.18);border-radius:12px;background:#fff;font-family:var(--ff-b);font-size:17px}
+.panel .btn{display:block;width:100%;margin-top:12px;background:var(--mar);color:#fff;border-radius:14px;padding:16px;font-weight:800;font-size:17px}
+.panel .btn.sec{background:var(--cal);color:var(--tinta);border:2px solid rgba(14,34,38,.18)}
+.panel .cerrar{display:block;width:100%;margin-top:12px;font-size:15px;color:var(--humo);text-decoration:underline;padding:8px}
+.panel .err{color:var(--buganvilia);font-weight:700;font-size:15px;min-height:1em;margin-top:10px}
+
+.casos{display:grid;gap:8px;margin:8px 0 12px}
+.caso{position:relative;display:block;text-align:left;background:var(--cal);border:1px solid rgba(14,34,38,.12);border-left:6px solid var(--mar);border-radius:0 12px 12px 0;padding:10px 54px 10px 16px}
+.dark .caso{background:rgba(251,246,238,.07);color:var(--cal);border-color:rgba(143,211,208,.22);border-left-color:var(--espuma)}
+.caso .q{display:block;font-weight:700;font-size:clamp(14px,1.7vw,19px)}
+.caso .a{display:none;font-size:clamp(13px,1.5vw,17px);color:var(--humo);margin-top:2px}
+.dark .caso .a{color:#A9CBCC}
+.caso .a b{color:var(--buganvilia)}
+.dark .caso .a b{color:var(--mostaza)}
+.caso::after{content:"Tocar";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:var(--mar)}
+.dark .caso::after{color:var(--espuma)}
+.caso.open{border-left-color:var(--mostaza)}
+.caso.open .a{display:block;animation:rise .3s ease both}
+.caso.open::after{content:"✓";color:var(--mostaza);font-size:18px}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+</style>
+</head>
+<body>
+<div id="deck">
+<div class="rail"><i id="prog"></i></div>
+<section class="slide dark">
+ <div class="inner hero">
+  <div>
+   <p class="eyebrow anim">Módulo TIC · Sistema de recepción</p>
+   <h1 class="anim">Cómo funciona tu recepción</h1>
+   <p class="lead anim">Recorrido por el simulador del Hotel San Buenaventura</p>
+   <p class="small anim" style="margin-top:20px">Tenlo abierto en otra pestaña: vamos a ir tocando mientras explico.</p>
+  </div>
+  <div class="llavero anim">
+   <svg viewBox="0 0 120 220" aria-hidden="true">
+    <line x1="60" y1="0" x2="60" y2="52" stroke="#8FD3D0" stroke-width="3"/>
+    <circle cx="60" cy="58" r="10" fill="none" stroke="#E8A33D" stroke-width="4"/>
+    <rect x="22" y="70" width="76" height="104" rx="12" fill="#E8A33D"/>
+    <text x="60" y="128" text-anchor="middle" font-size="40" fill="#0A2E36">🛎</text>
+   </svg>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Lo primero</p>
+  <h2 class="anim">Tres hoteles distintos, no uno</h2>
+  <p class="anim">Arriba de todo hay tres botones. Según cuál esté en blanco, estás en un hotel diferente. Esto es lo que más confunde al principio.</p>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Hotel del grupo</span><span class="a">El hotel de todos. Lo que haces lo ven tus compañeros al instante, y queda con tu nombre en la actividad. Aquí trabajamos en clase.</span></button>
+   <button class="caso"><span class="q">Mis retos</span><span class="a">Tu hotel privado, con tus propios huéspedes. Lo que haces aquí <b>se califica solo</b>. Las preguntas de los retos son sobre ESTE hotel, no sobre el del grupo.</span></button>
+   <button class="caso"><span class="q">Zona libre</span><span class="a">Otro hotel tuyo, aparte, para practicar y equivocarte. No tiene nota y lo puedes reiniciar cuando quieras. Empieza por aquí.</span></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Concepto clave 1</p>
+  <h2 class="anim">El hotel tiene su propia fecha</h2>
+  <p class="anim">Arriba a la izquierda no dice la fecha de tu celular: dice la <b>fecha del hotel</b>. Esa fecha no cambia a la medianoche.</p>
+  <div class="cols2 stagger">
+   <div class="hook"><h3>¿Quién la cambia?</h3><p>El auditor nocturno, cuando cierra el día. Mientras no cierre, el hotel sigue en la fecha anterior aunque ya sea de madrugada.</p></div>
+   <div class="hook"><h3>¿Por qué es así?</h3><p>Porque el turno de la noche sigue cobrando y registrando después de las 12. Todo eso pertenece al día que todavía no se ha cerrado.</p></div>
+  </div>
+  <p class="small anim" style="margin-top:14px">En un hotel real pasa igual: el día se cierra cuando el auditor dice, no cuando lo dice el reloj.</p>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Sección por sección</p>
+  <h2 class="anim">Hoy: el resumen de tu turno</h2>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Las cifras de arriba</span><span class="a">Llegadas pendientes, salidas pendientes, habitaciones en casa, ocupación de la noche y cuántas están por limpiar. Es lo primero que miras al entrar al turno.</span></button>
+   <button class="caso"><span class="q">Llegadas pendientes</span><span class="a">Los que deben llegar hoy. El botón de Check-in está ahí mismo.</span></button>
+   <button class="caso"><span class="q">Salidas pendientes</span><span class="a">Los que se van hoy. Si tienen saldo, sale el punto rojo.</span></button>
+   <button class="caso"><span class="q">Actividad del equipo</span><span class="a">Quién hizo qué y a qué hora. En el hotel del grupo aparecen todos tus compañeros.</span></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Sección por sección</p>
+  <h2 class="anim">Rack: el mapa del hotel</h2>
+  <p class="anim">Filas son habitaciones, columnas son días. Cada barra es una reserva.</p>
+  <div class="board stagger">
+   <div class="hook"><h3>Azul</h3><p>Pendiente de check-in</p></div>
+   <div class="hook"><h3>Verde</h3><p>Está en casa ahora mismo</p></div>
+   <div class="hook"><h3>Gris</h3><p>Ya hizo check-out</p></div>
+   <div class="hook"><h3>Punto rojo</h3><p>Tiene saldo pendiente</p></div>
+   <div class="hook"><h3>Borde naranja punteado</h3><p>En casa sin tarjeta de registro completa</p></div>
+   <div class="hook"><h3>Celdas rayadas</h3><p>Habitación bloqueada por mantenimiento</p></div>
+  </div>
+  <p class="small anim" style="margin-top:16px">Tocando una casilla vacía creas una reserva en esa habitación y ese día. Tocando una barra abres la reserva.</p>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Sección por sección</p>
+  <h2 class="anim">Reservas, Huéspedes y Housekeeping</h2>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Reservas</span><span class="a">La lista completa, con buscador y filtros por estado. Sirve cuando el huésped te da el código o el apellido y no quieres buscarlo en el rack.</span></button>
+   <button class="caso"><span class="q">Huéspedes</span><span class="a">La base de datos de personas. Aquí ves quién tiene el registro completo y quién no, y exportas el reporte a Excel.</span></button>
+   <button class="caso"><span class="q">Housekeeping</span><span class="a">El estado de cada habitación: limpia, sucia o bloqueada. <b>Una habitación sucia no se puede asignar en el check-in.</b> Primero la pasas a limpia.</span></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Concepto clave 2</p>
+  <h2 class="anim">El folio: la cuenta del huésped</h2>
+  <p class="anim">Cada reserva tiene su folio, que es la cuenta donde se anota todo lo que debe y todo lo que paga.</p>
+  <div class="cols2 stagger">
+   <div class="hook"><h3>Cargos</h3><p>Lo que suma: el alojamiento de cada noche y los consumos</p></div>
+   <div class="hook"><h3>Pagos</h3><p>Lo que resta: anticipos, abonos y el pago final</p></div>
+   <div class="hook"><h3>Saldo a la fecha</h3><p>Lo que debe hoy. Es lo que tienes que cobrar para dejarlo salir</p></div>
+   <div class="hook"><h3>Saldo de la estadía</h3><p>Lo que va a deber al final, contando las noches que faltan</p></div>
+  </div>
+  <p class="small anim" style="margin-top:14px">Un cargo nunca se borra: se anula, y queda el rastro de los dos movimientos. Así funciona en cualquier hotel.</p>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Concepto clave 3</p>
+  <h2 class="anim">El alojamiento se cobra noche por noche</h2>
+  <p class="anim">Cuando haces el check-in <b>no</b> se carga toda la estadía de una vez. Cada noche, al correr la auditoría, se le carga esa noche al folio.</p>
+  <div class="cols2 stagger">
+   <div class="hook"><h3>Por qué</h3><p>Porque si el huésped se va antes, solo paga lo que durmió. Y si extiende, se le sigue cargando solo.</p></div>
+   <div class="hook"><h3>Qué ves tú</h3><p>El saldo va creciendo cada día. Por eso un huésped de cinco noches debe más el jueves que el lunes.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">El corazón del trabajo</p>
+  <h2 class="anim">Un turno completo, en seis pasos</h2>
+  <div class="checks stagger">
+   <div class="check"><span class="caja">1</span><span>Llega el huésped. En Hoy, lo buscas en Llegadas pendientes y tocas <b>Check-in</b></span></div>
+   <div class="check"><span class="caja">2</span><span>Llenas la tarjeta de registro completa y confirmas la habitación, que debe estar limpia</span></div>
+   <div class="check"><span class="caja">3</span><span>Durante la estadía le cargas consumos desde <b>Punto de venta</b> o desde su reserva</span></div>
+   <div class="check"><span class="caja">4</span><span>Recibes pagos con <b>Registrar pago</b>, escogiendo el medio</span></div>
+   <div class="check"><span class="caja">5</span><span>El día que sale: revisas el folio, cobras el saldo y haces <b>Check-out</b></span></div>
+   <div class="check"><span class="caja">6</span><span>La habitación queda sucia automáticamente, lista para housekeeping</span></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Sección por sección</p>
+  <h2 class="anim">Punto de venta y Caja</h2>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Punto de venta</span><span class="a">Los productos del hotel. Escoges, armas la cuenta y decides: cargarlo a una habitación o cobrarlo de contado si no es huésped.</span></button>
+   <button class="caso"><span class="q">Cargo libre</span><span class="a">Si lo que vendiste no está en la lista, lo escribes a mano con su valor. Sirve para una caipirinha especial o un servicio que no se repite.</span></button>
+   <button class="caso"><span class="q">Caja</span><span class="a">Todo lo que TÚ recibiste en tu turno, separado por medio de pago. Cada quien ve lo suyo.</span></button>
+   <button class="caso"><span class="q">Cerrar turno</span><span class="a">Cuentas el efectivo, comparas con lo que dice el sistema y cierras. Queda registrado con tu nombre, la hora y el total.</span></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Sección por sección</p>
+  <h2 class="anim">Auditoría nocturna: cerrar el día</h2>
+  <p class="anim">Es la revisión del turno de la noche. El sistema no deja cerrar si hay cosas sin resolver.</p>
+  <div class="cols2 stagger">
+   <div class="hook"><h3>Bloquean el cierre</h3><p>Llegadas sin check-in ni no show, salidas sin check-out, registros incompletos y tarifas fuera de rango</p></div>
+   <div class="hook"><h3>Solo avisan</h3><p>Folios con saldo, habitaciones sucias y cajas sin cerrar</p></div>
+   <div class="hook"><h3>Al cerrar</h3><p>Se carga la noche a cada habitación ocupada y la fecha del hotel pasa al día siguiente</p></div>
+   <div class="hook"><h3>El reporte</h3><p>Ocupación, ADR, RevPAR, ingresos y recaudo por medio de pago</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Tres palabras de gerencia</p>
+  <h2 class="anim">Ocupación, ADR y RevPAR</h2>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Ocupación</span><span class="a">Qué porcentaje del hotel está vendido. Habitaciones ocupadas dividido entre habitaciones disponibles.</span></button>
+   <button class="caso"><span class="q">ADR</span><span class="a">La tarifa promedio de lo que se vendió. Ingreso de habitaciones dividido entre habitaciones vendidas.</span></button>
+   <button class="caso"><span class="q">RevPAR</span><span class="a">Cuánto produce cada habitación del hotel, vendida o no. Ingreso de habitaciones dividido entre habitaciones disponibles. Es el número que mira el dueño.</span></button>
+  </div>
+  <p class="small anim">Si sabes explicar estas tres en una entrevista, ya estás por encima de la mayoría.</p>
+ </div>
+</section>
+
+<section class="slide sand">
+ <div class="inner">
+  <p class="eyebrow anim">Lo que no se adivina</p>
+  <h2 class="anim">Cinco cosas que el sistema no te deja hacer</h2>
+  <div class="checks stagger">
+   <div class="check"><span class="caja">✕</span><span>Hacer check-in en una habitación sucia o bloqueada</span></div>
+   <div class="check"><span class="caja">✕</span><span>Hacer check-out con saldo pendiente</span></div>
+   <div class="check"><span class="caja">✕</span><span>Hacer check-in sin la tarjeta de registro completa</span></div>
+   <div class="check"><span class="caja">✕</span><span>Borrar un cargo: solo se puede anular, con motivo</span></div>
+   <div class="check"><span class="caja">✕</span><span>Cerrar el día con pendientes sin resolver</span></div>
+  </div>
+  <p class="small anim" style="margin-top:12px">No son fallas del programa: son los controles que tiene un PMS de verdad para que la plata y los datos cuadren.</p>
+ </div>
+</section>
+
+<section class="slide light">
+ <div class="inner">
+  <p class="eyebrow anim">Para ti</p>
+  <h2 class="anim">Mis retos y el Tablero</h2>
+  <div class="casos stagger">
+   <button class="caso"><span class="q">Mis retos</span><span class="a">Siete retos con tareas que el sistema revisa solo: se ponen en verde cuando de verdad las hiciste bien. También hay preguntas escritas que califica el profesor.</span></button>
+   <button class="caso"><span class="q">Están todos abiertos</span><span class="a">Puedes adelantar hasta donde quieras. Si te enredas, vuelve a la Zona libre y practica ahí.</span></button>
+   <button class="caso"><span class="q">Tablero de notas</span><span class="a">Tu avance en cada actividad, tu nota hasta el momento y lo que te falta por entregar.</span></button>
+  </div>
+ </div>
+</section>
+
+<section class="slide dark">
+ <div class="inner">
+  <p class="eyebrow anim">Ahora ustedes</p>
+  <h2 class="anim">Primer turno en la Zona libre</h2>
+  <div class="checks stagger">
+   <div class="check"><span class="caja">1</span><span>Entra a Zona libre y mira el rack: identifica un azul, un verde y un gris</span></div>
+   <div class="check"><span class="caja">2</span><span>Haz el check-in de alguien que llega hoy, con la tarjeta completa</span></div>
+   <div class="check"><span class="caja">3</span><span>Cárgale dos consumos desde el Punto de venta</span></div>
+   <div class="check"><span class="caja">4</span><span>Cóbrale y hazle el check-out</span></div>
+   <div class="check"><span class="caja">5</span><span>Cierra tu caja y corre la auditoría nocturna</span></div>
+  </div>
+  <p class="lead anim" style="margin-top:20px;color:var(--mostaza)">Si te equivocas, no pasa nada: para eso es la Zona libre.</p>
+ </div>
+</section>
+<button class="fab" id="abrir">📱 Control remoto</button>
+<div class="dotp" id="puntero"></div>
+<div class="nav">
+ <button data-go="-1">Atrás</button><button data-go="1">Siguiente</button>
+ <button id="fs">Pantalla completa</button><span class="tag" id="tag">1 / 1</span>
+</div>
+</div>
+<div id="mando">
+ <div class="ahora"><small>En pantalla</small><b id="m-ahora">—</b></div>
+ <div class="ahora" style="background:rgba(251,246,238,.05)"><small>Sigue</small><b id="m-sigue" style="font-size:16px">—</b></div>
+ <div class="pad" id="pad">Desliza aquí para mover el puntero<br><span style="font-weight:500;font-size:13px">Levanta el dedo y se apaga</span></div>
+ <div class="fila2"><button class="sec" id="m-atras">Atrás</button><button id="m-sig">Siguiente</button></div>
+ <div class="cont"><span id="m-cont">—</span> · <button style="background:none;padding:6px;color:#9FC4C6;font-size:13px;text-decoration:underline" id="m-salir">Salir del control</button></div>
+</div>
+<script>
+
+
+(function(){
+ const slides=[...document.querySelectorAll('.slide')];let i=0;
+ function go(n){i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,k)=>{s.classList.toggle('on',k===i);if(k===i)s.scrollTop=0;});
+  document.getElementById('prog').style.width=((i+1)/slides.length*100)+'%';
+  document.getElementById('tag').textContent=(i+1)+' / '+slides.length;
+  window.dispatchEvent(new CustomEvent('deck:go',{detail:i}));}
+ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(i+ +b.dataset.go));
+ document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(i+1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(i-1);}
+  if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);});
+ let x0=null,y0=null;
+ document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+ document.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy))go(i+(dx<0?1:-1));x0=null;},{passive:true});
+ document.addEventListener('click',e=>{
+  const h=e.target.closest('.hook');if(h&&h.querySelector('.reveal'))h.classList.toggle('open');
+  const c=e.target.closest('.check');if(c&&c.tagName==='BUTTON')c.classList.toggle('hecho');
+  const f=e.target.closest('.fila');if(f)f.classList.toggle('abierta');
+  const o=e.target.closest('#op button');if(o){const box=document.getElementById('op');box.classList.add('resuelta');
+   [...box.children].forEach(b=>b.classList.toggle('buena',b.dataset.ok==='1'));
+   document.getElementById('sello').classList.add('puesto');}});
+ document.getElementById('fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});};
+ go(0);
+ window.deckGo=go;
+})();
+
+
+
+
+(function(){document.addEventListener('click',function(e){var c=e.target.closest('.caso');if(c)c.classList.toggle('open');});})();
+/* ---------- Control remoto por Firebase ---------- */
+(function(){
+ const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF2asULlXoNiRFhGn-aqWjyNUBHBG_XhQ",
+  authDomain: "sanbuenaventurahostel.firebaseapp.com",
+  projectId: "sanbuenaventurahostel",
+  storageBucket: "sanbuenaventurahostel.firebasestorage.app",
+  messagingSenderId: "278880962197",
+  appId: "1:278880962197:web:17a03c1cef0b603a727d9c"
+};
+ const DOM='sbhb.app', DOC='deck';
+ const $=s=>document.querySelector(s);
+ const slides=[...document.querySelectorAll('.slide')];
+ const titulo=s=>{const h=s.querySelector('h1,h2');return h?h.textContent.trim():'Diapositiva';};
+ let fb=null,rol=null,ultima=0,idx=0;
+ const puntero=$('#puntero');
+ window.addEventListener('deck:go',e=>{idx=e.detail;if(rol==='control')pinta();if(rol==='pantalla')return;});
+ function pinta(){$('#m-ahora').textContent=titulo(slides[idx]);$('#m-sigue').textContent=slides[idx+1]?titulo(slides[idx+1]):'Fin de la presentación';$('#m-cont').textContent=(idx+1)+' de '+slides.length;}
+ async function conectar(user,pass){
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const [A,AU,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=A.initializeApp(FIREBASE_CONFIG),auth=AU.getAuth(app),db=F.getFirestore(app);
+  await AU.signInWithEmailAndPassword(auth,user+'@'+DOM,pass);
+  fb={F,db,ref:F.doc(db,'control',DOC)};
+ }
+ function escuchar(){fb.F.onSnapshot(fb.ref,s=>{if(!s.exists())return;const d=s.data();
+   if(typeof d.slide==='number'&&d.slide!==idx)window.deckGo(d.slide);
+   if(d.pointer){puntero.classList.add('on');puntero.style.left=(d.px*100)+'%';puntero.style.top=(d.py*100)+'%';}
+   else puntero.classList.remove('on');});}
+ function enviar(o){if(!fb)return;const ahora=Date.now();if(o.px!=null&&ahora-ultima<110)return;ultima=ahora;
+   fb.F.setDoc(fb.ref,Object.assign({ts:ahora},o),{merge:true}).catch(()=>{});}
+ function abrirPanel(){
+  const d=document.createElement('div');d.className='panel';
+  d.innerHTML=`<div class="pcaja"><h3>Control remoto</h3><p style="font-size:14px;color:var(--humo);max-width:none">Entra con tu usuario del sistema en el computador y en el celular. El celular manda y el computador obedece.</p>
+   <label>Usuario</label><input id="c-user" autocapitalize="none" value="admin">
+   <label>Contraseña</label><input id="c-pass" type="password">
+   <p class="err" id="c-err"></p>
+   <button class="btn" id="c-pantalla">Este equipo es la pantalla</button>
+   <button class="btn sec" id="c-mando">Este equipo es mi control</button>
+   <button class="cerrar" id="c-cerrar">Cancelar</button></div>`;
+  document.body.appendChild(d);
+  const cerrar=()=>d.remove();
+  d.querySelector('#c-cerrar').onclick=cerrar;
+  const entrar=async modo=>{
+   const u=d.querySelector('#c-user').value.trim().toLowerCase(),p=d.querySelector('#c-pass').value;
+   const err=d.querySelector('#c-err');err.textContent='Conectando…';
+   if(!FIREBASE_CONFIG.apiKey){err.textContent='Falta pegar los datos de Firebase en este archivo.';return;}
+   try{await conectar(u,p);}catch(e){err.textContent=(e&&e.code==='auth/invalid-credential')?'Usuario o contraseña incorrectos.':'No se pudo conectar ('+((e&&e.code)||'error')+').';return;}
+   rol=modo;cerrar();$('#abrir').style.display='none';
+   if(modo==='pantalla'){escuchar();}
+   else{$('#mando').classList.add('on');pinta();enviar({slide:idx,pointer:false});}
+  };
+  d.querySelector('#c-pantalla').onclick=()=>entrar('pantalla');
+  d.querySelector('#c-mando').onclick=()=>entrar('control');
+ }
+ $('#abrir').onclick=abrirPanel;
+ $('#m-sig').onclick=()=>{idx=Math.min(slides.length-1,idx+1);pinta();enviar({slide:idx});};
+ $('#m-atras').onclick=()=>{idx=Math.max(0,idx-1);pinta();enviar({slide:idx});};
+ $('#m-salir').onclick=()=>{$('#mando').classList.remove('on');$('#abrir').style.display='';rol=null;enviar({pointer:false});};
+ const pad=$('#pad');
+ const mover=e=>{const t=e.touches?e.touches[0]:e,r=pad.getBoundingClientRect();
+  const px=Math.min(1,Math.max(0,(t.clientX-r.left)/r.width)),py=Math.min(1,Math.max(0,(t.clientY-r.top)/r.height));
+  enviar({px,py,pointer:true});};
+ pad.addEventListener('touchstart',e=>{e.preventDefault();pad.classList.add('activo');mover(e);},{passive:false});
+ pad.addEventListener('touchmove',e=>{e.preventDefault();mover(e);},{passive:false});
+ pad.addEventListener('touchend',()=>{pad.classList.remove('activo');enviar({pointer:false});});
+ pad.addEventListener('mousedown',e=>{pad.classList.add('activo');mover(e);
+  const mv=ev=>mover(ev),up=()=>{pad.classList.remove('activo');enviar({pointer:false});document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});
+})();
+
+
 
 <\/script>
 </body>
@@ -4639,7 +5290,7 @@ p{font-size:clamp(15px,1.75vw,21px);line-height:1.55;margin:0 0 14px;max-width:5
 </script>
 <script>
 (function(){
- var nombres={'pms':'Sistema de recepción','tablero':'Tablero de notas','plantillas':'Mis plantillas','clase-plantillas':'Clase: plantillas','quiz':'Taller diagnóstico','carpetas':'La Carpeta Caótica','formatos':'Clase: formatos y nombres','pres':'Presentación del módulo'};
+ var nombres={'pms':'Sistema de recepción','clase-pms':'Cómo funciona tu recepción','tablero':'Tablero de notas','plantillas':'Mis plantillas','clase-plantillas':'Clase: plantillas','quiz':'Taller diagnóstico','carpetas':'La Carpeta Caótica','formatos':'Clase: formatos y nombres','pres':'Presentación del módulo'};
  var visor=document.getElementById('visor'),marco=document.getElementById('marco'),titulo=document.getElementById('titulo');
  function abrir(k){
   var t=document.getElementById('app-'+k);if(!t)return;
